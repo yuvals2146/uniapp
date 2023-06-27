@@ -28,7 +28,7 @@ const provider = new ethers.providers.JsonRpcProvider(process.env.ARB_RPC_URL);
 
 // V3 standard addresses (different for celo)
 const factory = process.env.FACTORY_ADDRESS;
-const NFTmanager = process.env.NFT_MANAGER_ADDRESS;
+const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 
 async function getData(tokenID) {
   var FactoryContract = new ethers.Contract(
