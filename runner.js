@@ -1,3 +1,3 @@
-const { getPostionData } = require("./testFees.js");
+const { getPostionData } = require("./getPostionData.js");
 
 getPostionData(1);
