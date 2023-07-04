@@ -49,6 +49,7 @@ const factory = process.env.FACTORY_ADDRESS;
 const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
+
 async function getData(tokenID) {
   var FactoryContract = new ethers.Contract(
     factory,
