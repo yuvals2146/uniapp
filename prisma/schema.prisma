@@ -11,14 +11,15 @@ datasource db {
 }
 
 model PoolInfo {
-  id          Int  @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  feesToken0  Float     
-  feesToken1  Float
-  priceToken0 Float 
-  priceToken1 Float 
-  pair        String
-  liquidity   Float
-  poolId      Int?
-
+  id                    Int  @id @default(autoincrement())
+  createdAt             DateTime @default(now())
+  poolId                Int
+  pair                  String
+  liquidityToken0       Float
+  liquidityToken1       Float     
+  feesToken0            Float
+  feesToken1            Float 
+  priceToken0           Float
+  etherUsdExchangeRate  Float
+  ArbitUsdExchangeRate  Float
 }
