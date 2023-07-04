@@ -1,4 +1,4 @@
-const { getPostionData } = require("./getPostionData.js");
+const { getPostionData,getPoolexchangeRate } = require("./getPostionData.js");
 const {
   savePositionDataRedis,
   savePositionDataSQL,
@@ -7,15 +7,16 @@ const { queryTheGraph } = require("./queryTheGraph.js");
 
 
 async function main() {
-  const poolId = 482139;
+  const poolId = 689765;
+  const etherUsdExchangeRate = await getPoolexchangeRate(process.env.ETHER_USDC_POOL_ADDRESS);
+  const ArbitUsdExchangeRate = await getPoolexchangeRate(process.env.ARB_USDC_POOL_ADDRESS);
+  
   const postionDataFromContract = await getPostionData(poolId);
 
-  //await savePositionDataSQL(postionData, poolId);
+  await savePositionDataSQL(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId);
 
-  const postionDataFromTheGraph = await queryTheGraph(poolId);
+  //const postionDataFromTheGraph = await queryTheGraph(poolId);
 
-  console.log("postionDataFromContract: ", postionDataFromContract);
-  console.log("postionDataFromTheGraph: ", postionDataFromTheGraph);
 }
 
 main();
