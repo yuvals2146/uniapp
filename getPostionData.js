@@ -3,6 +3,10 @@ const { JSBI } = require("@uniswap/sdk");
 const { ethers } = require("ethers");
 const fs = require("fs");
 
+const ZERO = JSBI.BigInt(0);
+const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
+const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
+
 // ERC20 json abi file
 let ERC20Abi = fs.readFileSync("abis/ERC20.json");
 const ERC20 = JSON.parse(ERC20Abi);
@@ -19,16 +23,31 @@ const IUniswapV3FactoryABI = JSON.parse(facto);
 let NFT = fs.readFileSync("abis/UniV3NFT.json");
 const IUniswapV3NFTmanagerABI = JSON.parse(NFT);
 
+let quoterAbi = fs.readFileSync("abis/QUOTER.json");
+const IUniswapQuoterABI = JSON.parse(quoterAbi);
+
 if (process.env.ARB_RPC_URL === undefined) {
-  console.log("Please set your environment variables and try again");
+  console.log(
+    "Please set ARB_RPC_URL in your environment variables and try again"
+  );
   process.exit(1);
 }
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.ARB_RPC_URL);
 
-// V3 standard addresses (different for celo)
+// V3 standard addresses
+if (
+  process.env.FACTORY_ADDRESS === undefined ||
+  process.env.NFTMANAGER_ADDRESS === undefined
+) {
+  console.log(
+    "Please set FACTORY_ADDRESS and NFTMANAGER_ADDRESS environment variables and try again"
+  );
+  process.exit(1);
+}
 const factory = process.env.FACTORY_ADDRESS;
-const NFTmanager = process.env.NFT_MANAGER_ADDRESS;
+const NFTmanager = process.env.NFTMANAGER_ADDRESS;
+const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
 async function getData(tokenID) {
   var FactoryContract = new ethers.Contract(
@@ -42,6 +61,7 @@ async function getData(tokenID) {
     IUniswapV3NFTmanagerABI,
     provider
   );
+
   var position = await NFTContract.positions(tokenID);
 
   var token0contract = new ethers.Contract(position.token0, ERC20, provider);
@@ -57,6 +77,7 @@ async function getData(tokenID) {
     position.token1,
     position.fee
   );
+
   var poolContract = new ethers.Contract(V3pool, IUniswapV3PoolABI, provider);
 
   var slot0 = await poolContract.slot0();
@@ -87,12 +108,18 @@ async function getData(tokenID) {
     sqrtPriceX96: slot0.sqrtPriceX96.toString(),
   };
 
+  const [token0, token1, fee] = await Promise.all([
+    poolContract.token0(),
+    poolContract.token1(),
+    poolContract.fee(),
+  ]);
+
+  // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
+  getQuote(token0, token1, fee, "100000", 0);
+
+  console.log("PoolInfo", PoolInfo);
   return PoolInfo;
 }
-
-const ZERO = JSBI.BigInt(0);
-const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
-const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 
 function toBigNumber(numstr) {
   let bi = numstr;
@@ -186,12 +213,12 @@ async function getFees(
     (liquidity * subIn256(fr_t1_0, feeGrowthInsideLast_0)) / Q128;
   let uncollectedFees_1 =
     (liquidity * subIn256(fr_t1_1, feeGrowthInsideLast_1)) / Q128;
-  console.log(
-    "Amount fees token 0 in lowest decimal: " + Math.floor(uncollectedFees_0)
-  );
-  console.log(
-    "Amount fees token 1 in lowest decimal: " + Math.floor(uncollectedFees_1)
-  );
+  //console.log(
+  //  "Amount fees token 0 in lowest decimal: " + Math.floor(uncollectedFees_0)
+  //);
+  //console.log(
+  // "Amount fees token 1 in lowest decimal: " + Math.floor(uncollectedFees_1)
+  //);
 
   let uncollectedFeesAdjusted_0 = (
     uncollectedFees_0 / toBigNumber(10 ** decimals0)
@@ -200,14 +227,20 @@ async function getFees(
     uncollectedFees_1 / toBigNumber(10 ** decimals1)
   ).toFixed(decimals1);
 
-  console.log("Amount fees token 0 Human format: " + uncollectedFeesAdjusted_0);
-  console.log("Amount fees token 1 Human format: " + uncollectedFeesAdjusted_1);
+  //console.log("Amount fees token 0 Human format: " + uncollectedFeesAdjusted_0);
+  //console.log("Amount fees token 1 Human format: " + uncollectedFeesAdjusted_1);
+  const fees = {
+    feesToken0: uncollectedFeesAdjusted_0,
+    feesToken1: uncollectedFeesAdjusted_1,
+  };
+  //console.log("fees: ", fees);
+  return fees;
 }
 
 async function getPostionData(positionID) {
   var PoolInfo = await getData(positionID);
 
-  var Fees = await getFees(
+  const fees = await getFees(
     PoolInfo.feeGrowthGlobal0X128,
     PoolInfo.feeGrowthGlobal1X128,
     PoolInfo.feeGrowth0Low,
@@ -224,9 +257,18 @@ async function getPostionData(positionID) {
     PoolInfo.tickCurrent,
     PoolInfo.sqrtPriceX96
   );
-  console.log(PoolInfo);
-  console.log("\n \n sqr " + PoolInfo.sqrtPriceX96);
-  await calcPairRate(PoolInfo);
+  //console.log("\n\n\n\n\nfees:", fees);
+  //console.log("\n \n sqr " + PoolInfo.sqrtPriceX96);
+  const pairRates = await calcPairRate(PoolInfo);
+  const data = {
+    feesToken0: fees.feesToken0,
+    feesToken1: fees.feesToken1,
+    priceToken0: pairRates.buyOneOfToken0,
+    priceToken1: pairRates.buyOneOfToken1,
+    pair: PoolInfo.Pair,
+    liquidity: PoolInfo.liquidity,
+  };
+  return data;
 }
 
 async function calcPairRate(PoolInfo) {
@@ -239,13 +281,13 @@ async function calcPairRate(PoolInfo) {
     (10 ** Decimal1 / 10 ** Decimal0).toFixed(Decimal1);
 
   const buyOneOfToken1 = (1 / buyOneOfToken0).toFixed(Decimal0);
-  console.log(
-    "price of token0 in value of token1 : " + buyOneOfToken0.toString()
-  );
-  console.log(
-    "price of token1 in value of token0 : " + buyOneOfToken1.toString()
-  );
-  console.log("");
+  //console.log(
+  // "price of token0 in value of token1 : " + buyOneOfToken0.toString()
+  //);
+  //console.log(
+  //  "price of token1 in value of token0 : " + buyOneOfToken1.toString()
+  //);
+  //console.log("");
   // Convert to wei
   const buyOneOfToken0Wei = Math.floor(
     buyOneOfToken0 * 10 ** Decimal1
@@ -253,17 +295,44 @@ async function calcPairRate(PoolInfo) {
   const buyOneOfToken1Wei = Math.floor(
     buyOneOfToken1 * 10 ** Decimal0
   ).toLocaleString("fullwide", { useGrouping: false });
-  console.log(
-    "price of token0 in value of token1 in lowest decimal : " +
-      buyOneOfToken0Wei
-  );
-  console.log(
-    "price of token1 in value of token1 in lowest decimal : " +
-      buyOneOfToken1Wei
-  );
-  console.log("");
+  //console.log(
+  //  "price of token0 in value of token1 in lowest decimal : " +
+  //    buyOneOfToken0Wei
+  // );
+  //console.log(
+  //  "price of token1 in value of token1 in lowest decimal : " +
+  //    buyOneOfToken1Wei
+  //);
+  const pairRates = {
+    buyOneOfToken0: buyOneOfToken0Wei,
+    buyOneOfToken1: buyOneOfToken1Wei,
+  };
+  return pairRates;
 }
 
+const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
+  const quoterContract = new ethers.Contract(
+    quoter,
+    IUniswapQuoterABI,
+    provider
+  );
+
+  console.log("here!!");
+  console.log("fee: ", fee);
+  console.log("tolekn0: ", token0);
+  console.log("tolekn1: ", token1);
+  console.log("amountIn: ", amountIn);
+  console.log("sqrtPriceLimitX96: ", sqrtPriceLimitX96);
+
+  const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
+    token0,
+    token1,
+    fee,
+    amountIn,
+    sqrtPriceLimitX96
+  );
+  console.log("quotedAmountOut: ", quotedAmountOut.toNumber());
+};
 module.exports = {
-  getPostionData
+  getPostionData,
 };
