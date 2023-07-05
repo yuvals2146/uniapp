@@ -22,4 +22,5 @@ model PoolInfo {
   priceToken0           Float
   etherUsdExchangeRate  Float
   ArbitUsdExchangeRate  Float
+  blockNumber           Int
 }
