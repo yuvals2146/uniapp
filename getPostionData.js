@@ -354,6 +354,11 @@ const getPoolexchangeRate = async (poolAddress) => {
   return price;
 }
 
+const getCurrentBlockNumber = async () => {
+  const blockNumber = await provider.getBlockNumber();
+  console.log("blockNumber", blockNumber)
+  return blockNumber;
+}
 async function getTokenAmounts(liquidity,sqrtPriceX96,tickLow,tickHigh,Decimal0,Decimal1){
   let sqrtRatioA = Math.sqrt(1.0001**tickLow);
   let sqrtRatioB = Math.sqrt(1.0001**tickHigh);
@@ -381,5 +386,6 @@ async function getTokenAmounts(liquidity,sqrtPriceX96,tickLow,tickHigh,Decimal0,
 
 module.exports = {
   getPostionData,
-  getPoolexchangeRate
+  getPoolexchangeRate,
+  getCurrentBlockNumber,
 };
