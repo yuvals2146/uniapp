@@ -1,10 +1,16 @@
 const { createClient } = require("redis");
 const { PrismaClient } = require("@prisma/client");
 
-async function savePositionDataSQL(positionData,etherUsdExchangeRate,ArbitUsdExchangeRate ,poolId, blockNumber) {
+async function savePositionDataSQL(
+  positionData,
+  etherUsdExchangeRate,
+  ArbitUsdExchangeRate,
+  poolId,
+  blockNumber
+) {
   const prisma = new PrismaClient();
   console.log("Saving position data to SQL", positionData);
-  const poolInfo = await prisma.poolInfo.create({
+  const PositionInfo = await prisma.PositionInfo.create({
     data: {
       poolId: poolId,
       pair: positionData.pair,
@@ -19,7 +25,7 @@ async function savePositionDataSQL(positionData,etherUsdExchangeRate,ArbitUsdExc
     },
   });
 
-  console.log("Created poolInfo: ", poolInfo);
+  console.log("Created PositionInfo: ", PositionInfo);
 }
 
 async function savePositionDataRedis(positionData) {

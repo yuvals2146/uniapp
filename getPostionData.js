@@ -9,8 +9,8 @@ const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
 const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 const MIN_TICK = -887272;
 const MAX_TICK = 887272;
-function getTickAtSqrtRatio(sqrtPriceX96){
-  let tick = Math.floor(Math.log((sqrtPriceX96/Q96)**2)/Math.log(1.0001));
+function getTickAtSqrtRatio(sqrtPriceX96) {
+  let tick = Math.floor(Math.log((sqrtPriceX96 / Q96) ** 2) / Math.log(1.0001));
   return tick;
 }
 // ERC20 json abi file
@@ -55,7 +55,6 @@ const factory = process.env.FACTORY_ADDRESS;
 const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
-
 async function getData(tokenID) {
   var FactoryContract = new ethers.Contract(
     factory,
@@ -96,7 +95,7 @@ async function getData(tokenID) {
 
   var pairName = token0sym + "/" + token1sym;
 
-  var PoolInfo = {
+  var PositionInfo = {
     Pair: pairName,
     Decimal0: Decimal0,
     Decimal1: Decimal1,
@@ -124,8 +123,8 @@ async function getData(tokenID) {
   // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
   getQuote(token0, token1, fee, "100000", 0);
 
-  console.log("PoolInfo", PoolInfo);
-  return PoolInfo;
+  console.log("PositionInfo", PositionInfo);
+  return PositionInfo;
 }
 
 function toBigNumber(numstr) {
@@ -245,45 +244,54 @@ async function getFees(
 }
 
 async function getPostionData(positionID) {
-  var PoolInfo = await getData(positionID);
+  var PositionInfo = await getData(positionID);
 
   const fees = await getFees(
-    PoolInfo.feeGrowthGlobal0X128,
-    PoolInfo.feeGrowthGlobal1X128,
-    PoolInfo.feeGrowth0Low,
-    PoolInfo.feeGrowth0Hi,
-    PoolInfo.feeGrowthInside0LastX128,
-    PoolInfo.feeGrowth1Low,
-    PoolInfo.feeGrowth1Hi,
-    PoolInfo.feeGrowthInside1LastX128,
-    PoolInfo.liquidity,
-    PoolInfo.Decimal0,
-    PoolInfo.Decimal1,
-    PoolInfo.tickLow,
-    PoolInfo.tickHigh,
-    PoolInfo.tickCurrent,
-    PoolInfo.sqrtPriceX96
+    PositionInfo.feeGrowthGlobal0X128,
+    PositionInfo.feeGrowthGlobal1X128,
+    PositionInfo.feeGrowth0Low,
+    PositionInfo.feeGrowth0Hi,
+    PositionInfo.feeGrowthInside0LastX128,
+    PositionInfo.feeGrowth1Low,
+    PositionInfo.feeGrowth1Hi,
+    PositionInfo.feeGrowthInside1LastX128,
+    PositionInfo.liquidity,
+    PositionInfo.Decimal0,
+    PositionInfo.Decimal1,
+    PositionInfo.tickLow,
+    PositionInfo.tickHigh,
+    PositionInfo.tickCurrent,
+    PositionInfo.sqrtPriceX96
   );
   //console.log("\n\n\n\n\nfees:", fees);
-  //console.log("\n \n sqr " + PoolInfo.sqrtPriceX96);
-  const pairRates = await calcPairRate(PoolInfo);
-  [liquidityToken0, liquidityToken1] = await getTokenAmounts(PoolInfo.liquidity,PoolInfo.sqrtPriceX96,PoolInfo.tickLow,PoolInfo.tickHigh,PoolInfo.Decimal0,PoolInfo.Decimal1);
+  //console.log("\n \n sqr " + PositionInfo.sqrtPriceX96);
+  const pairRates = await calcPairRate(PositionInfo);
+  [liquidityToken0, liquidityToken1] = await getTokenAmounts(
+    PositionInfo.liquidity,
+    PositionInfo.sqrtPriceX96,
+    PositionInfo.tickLow,
+    PositionInfo.tickHigh,
+    PositionInfo.Decimal0,
+    PositionInfo.Decimal1
+  );
   const data = {
     feesToken0: fees.feesToken0,
     feesToken1: fees.feesToken1,
     priceToken0: pairRates.buyOneOfToken0,
-    pair: PoolInfo.Pair,
+    pair: PositionInfo.Pair,
     liquidityToken0: liquidityToken0,
     liquidityToken1: liquidityToken1,
+    tickLeft: PositionInfo.tickLow,
+    tickRight: PositionInfo.tickHigh,
   };
   console.log("data: ", data);
   return data;
 }
 
-async function calcPairRate(PoolInfo) {
-  let sqrtPriceX96 = PoolInfo.sqrtPriceX96;
-  let Decimal0 = PoolInfo.Decimal0;
-  let Decimal1 = PoolInfo.Decimal1;
+async function calcPairRate(PositionInfo) {
+  let sqrtPriceX96 = PositionInfo.sqrtPriceX96;
+  let Decimal0 = PositionInfo.Decimal0;
+  let Decimal1 = PositionInfo.Decimal1;
 
   const buyOneOfToken0 =
     (sqrtPriceX96 / 2 ** 96) ** 2 /
@@ -326,14 +334,11 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     provider
   );
 
-  console.log("here!!");
   console.log("fee: ", fee);
   console.log("tolekn0: ", token0);
   console.log("tolekn1: ", token1);
   console.log("amountIn: ", amountIn);
   console.log("sqrtPriceLimitX96: ", sqrtPriceLimitX96);
-
-
 
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     token0,
@@ -346,42 +351,57 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
 };
 
 const getPoolexchangeRate = async (poolAddress) => {
-  const poolContract = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
-  const poolInfo = await poolContract.slot0();
-  const sqrtPriceX96 = poolInfo.sqrtPriceX96;
-  const price = (sqrtPriceX96 / 2 ** 96) ** 2 * (10 ** 12);
-  console.log("price: ", price)
+  const poolContract = new ethers.Contract(
+    poolAddress,
+    IUniswapV3PoolABI,
+    provider
+  );
+  const PositionInfo = await poolContract.slot0();
+  const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
+  const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
+  console.log("price: ", price);
   return price;
-}
+};
 
 const getCurrentBlockNumber = async () => {
   const blockNumber = await provider.getBlockNumber();
-  console.log("blockNumber", blockNumber)
+  console.log("blockNumber", blockNumber);
   return blockNumber;
-}
-async function getTokenAmounts(liquidity,sqrtPriceX96,tickLow,tickHigh,Decimal0,Decimal1){
-  let sqrtRatioA = Math.sqrt(1.0001**tickLow);
-  let sqrtRatioB = Math.sqrt(1.0001**tickHigh);
-  
+};
+async function getTokenAmounts(
+  liquidity,
+  sqrtPriceX96,
+  tickLow,
+  tickHigh,
+  Decimal0,
+  Decimal1
+) {
+  let sqrtRatioA = Math.sqrt(1.0001 ** tickLow);
+  let sqrtRatioB = Math.sqrt(1.0001 ** tickHigh);
+
+  console.log("sqrtRatioA:", sqrtRatioA, ", sqrtRatioB:", sqrtRatioB);
+
   let currentTick = getTickAtSqrtRatio(sqrtPriceX96);
   let sqrtPrice = sqrtPriceX96 / Q96;
-  
+
   let amount0wei = 0;
   let amount1wei = 0;
-  if(currentTick <= tickLow){
-      amount0wei = Math.floor(liquidity*((sqrtRatioB-sqrtRatioA)/(sqrtRatioA*sqrtRatioB)));
+  if (currentTick <= tickLow) {
+    amount0wei = Math.floor(
+      liquidity * ((sqrtRatioB - sqrtRatioA) / (sqrtRatioA * sqrtRatioB))
+    );
+  } else if (currentTick > tickHigh) {
+    amount1wei = Math.floor(liquidity * (sqrtRatioB - sqrtRatioA));
+  } else if (currentTick >= tickLow && currentTick < tickHigh) {
+    amount0wei = Math.floor(
+      liquidity * ((sqrtRatioB - sqrtPrice) / (sqrtPrice * sqrtRatioB))
+    );
+    amount1wei = Math.floor(liquidity * (sqrtPrice - sqrtRatioA));
   }
-  else if(currentTick > tickHigh){
-      amount1wei = Math.floor(liquidity*(sqrtRatioB-sqrtRatioA));
-  }
-  else if(currentTick >= tickLow && currentTick < tickHigh){ 
-      amount0wei = Math.floor(liquidity*((sqrtRatioB-sqrtPrice)/(sqrtPrice*sqrtRatioB)));
-      amount1wei = Math.floor(liquidity*(sqrtPrice-sqrtRatioA));
-  }
-  
-  let amount0Human = (Math.abs(amount0wei/(10**Decimal0))).toFixed(Decimal0);
-  let amount1Human = (Math.abs(amount1wei/(10**Decimal1))).toFixed(Decimal1);
-  return [amount0Human, amount1Human]
+
+  let amount0Human = Math.abs(amount0wei / 10 ** Decimal0).toFixed(Decimal0);
+  let amount1Human = Math.abs(amount1wei / 10 ** Decimal1).toFixed(Decimal1);
+  return [amount0Human, amount1Human];
 }
 
 module.exports = {
