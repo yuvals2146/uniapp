@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "PoolInfo" (
+CREATE TABLE "PositionInfo" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "poolId" INTEGER NOT NULL,
@@ -13,5 +13,5 @@ CREATE TABLE "PoolInfo" (
     "ArbitUsdExchangeRate" DOUBLE PRECISION NOT NULL,
     "blockNumber" INTEGER NOT NULL,
 
-    CONSTRAINT "PoolInfo_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PositionInfo_pkey" PRIMARY KEY ("id")
 );

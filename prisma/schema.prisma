@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model PoolInfo {
+model PositionInfo {
   id                    Int  @id @default(autoincrement())
   createdAt             DateTime @default(now())
   poolId                Int
