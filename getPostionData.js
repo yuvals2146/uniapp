@@ -283,6 +283,7 @@ async function getPostionData(positionID) {
     liquidityToken1: liquidityToken1,
     tickLeft: PositionInfo.tickLow,
     tickRight: PositionInfo.tickHigh,
+    tickCurr: PositionInfo.tickCurrent,
   };
   console.log("data: ", data);
   return data;
@@ -408,4 +409,5 @@ module.exports = {
   getPostionData,
   getPoolexchangeRate,
   getCurrentBlockNumber,
+  getTickAtSqrtRatio,
 };
