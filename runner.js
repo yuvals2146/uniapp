@@ -11,9 +11,20 @@ const { queryTheGraph } = require("./queryTheGraph.js");
 // const { notifiy, initNotifer } = require("./notifer.js");
 const { checkForAlerts } = require("./alerts.js");
 const { analyzeDataPoint } = require("./engine/core_module.js");
+const logger = require("./logger.js");
+
+
+
+const init = async () => {
+  //await initNotifer();
+  await logger.initLogger();
+  logger.debug('debug','debug');
+  logger.info('init done');
+  logger.error('error!');
+}
 
 async function main() {
-  // initNotifer();
+  await init();
   const poolId = 689765;
   const etherUsdExchangeRate = await getPoolexchangeRate(
     process.env.ETHER_USDC_POOL_ADDRESS
@@ -37,3 +48,9 @@ async function main() {
     loop();
   }, process.env.INTERVAL);
 })();
+
+
+
+
+
+

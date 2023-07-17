@@ -1,5 +1,6 @@
 const { createClient } = require("redis");
 const { PrismaClient } = require("@prisma/client");
+const logger = require("./logger.js");
 
 async function savePositionDataSQL(
   positionData,
@@ -9,7 +10,7 @@ async function savePositionDataSQL(
   blockNumber
 ) {
   const prisma = new PrismaClient();
-  console.log("Saving position data to SQL", positionData);
+  logger.info("Saving position data to SQL", positionData);
   const PositionInfo = await prisma.PositionInfo.create({
     data: {
       poolId: poolId,
@@ -25,23 +26,23 @@ async function savePositionDataSQL(
     },
   });
 
-  console.log("Created PositionInfo: ", PositionInfo);
+  logger.info("Created PositionInfo: ", PositionInfo);
 }
 
 async function savePositionDataRedis(positionData) {
   const client = createClient();
 
-  client.on("error", (err) => console.log("Redis Client Error", err));
+  client.on("error", (err) => logger.error("Redis Client Error", err));
 
   await client.connect();
 
-  console.log("TEST", positionData);
+  logger.info("TEST", positionData);
   await client.hSet("unihedge", {
     pair: positionData.Pair,
   });
 
   let userSession = await client.hGetAll("unihedge");
-  console.log(JSON.stringify(userSession, null, 2));
+  logger.log('Dany change my name :)',JSON.stringify(userSession, null, 2));
 }
 
 module.exports = {
