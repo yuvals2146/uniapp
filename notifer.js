@@ -1,4 +1,5 @@
 const { Client } = require('whatsapp-web.js');
+const push = require( 'pushover-notifications' )
 const qrcode = require('qrcode-terminal');
 const {poolAboveTreshold, poolBelowTrashhold, USDCIsBelowTreshold} = require('./alertsTemplates.js');
 require("dotenv").config();
