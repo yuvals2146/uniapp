@@ -11,7 +11,8 @@ datasource db {
 }
 
 model Position {
-  id                    Int  @id @default(autoincrement())
+  id                    Int  @id
+  dataPoints            PositionInfo[]
 }
 
 model PositionInfo {
@@ -19,7 +20,6 @@ model PositionInfo {
   positionId            Position @relation(fields: [inter_pos_id], references: [id])
   inter_pos_id          Int 
   createdAt             DateTime @default(now())
-  poolId                Int
   pair                  String
   liquidityToken0       Float
   liquidityToken1       Float     
