@@ -64,9 +64,6 @@ const whatsappNotify = async (text,title) => {
 }
 
 const botAddNewPosition = async (position) => {
-   
-   
-   
     whatsappNotify('*adding position*', 'what is the position number?');
 };
 
@@ -82,10 +79,8 @@ client.on('message', message => {
 
 const notifiy = async (text,title) => {
   //const msg = "this is anautmated message: \n" + "please check pool, pool id: 689765 \n" + "reach upper trashold \n" + "reach lower trashold \n" + "https://app.uniswap.org/#/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-  const msg = poolAboveTreshold(2,1,123456);
-  client.on('message', message => {
-  client.sendMessage(process.env.WHATSAPP_USER_DANY, msg);
-  });
+  pushoverNotify(text,title);
+  whatsappNotify(text,title);
 }
 
 module.exports = {
