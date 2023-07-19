@@ -274,6 +274,7 @@ async function getPostionData(positionID) {
     liquidityToken1: liquidityToken1,
     tickLeft: PositionInfo.tickLow,
     tickRight: PositionInfo.tickHigh,
+    tickCurr: PositionInfo.tickCurrent,
   };
   logger.info("data: ", data);
   return data;
@@ -308,13 +309,13 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     IUniswapQuoterABI,
     provider
   );
-
+  
   logger.info("fee: ", fee);
   logger.info("tolekn0: ", token0);
   logger.info("tolekn1: ", token1);
   logger.info("amountIn: ", amountIn);
   logger.info("sqrtPriceLimitX96: ", sqrtPriceLimitX96);
-
+  
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     token0,
     token1,
@@ -335,6 +336,7 @@ const getPoolexchangeRate = async (poolAddress) => {
   const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
   const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
   logger.info("price", price);
+
   return price;
 };
 
@@ -384,4 +386,5 @@ module.exports = {
   getPostionData,
   getPoolexchangeRate,
   getCurrentBlockNumber,
+  getTickAtSqrtRatio,
 };

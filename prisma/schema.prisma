@@ -10,8 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Position {
+  id                    Int  @id @default(autoincrement())
+}
+
 model PositionInfo {
   id                    Int  @id @default(autoincrement())
+  positionId            Position @relation(fields: [inter_pos_id], references: [id])
+  inter_pos_id          Int 
   createdAt             DateTime @default(now())
   poolId                Int
   pair                  String

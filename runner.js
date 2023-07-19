@@ -13,7 +13,13 @@ const { checkForAlerts } = require("./alerts.js");
 const { analyzeDataPoint } = require("./engine/core_module.js");
 const logger = require("./logger.js");
 
-
+const init = async () => {
+  //await initNotifer();
+  await logger.initLogger();
+  logger.debug("debug", "debug");
+  logger.info("init done");
+  logger.error("error!");
+};
 
 const init = async () => {
   //await initNotifer();
@@ -25,7 +31,7 @@ const init = async () => {
 
 async function main() {
   await init();
-  const poolId = 689765;
+  const positionId = process.env.POSITION_ID;
   const etherUsdExchangeRate = await getPoolexchangeRate(
     process.env.ETHER_USDC_POOL_ADDRESS
   );
@@ -48,9 +54,3 @@ async function main() {
     loop();
   }, process.env.INTERVAL);
 })();
-
-
-
-
-
-
