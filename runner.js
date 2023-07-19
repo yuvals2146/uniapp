@@ -8,7 +8,12 @@ const {
   savePositionDataSQL,
 } = require("./savePositionData.js");
 const { queryTheGraph } = require("./queryTheGraph.js");
-const { notifiy, initNotifer, pushoverNotify } = require("./notifer.js");
+const {
+  notifiy,
+  initNotifer,
+  pushoverNotify,
+  isNotifierReady,
+} = require("./notifer.js");
 const { checkForAlerts } = require("./alerts.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
 const logger = require("./logger.js");
@@ -53,6 +58,7 @@ async function data_routine() {
 
 (function loop() {
   setTimeout(() => {
+    if (isNotifierReady()) data_routine();
     data_routine();
 
     loop();

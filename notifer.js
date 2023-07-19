@@ -11,6 +11,7 @@ const logger = require("./logger.js");
 
 const client = new Client();
 let pushover;
+let notifierIsReady = false;
 
 const initNotifer = async () => {
   if (
@@ -41,7 +42,24 @@ const initNotifer = async () => {
   }
 };
 
-initNotifer();
+    client.on("qr", (qr) => {
+      qrcode.generate(qr, { small: true });
+    });
+
+    client.on("ready", () => {
+      console.log("Client is ready!");
+      notifierIsReady = true;
+    });
+
+    client.initialize();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const isNotifierReady = () => {
+  return notifierIsReady;
+};
 
 const pushoverNotify = async (text, title) => {
   var msg = {
@@ -77,13 +95,17 @@ client.on("message", (message) => {
   }
 });
 
+
 const notifiy = async (text, title) => {
   pushoverNotify(text, title);
   whatsappNotify(text, title);
 };
 
+initNotifer();
+
 module.exports = {
   notifiy,
   initNotifer,
+  isNotifierReady,
   pushoverNotify,
 };
