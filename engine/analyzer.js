@@ -1,5 +1,6 @@
 const { getPostionData, getTickAtSqrtRatio } = require("../getPostionData.js");
 const { notify } = require("../notifer.js");
+const { logger } = require("../logger.js");
 
 async function analyzeDataPoint(
   positionData
@@ -22,8 +23,11 @@ async function analyzeDataPoint(
     positionData.currPrice >= positionData.tickRight ||
     positionData.currPrice <= positionData.tickLeft
   ) {
-    console.log("notify - close position and hop?");
-    await notify();
+    logger.info("Position Out of Limits", positionData.currPrice);
+    await notify(
+      `Position Out of Limits: ${positionData.currPrice}`,
+      "*Title*"
+    );
   }
 
   // check position lifetime
