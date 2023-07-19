@@ -2,6 +2,7 @@ require("dotenv").config();
 const { JSBI } = require("@uniswap/sdk");
 const { ethers } = require("ethers");
 const fs = require("fs");
+const logger = require("./logger.js");
 
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
@@ -33,7 +34,7 @@ let quoterAbi = fs.readFileSync("abis/QUOTER.json");
 const IUniswapQuoterABI = JSON.parse(quoterAbi);
 
 if (process.env.ARB_RPC_URL === undefined) {
-  console.log(
+  logger.error(
     "Please set ARB_RPC_URL in your environment variables and try again"
   );
   process.exit(1);
@@ -46,7 +47,7 @@ if (
   process.env.FACTORY_ADDRESS === undefined ||
   process.env.NFTMANAGER_ADDRESS === undefined
 ) {
-  console.log(
+  logger.error(
     "Please set FACTORY_ADDRESS and NFTMANAGER_ADDRESS environment variables and try again"
   );
   process.exit(1);
@@ -123,7 +124,7 @@ async function getData(tokenID) {
   // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
   getQuote(token0, token1, fee, "100000", 0);
 
-  console.log("PositionInfo", PositionInfo);
+  logger.info("PositionInfo", PositionInfo);
   return PositionInfo;
 }
 
@@ -219,12 +220,6 @@ async function getFees(
     (liquidity * subIn256(fr_t1_0, feeGrowthInsideLast_0)) / Q128;
   let uncollectedFees_1 =
     (liquidity * subIn256(fr_t1_1, feeGrowthInsideLast_1)) / Q128;
-  //console.log(
-  //  "Amount fees token 0 in lowest decimal: " + Math.floor(uncollectedFees_0)
-  //);
-  //console.log(
-  // "Amount fees token 1 in lowest decimal: " + Math.floor(uncollectedFees_1)
-  //);
 
   let uncollectedFeesAdjusted_0 = (
     uncollectedFees_0 / toBigNumber(10 ** decimals0)
@@ -233,13 +228,11 @@ async function getFees(
     uncollectedFees_1 / toBigNumber(10 ** decimals1)
   ).toFixed(decimals1);
 
-  //console.log("Amount fees token 0 Human format: " + uncollectedFeesAdjusted_0);
-  //console.log("Amount fees token 1 Human format: " + uncollectedFeesAdjusted_1);
   const fees = {
     feesToken0: uncollectedFeesAdjusted_0,
     feesToken1: uncollectedFeesAdjusted_1,
   };
-  console.log("fees: ", fees);
+  logger.info( "fees: ", fees);
   return fees;
 }
 
@@ -263,8 +256,6 @@ async function getPostionData(positionID) {
     PositionInfo.tickCurrent,
     PositionInfo.sqrtPriceX96
   );
-  //console.log("\n\n\n\n\nfees:", fees);
-  //console.log("\n \n sqr " + PositionInfo.sqrtPriceX96);
   const pairRates = await calcPairRate(PositionInfo);
   [liquidityToken0, liquidityToken1] = await getTokenAmounts(
     PositionInfo.liquidity,
@@ -283,8 +274,9 @@ async function getPostionData(positionID) {
     liquidityToken1: liquidityToken1,
     tickLeft: PositionInfo.tickLow,
     tickRight: PositionInfo.tickHigh,
+    tickCurr: PositionInfo.tickCurrent,
   };
-  console.log("data: ", data);
+  logger.info("data: ", data);
   return data;
 }
 
@@ -298,28 +290,12 @@ async function calcPairRate(PositionInfo) {
     (10 ** Decimal1 / 10 ** Decimal0).toFixed(Decimal1);
 
   const buyOneOfToken1 = (1 / buyOneOfToken0).toFixed(Decimal0);
-  //console.log(
-  // "price of token0 in value of token1 : " + buyOneOfToken0.toString()
-  //);
-  //console.log(
-  //  "price of token1 in value of token0 : " + buyOneOfToken1.toString()
-  //);
-  //console.log("");
-  // Convert to wei
   const buyOneOfToken0Wei = Math.floor(
     buyOneOfToken0 * 10 ** Decimal1
   ).toLocaleString("fullwide", { useGrouping: false });
   const buyOneOfToken1Wei = Math.floor(
     buyOneOfToken1 * 10 ** Decimal0
   ).toLocaleString("fullwide", { useGrouping: false });
-  //console.log(
-  //  "price of token0 in value of token1 in lowest decimal : " +
-  //    buyOneOfToken0Wei
-  // );
-  //console.log(
-  //  "price of token1 in value of token1 in lowest decimal : " +
-  //    buyOneOfToken1Wei
-  //);
   const pairRates = {
     buyOneOfToken0: buyOneOfToken0Wei,
     buyOneOfToken1: buyOneOfToken1Wei,
@@ -333,13 +309,13 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     IUniswapQuoterABI,
     provider
   );
-
-  console.log("fee: ", fee);
-  console.log("tolekn0: ", token0);
-  console.log("tolekn1: ", token1);
-  console.log("amountIn: ", amountIn);
-  console.log("sqrtPriceLimitX96: ", sqrtPriceLimitX96);
-
+  
+  logger.info("fee: ", fee);
+  logger.info("tolekn0: ", token0);
+  logger.info("tolekn1: ", token1);
+  logger.info("amountIn: ", amountIn);
+  logger.info("sqrtPriceLimitX96: ", sqrtPriceLimitX96);
+  
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     token0,
     token1,
@@ -347,7 +323,7 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     amountIn,
     sqrtPriceLimitX96
   );
-  console.log("quotedAmountOut: ", quotedAmountOut.toNumber());
+  logger.info("quotedAmountOut: ", quotedAmountOut.toNumber());
 };
 
 const getPoolexchangeRate = async (poolAddress) => {
@@ -359,13 +335,14 @@ const getPoolexchangeRate = async (poolAddress) => {
   const PositionInfo = await poolContract.slot0();
   const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
   const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
-  console.log("price: ", price);
+  logger.info("price", price);
+
   return price;
 };
 
 const getCurrentBlockNumber = async () => {
   const blockNumber = await provider.getBlockNumber();
-  console.log("blockNumber", blockNumber);
+  logger.info("blockNumber", blockNumber);
   return blockNumber;
 };
 async function getTokenAmounts(
@@ -379,7 +356,8 @@ async function getTokenAmounts(
   let sqrtRatioA = Math.sqrt(1.0001 ** tickLow);
   let sqrtRatioB = Math.sqrt(1.0001 ** tickHigh);
 
-  console.log("sqrtRatioA:", sqrtRatioA, ", sqrtRatioB:", sqrtRatioB);
+  logger.info("sqrtRatioA:", sqrtRatioA,);
+  logger.info(", sqrtRatioB:", sqrtRatioB);
 
   let currentTick = getTickAtSqrtRatio(sqrtPriceX96);
   let sqrtPrice = sqrtPriceX96 / Q96;
@@ -408,4 +386,5 @@ module.exports = {
   getPostionData,
   getPoolexchangeRate,
   getCurrentBlockNumber,
+  getTickAtSqrtRatio,
 };

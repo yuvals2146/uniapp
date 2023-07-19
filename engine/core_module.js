@@ -1,10 +1,14 @@
+
+const logger = require("../logger.js")
+
 async function analyzeDataPoint(
   positionData,
   etherUsdExchangeRate,
   ArbitUsdExchangeRate,
   blockNumber
 ) {
-  console.log(positionData.tickLow, "\n");
+
+  logger.info('tickLow',positionData.tickLow);
   //   poolId: poolId,
   //   pair: positionData.pair,
   //   liquidityToken0: parseFloat(positionData.liquidityToken0),
