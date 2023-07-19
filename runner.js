@@ -16,14 +16,6 @@ const logger = require("./logger.js");
 const init = async () => {
   //await initNotifer();
   await logger.initLogger();
-  logger.debug("debug", "debug");
-  logger.info("init done");
-  logger.error("error!");
-};
-
-const init = async () => {
-  //await initNotifer();
-  await logger.initLogger();
   logger.debug('debug','debug');
   logger.info('init done');
   logger.error('error!');
