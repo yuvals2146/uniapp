@@ -23,12 +23,10 @@ const logger = require("./logger.js");
 const init = async () => {
   //await initNotifer();
   await logger.initLogger();
-
   saveOrValidateInitPositionInfo(parseInt(process.env.POSITION_ID));
   // validate_positions_db();
   logger.info("init", "done");
 };
-
 init();
 
 async function data_routine() {
