@@ -42,10 +42,9 @@ const queryTheGraph = async (poolId) => {
         result.data.data.position.token1.symbol,
       liquidity: result.data.data.position.liquidity,
     };
-    //console.log("res: \n", res);
     return res;
   } catch (err) {
-    console.log(err);
+    logger.error('error in graph',err);
   }
 };
 

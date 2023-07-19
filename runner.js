@@ -8,9 +8,9 @@ const {
   savePositionDataSQL,
 } = require("./savePositionData.js");
 const { queryTheGraph } = require("./queryTheGraph.js");
-const { notify, initNotifer } = require("./notifer.js");
+// const { notifiy, initNotifer } = require("./notifer.js");
 const { checkForAlerts } = require("./alerts.js");
-const { analyzeDataPoint } = require("./engine/analyzer.js");
+const { analyzeDataPoint } = require("./engine/core_module.js");
 const logger = require("./logger.js");
 
 const init = async () => {
@@ -21,6 +21,14 @@ const init = async () => {
   logger.error("error!");
 };
 
+const init = async () => {
+  //await initNotifer();
+  await logger.initLogger();
+  logger.debug('debug','debug');
+  logger.info('init done');
+  logger.error('error!');
+}
+
 async function main() {
   await init();
   const positionId = process.env.POSITION_ID;
@@ -30,14 +38,13 @@ async function main() {
   const ArbitUsdExchangeRate = await getPoolexchangeRate(
     process.env.ARB_USDC_POOL_ADDRESS
   );
-  const postionDataFromContract = await getPostionData(positionId);
+  const postionDataFromContract = await getPostionData(poolId);
   const currentBlockNumber = await getCurrentBlockNumber();
   analyzeDataPoint(postionDataFromContract);
-
   // await savePositionDataSQL(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId,currentBlockNumber);
   //const postionDataFromTheGraph = await queryTheGraph(poolId);
   //await checkForAlerts(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId);
-  //await notify();
+  //await notifiy();
 }
 
 (function loop() {
