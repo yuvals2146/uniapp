@@ -34,20 +34,6 @@ const initNotifer = async () => {
 
     client.on("ready", () => {
       console.log("Client is ready!");
-    });
-
-    client.initialize();
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-    client.on("qr", (qr) => {
-      qrcode.generate(qr, { small: true });
-    });
-
-    client.on("ready", () => {
-      console.log("Client is ready!");
       notifierIsReady = true;
     });
 
@@ -94,7 +80,6 @@ client.on("message", (message) => {
     botAddNewPosition(message);
   }
 });
-
 
 const notifiy = async (text, title) => {
   pushoverNotify(text, title);

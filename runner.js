@@ -50,16 +50,17 @@ async function data_routine() {
   );
   //const postionDataFromTheGraph = await queryTheGraph(poolId);
   //await checkForAlerts(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId);
-  // await notifiy(
-  //   `price1: ${etherUsdExchangeRate} \n price2: ${ArbitUsdExchangeRate} \n poolId: ${positionId}`,
-  //   "a GOOD message"
-  // );
+  await notifiy(
+    `price1: ${etherUsdExchangeRate} \n price2: ${ArbitUsdExchangeRate} \n poolId: ${positionId}`,
+    "a GOOD message"
+  );
 }
 
 (function loop() {
   setTimeout(() => {
-    if (isNotifierReady()) data_routine();
-    data_routine();
+    if (isNotifierReady()) {
+      data_routine();
+    }
 
     loop();
   }, process.env.INTERVAL);
