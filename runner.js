@@ -21,14 +21,6 @@ const init = async () => {
   logger.error("error!");
 };
 
-const init = async () => {
-  //await initNotifer();
-  await logger.initLogger();
-  logger.debug('debug','debug');
-  logger.info('init done');
-  logger.error('error!');
-}
-
 async function main() {
   await init();
   const positionId = process.env.POSITION_ID;
@@ -38,7 +30,7 @@ async function main() {
   const ArbitUsdExchangeRate = await getPoolexchangeRate(
     process.env.ARB_USDC_POOL_ADDRESS
   );
-  const postionDataFromContract = await getPostionData(poolId);
+  const postionDataFromContract = await getPostionData(positionId);
   const currentBlockNumber = await getCurrentBlockNumber();
   analyzeDataPoint(postionDataFromContract);
   // await savePositionDataSQL(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId,currentBlockNumber);
