@@ -59,6 +59,7 @@ async function data_routine() {
 (function loop() {
   setTimeout(() => {
     if (isNotifierReady()) data_routine();
+    data_routine();
 
     loop();
   }, process.env.INTERVAL);
