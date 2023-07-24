@@ -7,26 +7,21 @@ const {
   saveOrValidateInitPositionInfo,
   savePositionDataSQL,
 } = require("./savePositionData.js");
-const { queryTheGraph } = require("./queryTheGraph.js");
-const {
-  notifiy,
-  initNotifer,
-  pushoverNotify,
-  isNotifierReady,
-} = require("./notifer.js");
-const { checkForAlerts } = require("./alerts.js");
+const { notifiy } = require("./notifer.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
 const logger = require("./logger.js");
 
 // validate_positions_db
 
 const init = async () => {
-  //await initNotifer();
-  await logger.initLogger();
   saveOrValidateInitPositionInfo(parseInt(process.env.POSITION_ID));
-  // validate_positions_db();
   logger.info("init", "done");
+  await notifiy(
+    `unihedge Bot is up and running for position ${process.env.POSITION_ID}`,
+    "🤖🦄 Startup 🤖🦄"
+  );
 };
+
 init();
 
 async function data_routine() {
@@ -50,17 +45,11 @@ async function data_routine() {
   );
   //const postionDataFromTheGraph = await queryTheGraph(poolId);
   //await checkForAlerts(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId);
-  await notifiy(
-    `price1: ${etherUsdExchangeRate} \n price2: ${ArbitUsdExchangeRate} \n poolId: ${positionId}`,
-    "a GOOD message"
-  );
 }
 
 (function loop() {
   setTimeout(() => {
-    if (isNotifierReady()) {
-      data_routine();
-    }
+    data_routine();
 
     loop();
   }, process.env.INTERVAL);
