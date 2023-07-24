@@ -1,21 +1,14 @@
-const { Client } = require("whatsapp-web.js");
 const push = require("pushover-notifications");
-const qrcode = require("qrcode-terminal");
-const {
-  poolAboveTreshold,
-  poolBelowTrashhold,
-  USDCIsBelowTreshold,
-} = require("./alertsTemplates.js");
 require("dotenv").config();
 const logger = require("./logger.js");
 
-const client = new Client();
-let pushover;
-let notifierIsReady = false;
+let pushover_yuval;
+let pushover_dany;
 
 const initNotifer = async () => {
   if (
-    process.env.PUSHOVER_USER === undefined ||
+    process.env.PUSHOVER_YUVAL === undefined ||
+    process.env.PUSHOVER_DANY === undefined ||
     process.env.PUSHOVER_TOKEN === undefined
   ) {
     logger.error("Pushover user or token not defined");
@@ -23,28 +16,17 @@ const initNotifer = async () => {
   }
 
   try {
-    pushover = new push({
-      user: process.env.PUSHOVER_USER,
+    pushover_yuval = new push({
+      user: process.env.PUSHOVER_YUVAL,
       token: process.env.PUSHOVER_TOKEN,
     });
-
-    client.on("qr", (qr) => {
-      qrcode.generate(qr, { small: true });
+    pushover_dany = new push({
+      user: process.env.PUSHOVER_DANY,
+      token: process.env.PUSHOVER_TOKEN,
     });
-
-    client.on("ready", () => {
-      console.log("Client is ready!");
-      notifierIsReady = true;
-    });
-
-    client.initialize();
   } catch (err) {
     console.log(err);
   }
-};
-
-const isNotifierReady = () => {
-  return notifierIsReady;
 };
 
 const pushoverNotify = async (text, title) => {
@@ -56,34 +38,23 @@ const pushoverNotify = async (text, title) => {
     priority: 1,
   };
 
-  pushover.send(msg, function (err, result) {
+  pushover_yuval.send(msg, function (err, result) {
     if (err) {
       console.log(err);
       throw err;
     }
-    console.log(result);
+  });
+
+  pushover_dany.send(msg, function (err, result) {
+    if (err) {
+      console.log(err);
+      throw err;
+    }
   });
 };
 
-const whatsappNotify = async (text, title) => {
-  msg = title + "\n" + text;
-  client.sendMessage(process.env.WHATSAPP_ALERT_GROUP, msg);
-};
-
-const botAddNewPosition = async (position) => {
-  whatsappNotify("*adding position*", "what is the position number?");
-};
-
-client.on("message", (message) => {
-  console.log(message);
-  if (message.body.includes("add new position")) {
-    botAddNewPosition(message);
-  }
-});
-
 const notifiy = async (text, title) => {
   pushoverNotify(text, title);
-  whatsappNotify(text, title);
 };
 
 initNotifer();
@@ -91,6 +62,4 @@ initNotifer();
 module.exports = {
   notifiy,
   initNotifer,
-  isNotifierReady,
-  pushoverNotify,
 };
