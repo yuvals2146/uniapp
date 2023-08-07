@@ -10,7 +10,7 @@ async function saveOrValidateInitPositionInfo(positionId) {
     },
   });
   if (position) {
-    logger.note("Found position ID:", positionId);
+    logger.note("Found position ID", positionId);
     return;
   }
   // if not add it

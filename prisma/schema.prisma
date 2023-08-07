@@ -12,6 +12,12 @@ datasource db {
 
 model Position {
   id                    Int  @id
+  createdAt             DateTime?
+  initValueToken0       Float?
+  initValueToken1       Float?
+  initToken0USDRate     Float?
+  initToken1USDRate     Float?
+  initPriceT1T2         Float?
   dataPoints            PositionInfo[]
 }
 
