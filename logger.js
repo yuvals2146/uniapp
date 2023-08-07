@@ -13,7 +13,7 @@ const debug = async (title, data) => {
   );
 };
 
-const info = async (title = "", data) => {
+const info = async (title = "", ...data) => {
   const date = new Date().toISOString();
   console.log(date, ":", chalk.blue(`[INFO]`), chalk.bold(title), ":", data);
 };

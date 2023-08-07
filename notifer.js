@@ -6,6 +6,7 @@ let pushover_yuval;
 let pushover_dany;
 
 const initNotifer = async () => {
+  if (process.env.USE_NOTIFIER == 0) return;
   if (
     process.env.PUSHOVER_YUVAL === undefined ||
     process.env.PUSHOVER_DANY === undefined ||
@@ -54,6 +55,7 @@ const pushoverNotify = async (text, title) => {
 };
 
 const notifiy = async (text, title) => {
+  if (process.env.USE_NOTIFIER == 0) return;
   pushoverNotify(text, title);
 };
 

@@ -26,20 +26,25 @@ init();
 
 async function data_routine() {
   const positionId = process.env.POSITION_ID;
-  const etherUsdExchangeRate = await getPoolexchangeRate(
+  const Token0USDRate = await getPoolexchangeRate(
     process.env.TOKEN0_USDC_POOL_ADDRESS
   );
-  const ArbitUsdExchangeRate = await getPoolexchangeRate(
+  const Token1USDRate = await getPoolexchangeRate(
     process.env.TOKEN1_USDC_POOL_ADDRESS
   );
 
   const postionDataFromContract = await getPostionData(positionId);
   const currentBlockNumber = await getCurrentBlockNumber();
-  analyzeDataPoint(postionDataFromContract);
+  analyzeDataPoint(
+    postionDataFromContract,
+    Token0USDRate,
+    Token1USDRate,
+    parseInt(positionId)
+  );
   await savePositionDataSQL(
     postionDataFromContract,
-    etherUsdExchangeRate,
-    ArbitUsdExchangeRate,
+    Token0USDRate,
+    Token1USDRate,
     parseInt(positionId),
     currentBlockNumber
   );
