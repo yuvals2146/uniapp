@@ -27,10 +27,10 @@ init();
 async function data_routine() {
   const positionId = process.env.POSITION_ID;
   const etherUsdExchangeRate = await getPoolexchangeRate(
-    process.env.ETHER_USDC_POOL_ADDRESS
+    process.env.TOKEN0_USDC_POOL_ADDRESS
   );
   const ArbitUsdExchangeRate = await getPoolexchangeRate(
-    process.env.ARB_USDC_POOL_ADDRESS
+    process.env.TOKEN1_USDC_POOL_ADDRESS
   );
 
   const postionDataFromContract = await getPostionData(positionId);
