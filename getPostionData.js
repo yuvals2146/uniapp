@@ -124,7 +124,6 @@ async function getData(tokenID) {
   // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
   getQuote(token0, token1, fee, "100000", 0);
 
-  logger.info("PositionInfo", PositionInfo);
   return PositionInfo;
 }
 
@@ -232,7 +231,7 @@ async function getFees(
     feesToken0: uncollectedFeesAdjusted_0,
     feesToken1: uncollectedFeesAdjusted_1,
   };
-  logger.info( "fees: ", fees);
+  
   return fees;
 }
 
@@ -276,7 +275,7 @@ async function getPostionData(positionID) {
     tickRight: PositionInfo.tickHigh,
     tickCurr: PositionInfo.tickCurrent,
   };
-  logger.info("data: ", data);
+  
   return data;
 }
 
@@ -310,12 +309,6 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     provider
   );
   
-  logger.info("fee: ", fee);
-  logger.info("tolekn0: ", token0);
-  logger.info("tolekn1: ", token1);
-  logger.info("amountIn: ", amountIn);
-  logger.info("sqrtPriceLimitX96: ", sqrtPriceLimitX96);
-  
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     token0,
     token1,
@@ -323,7 +316,6 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     amountIn,
     sqrtPriceLimitX96
   );
-  logger.info("quotedAmountOut: ", quotedAmountOut.toNumber());
 };
 
 const getPoolexchangeRate = async (poolAddress) => {
@@ -335,14 +327,12 @@ const getPoolexchangeRate = async (poolAddress) => {
   const PositionInfo = await poolContract.slot0();
   const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
   const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
-  logger.info("price", price);
 
   return price;
 };
 
 const getCurrentBlockNumber = async () => {
   const blockNumber = await provider.getBlockNumber();
-  logger.info("blockNumber", blockNumber);
   return blockNumber;
 };
 async function getTokenAmounts(
@@ -355,9 +345,6 @@ async function getTokenAmounts(
 ) {
   let sqrtRatioA = Math.sqrt(1.0001 ** tickLow);
   let sqrtRatioB = Math.sqrt(1.0001 ** tickHigh);
-
-  logger.info("sqrtRatioA:", sqrtRatioA,);
-  logger.info(", sqrtRatioB:", sqrtRatioB);
 
   let currentTick = getTickAtSqrtRatio(sqrtPriceX96);
   let sqrtPrice = sqrtPriceX96 / Q96;

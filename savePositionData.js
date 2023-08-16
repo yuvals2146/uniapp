@@ -35,7 +35,7 @@ async function savePositionDataSQL(
       id: positionId,
     },
   });
-  logger.info("Saving position data to SQL", positionData);
+  
   const PositionInfo = await prisma.PositionInfo.create({
     data: {
       positionId: {
@@ -52,8 +52,6 @@ async function savePositionDataSQL(
       blockNumber: blockNumber,
     },
   });
-
-  logger.info("Created PositionInfo: ", PositionInfo);
 }
 
 module.exports = {
