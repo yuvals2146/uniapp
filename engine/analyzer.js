@@ -3,6 +3,16 @@ const { loadPositionInit } = require("../loadPositionData.js");
 const { notify } = require("../notifer.js");
 const logger = require("../logger.js");
 
+const NONE = 0;
+const OUT_OF_BOUNDS = 1;
+const IMP_LOSS = 2;
+
+const lastAlertForPosition = [];
+let alertTypeAndTime = {
+  alertType: NONE,
+  time: undefined,
+};
+
 async function analyzeDataPoint(
   positionData,
   token0USDRate,
@@ -12,13 +22,14 @@ async function analyzeDataPoint(
 ) {
   // check position boundaries
   if (
-    positionData.currPrice >= positionData.tickRight ||
-    positionData.currPrice <= positionData.tickLeft
+    (positionData.tickCurr >= positionData.tickRight ||
+      positionData.tickCurr <= positionData.tickLeft) &&
+    updateAlertStatus(positionId, OUT_OF_BOUNDS)
   ) {
-    logger.info("Position Out of Limits", positionData.currPrice);
+    logger.info("Position Out of Limits", positionData.tickCurr);
     await notify(
-      `Position Out of Limits: ${positionData.currPrice}`,
-      "*Title*"
+      `Position Out of Limits: ${positionData.tickCurr}`,
+      "🚨 Reposition 🚨"
     );
   }
 
@@ -49,6 +60,20 @@ async function analyzeDataPoint(
 
   // check liquidity in surroudings
 }
+
+const updateAlertStatus = (postionId, alertType) => {
+  const typeAndTime = lastAlertForPosition[postionId];
+  if (
+    typeAndTime?.alertType == alertType &&
+    Date.now() - typeAndTime.time < process.env.REPEAT_ALERT_INTERVAL
+  ) {
+    return false;
+  } else {
+    alertTypeAndTime = { alertType, time: Date.now() };
+    lastAlertForPosition[postionId] = alertTypeAndTime;
+  }
+  return true;
+};
 
 module.exports = {
   analyzeDataPoint,

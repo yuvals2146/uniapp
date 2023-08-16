@@ -7,7 +7,7 @@ const {
   saveOrValidateInitPositionInfo,
   savePositionDataSQL,
 } = require("./savePositionData.js");
-const { notifiy } = require("./notifer.js");
+const { notify } = require("./notifer.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
 const logger = require("./logger.js");
 
@@ -16,7 +16,7 @@ const logger = require("./logger.js");
 const init = async () => {
   saveOrValidateInitPositionInfo(parseInt(process.env.POSITION_ID));
   logger.info("init", "done");
-  await notifiy(
+  await notify(
     `unihedge Bot is up and running for position ${process.env.POSITION_ID}`,
     "🤖🦄 Startup 🤖🦄"
   );
