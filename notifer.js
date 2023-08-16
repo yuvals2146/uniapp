@@ -54,7 +54,7 @@ const pushoverNotify = async (text, title) => {
   });
 };
 
-const notifiy = async (text, title) => {
+const notify = async (text, title) => {
   if (process.env.USE_NOTIFIER == 0) return;
   pushoverNotify(text, title);
 };
@@ -62,6 +62,6 @@ const notifiy = async (text, title) => {
 initNotifer();
 
 module.exports = {
-  notifiy,
+  notify,
   initNotifer,
 };
