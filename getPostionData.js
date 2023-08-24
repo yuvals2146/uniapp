@@ -3,6 +3,7 @@ const { JSBI } = require("@uniswap/sdk");
 const { ethers } = require("ethers");
 const fs = require("fs");
 const logger = require("./logger.js");
+const InputDataDecoder = require("ethereum-input-data-decoder");
 
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
@@ -10,6 +11,7 @@ const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
 const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 const MIN_TICK = -887272;
 const MAX_TICK = 887272;
+
 function getTickAtSqrtRatio(sqrtPriceX96) {
   let tick = Math.floor(Math.log((sqrtPriceX96 / Q96) ** 2) / Math.log(1.0001));
   return tick;
@@ -41,6 +43,12 @@ if (process.env.ARB_RPC_URL === undefined) {
 }
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.ARB_RPC_URL);
+const arbitProvider = new ethers.providers.JsonRpcProvider(
+  process.env.ARB_RPC_URL
+);
+const etherProvider = new ethers.providers.JsonRpcProvider(
+  process.env.ETHER_RPC_URL
+);
 
 // V3 standard addresses
 if (
@@ -231,7 +239,7 @@ async function getFees(
     feesToken0: uncollectedFeesAdjusted_0,
     feesToken1: uncollectedFeesAdjusted_1,
   };
-  
+
   return fees;
 }
 
@@ -275,7 +283,7 @@ async function getPostionData(positionID) {
     tickRight: PositionInfo.tickHigh,
     tickCurr: PositionInfo.tickCurrent,
   };
-  
+
   return data;
 }
 
@@ -308,7 +316,7 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
     IUniswapQuoterABI,
     provider
   );
-  
+
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     token0,
     token1,
@@ -319,12 +327,16 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
 };
 
 const getPoolexchangeRate = async (poolAddress) => {
+  console.log("poolAddress", poolAddress);
   const poolContract = new ethers.Contract(
     poolAddress,
     IUniswapV3PoolABI,
     provider
   );
+
   const PositionInfo = await poolContract.slot0();
+  console.log("PositionInfo", PositionInfo);
+
   const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
   const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
 
@@ -335,6 +347,7 @@ const getCurrentBlockNumber = async () => {
   const blockNumber = await provider.getBlockNumber();
   return blockNumber;
 };
+
 async function getTokenAmounts(
   liquidity,
   sqrtPriceX96,
@@ -369,9 +382,92 @@ async function getTokenAmounts(
   return [amount0Human, amount1Human];
 }
 
+// use for reading the input params of the transaction
+const decoder = new InputDataDecoder("abis/UniV3NFT.json");
+
+const loadPositionInitDataByTxHash = async (txhash, position) => {
+  try {
+    const block = await provider.getTransaction(txhash);
+    const blockTimestemp =
+      (await provider.getBlock(block.blockNumber)).timestamp * 1000;
+    const txDesc = await provider.getTransaction(txhash).then(async (tx) => {
+      return await new ethers.utils.Interface(
+        IUniswapV3NFTmanagerABI
+      ).parseTransaction(tx);
+    });
+    const resultArgs = decoder.decodeData(txDesc.args[0][0]);
+    const token0Name = await new ethers.Contract(
+      resultArgs.inputs[0][0],
+      ERC20,
+      provider
+    ).symbol();
+    const token1Name = await new ethers.Contract(
+      resultArgs.inputs[0][1],
+      ERC20,
+      provider
+    ).symbol();
+    const [token0symbol, token1symbol] = fixSymbolBinanceConvention(
+      token0Name,
+      token1Name
+    );
+    //inputs keys names: token0address,token1address,fee,tickLower,tickUpper,amount0Desired,amount1Desired,amount0Min,amount1Min,recipient
+    const initData = {
+      token0address: resultArgs.inputs[0][0],
+      token0symbol,
+      token1symbol,
+      token1address: resultArgs.inputs[0][1],
+      fee: resultArgs.inputs[0][2],
+      //ONLY IN ARBIT sqrtPriceX96: ethers.utils.formatEther(resultArgs.inputs[3]),
+      //tickLower: resultArgs.inputs[0][3],
+      tickUpper: resultArgs.inputs[0][4],
+      amount0Desired: ethers.utils.formatEther(resultArgs.inputs[0][5]),
+      initValueToken0:
+        ethers.utils.formatEther(resultArgs.inputs[0][5]) * 10 ** 6,
+      amount1Desired: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
+      initValueToken1: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
+      amount0Min: ethers.utils.formatEther(resultArgs.inputs[0][7]),
+      amount1Min: ethers.utils.formatEther(resultArgs.inputs[0][8]),
+      recipient: resultArgs.inputs[0][9],
+      blockNumber: block.blockNumber,
+      blockTimestemp,
+    };
+
+    return initData;
+  } catch (err) {
+    logger.error("error with retrive data for TX", err);
+    return;
+  }
+};
+
+const fixSymbolBinanceConvention = (token0symbol, token1symbol) => {
+  let token0symbolFixed; // = USDC
+  let token1symbolFixed; // = WETH
+  // if token0 not ETH swap token0 and token1 and rename if needed for binance api
+  if (token1symbol === "WETH" || token1symbol === "ETH") {
+    token1symbolFixed = token0symbol;
+    token0symbolFixed = "ETH";
+    // if order currect but Token0 is WETH, rename to ETH for binance api
+  } else if (token1symbol === "ARB") {
+    token1symbolFixed = token0symbol;
+    token0symbolFixed = "ARB";
+  } else if (token0symbol === "WETH") {
+    token0symbolFixed = "ETH";
+    token1symbolFixed = token1symbol;
+  } else {
+    // if no ETH in pair, return as is
+    token0symbolFixed = token0symbol;
+    token1symbolFixed = token1symbol;
+  }
+
+  token1symbolFixed = token1symbolFixed === "WBTC" ? "BTC" : token1symbolFixed;
+
+  return [token0symbolFixed, token1symbolFixed];
+};
+
 module.exports = {
   getPostionData,
   getPoolexchangeRate,
   getCurrentBlockNumber,
   getTickAtSqrtRatio,
+  loadPositionInitDataByTxHash,
 };

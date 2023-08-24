@@ -12,12 +12,16 @@ const { analyzeDataPoint } = require("./engine/analyzer.js");
 const logger = require("./logger.js");
 
 // validate_positions_db
+const position = {
+  id: process.env.POSITION_ID,
+  chain: process.env.CHAIN_ID,
+};
 
 const init = async () => {
-  saveOrValidateInitPositionInfo(parseInt(process.env.POSITION_ID));
+  await saveOrValidateInitPositionInfo(position);
   logger.info("init", "done");
   await notify(
-    `unihedge Bot is up and running for position ${process.env.POSITION_ID}`,
+    `unihedge Bot is up and running for position ${position.id} on chain ${position.chain}`,
     "🤖🦄 Startup 🤖🦄"
   );
 };
@@ -29,12 +33,17 @@ async function data_routine() {
   const Token0USDRate = await getPoolexchangeRate(
     process.env.TOKEN0_USDC_POOL_ADDRESS
   );
+  console.log("Token0USDRate", Token0USDRate);
+  
   const Token1USDRate = await getPoolexchangeRate(
     process.env.TOKEN1_USDC_POOL_ADDRESS
   );
+  console.log("Token1USDRate", Token1USDRate);
 
   const postionDataFromContract = await getPostionData(positionId);
+  console.log("postionDataFromContract", postionDataFromContract);
   const currentBlockNumber = await getCurrentBlockNumber();
+  console.log("currentBlockNumber", currentBlockNumber);
   analyzeDataPoint(
     postionDataFromContract,
     Token0USDRate,
@@ -48,8 +57,6 @@ async function data_routine() {
     parseInt(positionId),
     currentBlockNumber
   );
-  //const postionDataFromTheGraph = await queryTheGraph(poolId);
-  //await checkForAlerts(postionDataFromContract,etherUsdExchangeRate,ArbitUsdExchangeRate, poolId);
 }
 
 (function loop() {

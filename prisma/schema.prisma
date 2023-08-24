@@ -10,14 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Position {
   id                    Int  @id
-  createdAt             DateTime?
-  initValueToken0       Float?
-  initValueToken1       Float?
+  createdAt             DateTime
+  initValueToken0       Float
+  token0Symbol          String
+  initValueToken1       Float
+  token1Symbol          String
   initToken0USDRate     Float?
   initToken1USDRate     Float?
-  initPriceT1T2         Float?
+  initPriceT0T1         Float?
+  chainId               Int
+  HasHistoricalData     Boolean
   dataPoints            PositionInfo[]
 }
 
