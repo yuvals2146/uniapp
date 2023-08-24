@@ -17,6 +17,7 @@
     "axios": "^1.4.0",
     "chalk": "^4.1.2",
     "dotenv": "^16.3.1",
+    "ethereum-input-data-decoder": "^0.4.2",
     "ethers": "^5.4.0",
     "logzio-nodejs": "^2.1.5",
     "pushover-notifications": "^1.2.2",
