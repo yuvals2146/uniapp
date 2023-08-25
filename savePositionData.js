@@ -103,7 +103,6 @@ async function savePositionDataSQL(
 const retriveInitalAndHistoricalData = async (position) => {
   // load position from mint txHash
   const tx = await queryTheGraphForMintTransactHash(position);
-  console.log(position);
   const initData = await loadPositionInitDataByTxHash(tx, position);
   if (!initData) return [null, null];
 

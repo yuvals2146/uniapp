@@ -26,7 +26,7 @@ const initNotifer = async () => {
       token: process.env.PUSHOVER_TOKEN,
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 };
 
@@ -41,14 +41,14 @@ const pushoverNotify = async (text, title) => {
 
   pushover_yuval.send(msg, function (err, result) {
     if (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });
 
   pushover_dany.send(msg, function (err, result) {
     if (err) {
-      console.log(err);
+      logger.error(err);
       throw err;
     }
   });

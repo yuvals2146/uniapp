@@ -42,13 +42,13 @@ if (process.env.ARB_RPC_URL === undefined) {
   process.exit(1);
 }
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.ARB_RPC_URL);
 const arbitProvider = new ethers.providers.JsonRpcProvider(
   process.env.ARB_RPC_URL
 );
 const etherProvider = new ethers.providers.JsonRpcProvider(
   process.env.ETHER_RPC_URL
 );
+const provider = process.env.CHAIN_ID === "1" ? etherProvider : arbitProvider;
 
 // V3 standard addresses
 if (
@@ -243,8 +243,8 @@ async function getFees(
   return fees;
 }
 
-async function getPostionData(positionID) {
-  var PositionInfo = await getData(positionID);
+async function getPostionData(position) {
+  var PositionInfo = await getData(position.id);
 
   const fees = await getFees(
     PositionInfo.feeGrowthGlobal0X128,
@@ -327,7 +327,6 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
 };
 
 const getPoolexchangeRate = async (poolAddress) => {
-  console.log("poolAddress", poolAddress);
   const poolContract = new ethers.Contract(
     poolAddress,
     IUniswapV3PoolABI,
@@ -335,7 +334,6 @@ const getPoolexchangeRate = async (poolAddress) => {
   );
 
   const PositionInfo = await poolContract.slot0();
-  console.log("PositionInfo", PositionInfo);
 
   const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
   const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
