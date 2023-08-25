@@ -35,16 +35,17 @@ const IUniswapV3NFTmanagerABI = JSON.parse(NFT);
 let quoterAbi = fs.readFileSync("abis/QUOTER.json");
 const IUniswapQuoterABI = JSON.parse(quoterAbi);
 
-if (process.env.ARB_RPC_URL === undefined) {
-  logger.error(
-    "Please set ARB_RPC_URL in your environment variables and try again"
-  );
-  process.exit(1);
-}
+// if (process.env.ARB_RPC_URL === undefined) {
+//   logger.error(
+//     "Please set ARB_RPC_URL in your environment variables and try again"
+//   );
+//   process.exit(1);
+// }
 
 const arbitProvider = new ethers.providers.JsonRpcProvider(
   process.env.ARB_RPC_URL
 );
+
 const etherProvider = new ethers.providers.JsonRpcProvider(
   process.env.ETHER_RPC_URL
 );

@@ -13,6 +13,7 @@ datasource db {
 
 model Position {
   id                    Int  @id
+  chainId               Int
   createdAt             DateTime
   initValueToken0       Float
   token0Symbol          String
@@ -21,7 +22,6 @@ model Position {
   initToken0USDRate     Float?
   initToken1USDRate     Float?
   initPriceT0T1         Float?
-  chainId               Int
   HasHistoricalData     Boolean
   dataPoints            PositionInfo[]
 }

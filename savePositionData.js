@@ -17,13 +17,13 @@ async function saveOrValidateInitPositionInfo(position) {
     logger.note("Found position ID", position.id);
     return;
   }
-  logger.note(`Adding position`, position);
+  logger.info(`Adding position`, position);
   // if not add it:
   if (!chains[position.chain]?.name) {
     logger.error("Chain Not exist", position.chain);
     notify(
       "🔴🔗 Blockchain not supproted 🔗🔴",
-      `please check agian your chain: ${position.chain}`
+      `please check your chain again: ${position.chain}`
     );
     return;
   }
@@ -32,12 +32,15 @@ async function saveOrValidateInitPositionInfo(position) {
     position
   );
   if (!initData) {
-    logger.error("No init data found for position", position.id);
+    logger.error("No init data found for position", {
+      position_id: position.id,
+      blockchain: chains[position.chain].name,
+    });
     notify(
       "🔴💾Position NOT Saved💾🔴",
       `No initial data found for position ${position.id} on chain ${
         chains[position.chain].name
-      } plase check chain and Poisition ID or try again later`
+      } plase check chain and Position ID or try again later`
     );
     return;
   }
@@ -65,7 +68,7 @@ async function saveOrValidateInitPositionInfo(position) {
         : null,
     },
   });
-  logger.info("Saved initial position data to SQL", position.id);
+  logger.note("Saved initial position data to SQL", position.id);
 }
 
 async function savePositionDataSQL(
@@ -115,11 +118,13 @@ const retriveInitalAndHistoricalData = async (position) => {
     logger.error("No historical data found for position", position.id);
     notify(
       "🪙🕰️ Action Needed 🕰️🪙",
-      `No historical data found for position ${position.id} for tokens ${initData.token0symbol} and ${initData.token1symbol} plase do it maually`
+      `No historical data found for position ${position.id} on chain ${
+        chains[position.chain].name
+      } for tokens ${initData.token0symbol} and ${
+        initData.token1symbol
+      } please do it manually`
     );
   }
-  logger.info("fetched position init data", initData);
-  logger.info("fetched position historical data", historicalData);
   return [initData, historicalData];
 };
 
