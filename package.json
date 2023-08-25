@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": ". ./.env.test; yarn jest --forceExit --runInBand",
     "start": "node runner.js"
   },
   "author": "yuvalschneider",
@@ -25,6 +25,7 @@
     "whatsapp-web.js": "^1.21.0"
   },
   "devDependencies": {
+    "jest": "^29.6.4",
     "prisma": "^4.16.1"
   }
 }
