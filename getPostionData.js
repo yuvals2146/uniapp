@@ -438,7 +438,7 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
 };
 
 const fixSymbolBinanceConvention = (token0symbol, token1symbol) => {
-  let token0symbolFixed; // = USDC
+  let token0symbolFixed; // = USDT
   let token1symbolFixed; // = WETH
   // if token0 not ETH swap token0 and token1 and rename if needed for binance api
   if (token1symbol === "WETH" || token1symbol === "ETH") {
