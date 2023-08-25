@@ -14,7 +14,6 @@ async function saveOrValidateInitPositionInfo(position) {
     },
   });
   if (pos) {
-    logger.note("Found position ID", position.id);
     return;
   }
   logger.info(`Adding position`, position);
