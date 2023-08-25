@@ -9,19 +9,19 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
 
   // return null if tokens are not supported
   if (
-    !tokenToUSDCSymblos[token0] ||
-    (!tokenToUSDCSymblos[token1] && token1 !== "USDC")
+    !tokenToUSDTSymblos[token0] ||
+    (!tokenToUSDTSymblos[token1] && token1 !== "USDT")
   ) {
     return null;
   }
   const [symbolToken0, symbolToken1] = FixTokenSymbols(token0, token1);
-  const queryUSDCPriceToken0 = `symbol=${symbolToken0}&interval=1m&startTime=${startTime}&limit=1`;
-  const queryUSDCPriceToken1 = `symbol=${symbolToken1}&interval=1m&startTime=${startTime}&limit=1`;
+  const queryUSDTPriceToken0 = `symbol=${symbolToken0}&interval=1m&startTime=${startTime}&limit=1`;
+  const queryUSDTPriceToken1 = `symbol=${symbolToken1}&interval=1m&startTime=${startTime}&limit=1`;
   let token0PriceResponse, token1PriceResponse;
 
   try {
     token0PriceResponse = await axios.get(
-      `${baseURL}${endpoint}?${queryUSDCPriceToken0}`
+      `${baseURL}${endpoint}?${queryUSDTPriceToken0}`
     );
   } catch (err) {
     logger.log(`Error fetching historical data for Token0: ${token0}`);
@@ -29,8 +29,8 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
   }
   try {
     token1PriceResponse =
-      token1 !== "USDC"
-        ? await axios.get(`${baseURL}${endpoint}?${queryUSDCPriceToken1}`)
+      token1 !== "USDT"
+        ? await axios.get(`${baseURL}${endpoint}?${queryUSDTPriceToken1}`)
         : null;
   } catch (err) {
     logger.error(`Error fetching historical data for Token1: ${token1}`);
@@ -59,14 +59,14 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
 }
 
 const FixTokenSymbols = (token0, token1) => {
-  if (token1 === "USDC") {
+  if (token1 === "USDT") {
     return [`${token0}${token1}`, null];
   } else {
     return [`${token0}USDT`, `${token1}USDT`];
   }
 };
 // need to be change it!!!
-const tokenToUSDCSymblos = {
+const tokenToUSDTSymblos = {
   ARB: "ARBUSDT",
   ETH: "ETHUSDT",
   BTC: "BTCUSDT",
