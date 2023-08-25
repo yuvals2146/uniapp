@@ -24,7 +24,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
       `${baseURL}${endpoint}?${queryUSDTPriceToken0}`
     );
   } catch (err) {
-    logger.log(`Error fetching historical data for Token0: ${token0}`);
+    logger.error(`Error fetching historical data for Token0: ${token0}`);
     return null;
   }
   try {
@@ -65,13 +65,14 @@ const FixTokenSymbols = (token0, token1) => {
     return [`${token0}USDT`, `${token1}USDT`];
   }
 };
+
 // need to be change it!!!
 const tokenToUSDTSymblos = {
   ARB: "ARBUSDT",
   ETH: "ETHUSDT",
   BTC: "BTCUSDT",
   GMX: "GMXUSDT",
-  PENDLE: "GMXUSDT",
+  PENDLE: "PENDLEUSDT",
 };
 
 module.exports = {
