@@ -1,7 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 
+const prisma = new PrismaClient();
+
 async function loadPositionInit(positionId) {
-  const prisma = new PrismaClient();
   let position = await prisma.Position.findUnique({
     where: {
       id: positionId,
@@ -10,6 +11,10 @@ async function loadPositionInit(positionId) {
   return position;
 }
 
+const loadAllPositions = async () => {
+  return await prisma.Position.findMany();
+};
 module.exports = {
   loadPositionInit,
+  loadAllPositions,
 };
