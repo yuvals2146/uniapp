@@ -18,10 +18,14 @@ const { ETHER } = require("@uniswap/sdk");
 
 let positionsMap = [];
 const ETHEREUM_CHAIN_ID = 1;
-
+const position = {
+  id: process.env.POSITION_ID,
+  chainId: process.env.CHAIN_ID,
+};
 const init = async () => {
-  //await saveOrValidateInitPositionInfo(position);
+  await saveOrValidateInitPositionInfo(position);
   positionsMap = (await loadAllPositions()).map((p) => {
+    console.log(p);
     if (p.hasHistoricalData) return;
     return {
       id: p.id,

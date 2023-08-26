@@ -2,9 +2,9 @@ const { PrismaClient } = require("@prisma/client");
 const logger = require("./logger.js");
 const { queryTheGraphForMintTransactHash } = require("./queryTheGraph.js");
 const { loadPositionInitDataByTxHash } = require("./getPostionData.js");
-const { fetchHistoricalPriceData } = require("./binance.js");
+const { fetchHistoricalPriceData } = require("./utils/binance.js");
 const { notify } = require("./notifer.js");
-const { chains } = require("./chains.js");
+const { chains } = require("./cofig/chains.js");
 
 async function saveOrValidateInitPositionInfo(position) {
   const prisma = new PrismaClient();
