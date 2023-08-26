@@ -44,7 +44,7 @@ const queryTheGraph = async (poolId) => {
     };
     return res;
   } catch (err) {
-    logger.error('error in graph',err);
+    logger.error("error in graph", err);
   }
 };
 
