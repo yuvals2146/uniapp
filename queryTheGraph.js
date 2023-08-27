@@ -41,6 +41,16 @@ const queryTheGraph = async (poolId) => {
 
 const queryTheGraphForMintTransactHash = async (position) => {
   try {
+    // decide if chainID is needed!
+
+    // if (!chains[position.chain].subGraph) {
+    //   logger.error("no subgraph for chain", chains[position.chain].name);
+    //   throw new Error(
+    //     `no subgraph for chain id:${position.chain} name:${
+    //       chains[position.chain].name
+    //     }`
+    //   );
+    // }
     const result = await axios.post(chains[position.chain].subGraph, {
       query: `
       {
@@ -61,8 +71,9 @@ const queryTheGraphForMintTransactHash = async (position) => {
       result.data.data.position.transaction.mints[0].id.split("#")[0];
     return txHash;
   } catch (err) {
-    logger.error("error in graph", err);
-    logger.error("error in graph - get mint TX", err);
+    throw new Error(
+      `theGraph - could not get mint TX for position ${position.id} on chain id ${position.chain}`
+    );
   }
 };
 

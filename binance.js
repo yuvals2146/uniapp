@@ -2,7 +2,7 @@ const axios = require("axios");
 
 // Binance API base URL
 const baseURL = "https://api.binance.com/api/v3";
-
+const logger = require("./logger.js");
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
   const endpoint = "/klines";
@@ -12,8 +12,13 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     !tokenToUSDTSymblos[token0] ||
     (!tokenToUSDTSymblos[token1] && token1 !== "USDT")
   ) {
-    return null;
+    throw new Error(`pair of ${token0} and ${token1} not supported`);
   }
+
+  if (startTime < 0 || startTime > Date.now()) {
+    throw new Error(`startTime ${startTime} is not valid`);
+  }
+
   const [symbolToken0, symbolToken1] = FixTokenSymbols(token0, token1);
   const queryUSDTPriceToken0 = `symbol=${symbolToken0}&interval=1m&startTime=${startTime}&limit=1`;
   const queryUSDTPriceToken1 = `symbol=${symbolToken1}&interval=1m&startTime=${startTime}&limit=1`;
@@ -25,7 +30,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     );
   } catch (err) {
     logger.error(`Error fetching historical data for Token0: ${token0}`);
-    return null;
+    throw new Error(`Error fetching historical data for Token0: ${token0}`);
   }
   try {
     token1PriceResponse =
@@ -34,7 +39,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
         : null;
   } catch (err) {
     logger.error(`Error fetching historical data for Token1: ${token1}`);
-    return null;
+    throw new Error(`Error fetching historical data for Token1: ${token1}`);
   }
   const initToken1USDRate = symbolToken1 ? token1PriceResponse.data[0][1] : 1;
   const initToken0USDRate = token0PriceResponse.data[0][1];
@@ -55,8 +60,27 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     initToken1USDRate,
     initPriceT0T1,
   };
+
+  const responseTimeIsValid = isValidTime(
+    startTime,
+    token0PriceResponse.data[0][0],
+    token1PriceResponse.data[0][0]
+  );
+  if (!responseTimeIsValid) {
+    throw new Error(
+      `response time is not valid, startTime: ${startTime}, token0TimeResponse: ${token0PriceResponse.data[0][0]}, token1TimeResponse: ${token1PriceResponse.data[0][0]}`
+    );
+  }
   return historicalData;
 }
+
+const isValidTime = (requstedTime, token0TimeResponse, token1TimeResponse) => {
+  const token0TimeDelta = Math.abs(requstedTime - token0TimeResponse);
+  const token1TimeDelta = Math.abs(requstedTime - token1TimeResponse);
+  const maxDelta = 300000; // 5 min
+
+  return token0TimeDelta < maxDelta && token1TimeDelta < maxDelta;
+};
 
 const FixTokenSymbols = (token0, token1) => {
   if (token1 === "USDT") {

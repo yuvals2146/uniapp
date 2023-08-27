@@ -107,13 +107,14 @@ const retriveInitalAndHistoricalData = async (position) => {
   const tx = await queryTheGraphForMintTransactHash(position);
   const initData = await loadPositionInitDataByTxHash(tx, position);
   if (!initData) return [null, null];
-
-  const historicalData = await fetchHistoricalPriceData(
-    initData.token0symbol,
-    initData.token1symbol,
-    initData.blockTimestemp
-  );
-  if (!historicalData) {
+  let historicalData;
+  try {
+    historicalData = await fetchHistoricalPriceData(
+      initData.token0symbol,
+      initData.token1symbol,
+      initData.blockTimestemp
+    );
+  } catch (err) {
     logger.error("No historical data found for position", position.id);
     notify(
       "🪙🕰️ Action Needed 🕰️🪙",

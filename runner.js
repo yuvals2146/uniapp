@@ -80,10 +80,14 @@ const getNewDataAndAnalyzed = async (position) => {
   );
 };
 
-(function loop() {
-  setTimeout(() => {
-    data_routine();
+if (process.env.SKIP_EVENT_LOOP) {
+  (function eventLoop() {
+    setTimeout(() => {
+      data_routine();
 
-    loop();
-  }, process.env.INTERVAL);
-})();
+      eventLoop();
+    }, process.env.INTERVAL);
+  })();
+}
+
+// serverless.js
