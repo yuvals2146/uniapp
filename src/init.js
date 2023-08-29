@@ -1,9 +1,10 @@
-const { loadAllPositions } = require("./loadPositionData.js");
-const { notify } = require("./notifer.js");
-const logger = require("./logger.js");
-const { userSaveNewPosition } = require("./savePositionData.js");
+const { loadAllPositions } = require("./db/loadPositionDataDB.js");
+const { notify } = require("./utils/notifer.js");
+const logger = require("./utils/logger.js");
+const { userSaveNewPosition } = require("./db/savePositionDataDB.js");
 
 const init = async () => {
+  await addNewPositionTemp();
   const positions = (await loadAllPositions()).map((position) => {
     return {
       id: position.id,
@@ -26,7 +27,11 @@ const init = async () => {
   return positions;
 };
 
-userSaveNewPosition({ id: 482139, chain: 1 });
-//"0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e"
+const addNewPositionTemp = async () => {
+  await userSaveNewPosition(
+    { id: 795484, chain: 42161 },
+    "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e"
+  );
+};
 
-module.exports = { init };
+module.exports = { init, addNewPositionTemp };

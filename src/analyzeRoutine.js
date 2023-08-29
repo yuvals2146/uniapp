@@ -1,20 +1,22 @@
-const { getPoolexchangeRate } = require("./getPostionData.js");
-const { savePositionDataSQL } = require("./savePositionData.js");
-const { getCurrentBlockNumber } = require("./getPostionData.js");
-const { getPostionData } = require("./getPostionData.js");
+const {
+  getPostionData,
+  getPoolExchangeRate,
+  getCurrentBlockNumber,
+} = require("./blockchain/getPostionData.js");
+const { savePositionDataSQL } = require("./db/savePositionDataDB.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
-const { chains } = require("./chains.js");
+const { chains } = require("./utils/chains.js");
 const ETHEREUM_CHAIN_ID = 1;
 
 const getNewDataAndAnalyzed = async (position) => {
   try {
-    const Token0USDRate = await getPoolexchangeRate(
+    const Token0USDRate = await getPoolExchangeRate(
       position.chain === ETHEREUM_CHAIN_ID
         ? process.env.ETH_TOKEN0_USDC_POOL_ADDRESS
         : process.env.ARB_TOKEN0_USDC_POOL_ADDRESS,
       position.chain
     );
-    const Token1USDRate = await getPoolexchangeRate(
+    const Token1USDRate = await getPoolExchangeRate(
       position.chain === ETHEREUM_CHAIN_ID
         ? process.env.ETH_TOKEN1_USDC_POOL_ADDRESS
         : process.env.ARB_TOKEN1_USDC_POOL_ADDRESS,
