@@ -66,13 +66,14 @@ const queryTheGraphForMintTransactHash = async (position) => {
       
     `,
     });
-
     const txHash =
       result.data.data.position.transaction.mints[0].id.split("#")[0];
     return txHash;
   } catch (err) {
     throw new Error(
-      `theGraph - could not get mint TX for position ${position.id} on chain id ${position.chain}`
+      `theGraph - could not get mint TX for position ${
+        position.id
+      } on chain id ${chains[position.chain].name}`
     );
   }
 };

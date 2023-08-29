@@ -7,68 +7,22 @@ const { notify } = require("./notifer.js");
 const { chains } = require("./chains.js");
 
 const prisma = new PrismaClient();
-async function saveOrValidateInitPositionInfo(position) {
-  let pos = await prisma.Position.findUnique({
-    where: {
-      id: parseInt(position.id),
-    },
-  });
-  if (pos) {
-    return;
-  }
-  logger.info(`Adding position`, position);
-  // if not add it:
-  if (!chains[position.chain]?.name) {
-    logger.error("Chain Not exist", position.chain);
-    notify(
-      "🔴🔗 Blockchain not supproted 🔗🔴",
-      `please check your chain again: ${position.chain}`
-    );
-    return;
-  }
-  const [initData, historicalData] = await retriveInitalAndHistoricalData(
-    position
-  );
 
-  if (!initData) {
-    logger.error("No init data found for position", {
-      position_id: position.id,
-      blockchain: chains[position.chain].name,
-    });
-    notify(
-      "🔴💾Position NOT Saved💾🔴",
-      `No initial data found for position ${position.id} on chain ${
-        chains[position.chain].name
-      } plase check chain and Position ID or try again later`
-    );
-    return;
-  }
-
-  //logger.note("Saved initial position data to SQL", position.id);
-}
-
-const saveNewPositionInDB = async (position, initData, historicalData) => {
+const saveNewPositionInDB = async (position, initData) => {
   await prisma.Position.create({
     data: {
       id: parseInt(position.id),
+      chainId: parseInt(position.chain),
       createdAt: new Date(initData.blockTimestemp),
       initValueToken0: parseFloat(initData.initValueToken0),
       token0Symbol: initData.token0symbol,
       initValueToken1: parseFloat(initData.initValueToken1),
       token1Symbol: initData.token1symbol,
-      chainId: parseInt(position.chain),
-      HasHistoricalData: historicalData ? true : false,
-      initToken0USDRate: historicalData
-        ? parseFloat(historicalData.initToken0USDRate)
-        : null,
-      initToken1USDRate: historicalData
-        ? parseFloat(historicalData.initToken1USDRate)
-        : null,
-      initPriceT0T1: historicalData
-        ? parseFloat(
-            historicalData.initToken0USDRate / historicalData.initToken1USDRate
-          )
-        : null,
+      initToken0USDRate: parseFloat(initData.initToken0USDRate),
+      initToken1USDRate: parseFloat(initData.initToken1USDRate),
+      initPriceT0T1: parseFloat(
+        initData.initToken0USDRate / initData.initToken1USDRate
+      ),
     },
   });
 };
@@ -105,26 +59,24 @@ async function savePositionDataSQL(
 
 const retriveInitalAndHistoricalData = async (position, txHash = null) => {
   // load position from mint txHash
-  let historicalData, initData;
-
+  let initData;
   try {
     const tx = txHash
       ? txHash
       : await queryTheGraphForMintTransactHash(position);
     initData = await loadPositionInitDataByTxHash(tx, position);
 
-    if (!initData) return [null, null];
-  } catch (err) {
-    throw new Error(err);
-  }
-  try {
-    historicalData = await fetchHistoricalPriceData(
-      initData.token0symbol,
-      initData.token1symbol,
-      initData.blockTimestemp
-    );
+    if (!initData) throw new Error("no init data found");
+    const [initToken0USDRate, initToken1USDRate] =
+      await fetchHistoricalPriceData(
+        initData.token0symbol,
+        initData.token1symbol,
+        initData.blockTimestemp
+      );
+    initData.initToken0USDRate = initToken0USDRate;
+    initData.initToken1USDRate = initToken1USDRate;
   } catch (e) {
-    if (!historicalData) {
+    if (!initData.initToken0USDRate || !initData.initToken1USDRate) {
       logger.error(e.message);
       logger.error("No historical data found for position", position.id);
       notify(
@@ -133,9 +85,19 @@ const retriveInitalAndHistoricalData = async (position, txHash = null) => {
           chains[position.chain].name
         } please do it manually`
       );
+    } else {
+      logger.error(e.message);
+      logger.error("No init data found for position", position.id);
+      notify(
+        "🪙🕰️ Action Needed 🕰️🪙",
+        `No initial data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        } please do it manually`
+      );
     }
   }
-  return [initData, historicalData];
+
+  return initData;
 };
 
 const userSaveHistoricalDataToPosition = async (
@@ -180,17 +142,13 @@ const userSaveNewPosition = async (position, txHash) => {
     return;
   }
   try {
-    const [initData, historicalData] = await retriveInitalAndHistoricalData(
-      position,
-      txHash
-    );
-    saveNewPositionInDB(position, initData, historicalData);
+    const initData = await retriveInitalAndHistoricalData(position, txHash);
+    saveNewPositionInDB(position, initData);
   } catch (err) {
     logger.error("error in userSaveNewPosition", err);
   }
 };
 module.exports = {
-  saveOrValidateInitPositionInfo,
   savePositionDataSQL,
   userSaveHistoricalDataToPosition,
   userSaveNewPosition,

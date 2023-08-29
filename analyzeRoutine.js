@@ -23,19 +23,19 @@ const getNewDataAndAnalyzed = async (position) => {
     const postionDataFromContract = await getPostionData(position);
     const currentBlockNumber = await getCurrentBlockNumber(position.chain);
 
-    analyzeDataPoint(
-      postionDataFromContract,
-      Token0USDRate,
-      Token1USDRate,
-      parseInt(position.id)
-    );
-
-    await savePositionDataSQL(
+    savePositionDataSQL(
       postionDataFromContract,
       Token0USDRate,
       Token1USDRate,
       parseInt(position.id),
       currentBlockNumber
+    );
+
+    analyzeDataPoint(
+      postionDataFromContract,
+      Token0USDRate,
+      Token1USDRate,
+      parseInt(position.id)
     );
   } catch (err) {
     throw new Error(

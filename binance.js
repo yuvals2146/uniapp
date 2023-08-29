@@ -6,8 +6,6 @@ const logger = require("./logger.js");
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
   const endpoint = "/klines";
-
-  // return null if tokens are not supported
   if (
     !tokenToUSDTSymblos[token0] ||
     (!tokenToUSDTSymblos[token1] && token1 !== "USDT")
@@ -43,23 +41,6 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
   }
   const initToken1USDRate = symbolToken1 ? token1PriceResponse.data[0][1] : 1;
   const initToken0USDRate = token0PriceResponse.data[0][1];
-  const initPriceT0T1 = initToken0USDRate / initToken1USDRate;
-  const historicalData = {
-    //   openPrice: response.data[0][1],
-    //   closePrice: response.data[0][4],
-    //   highestPrice: response.data[0][2],
-    //   lowestPrice: response.data[0][3],
-    //   volume: response.data[0][5],
-    //   closeTime: response.data[0][6],
-    //   quoteAssetVolume: response.data[0][7],
-    //   numberOfTrades: response.data[0][8],
-    //   takerBuyBaseAssetVolume: response.data[0][9],
-    //   takerBuyQuoteAssetVolume: response.data[0][10],
-    //   Ignore: response.data[0][11],
-    initToken0USDRate,
-    initToken1USDRate,
-    initPriceT0T1,
-  };
 
   const responseTimeIsValid = isValidTime(
     startTime,
@@ -71,7 +52,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
       `response time is not valid, startTime: ${startTime}, token0TimeResponse: ${token0PriceResponse.data[0][0]}, token1TimeResponse: ${token1PriceResponse.data[0][0]}`
     );
   }
-  return historicalData;
+  return [initToken0USDRate, initToken1USDRate];
 }
 
 const isValidTime = (requstedTime, token0TimeResponse, token1TimeResponse) => {
@@ -92,6 +73,7 @@ const FixTokenSymbols = (token0, token1) => {
 
 // need to be change it!!!
 const tokenToUSDTSymblos = {
+  USDC: "USDCUSDT",
   ARB: "ARBUSDT",
   ETH: "ETHUSDT",
   BTC: "BTCUSDT",

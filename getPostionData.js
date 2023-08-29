@@ -49,7 +49,6 @@ const arbitProvider = new ethers.providers.JsonRpcProvider(
 const etherProvider = new ethers.providers.JsonRpcProvider(
   process.env.ETHER_RPC_URL
 );
-let provider;
 
 // V3 standard addresses
 if (
@@ -66,8 +65,8 @@ const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
 async function getData(position) {
-  provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+  const provider =
+    position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
 
   var FactoryContract = new ethers.Contract(
     factory,
@@ -130,7 +129,7 @@ async function getData(position) {
   ]);
 
   // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
-  getQuote(token0, token1, fee, "100000", 0);
+  getQuote(token0, token1, fee, "100000", 0, position.chain);
 
   return PositionInfo;
 }
@@ -310,7 +309,15 @@ async function calcPairRate(PositionInfo) {
   return pairRates;
 }
 
-const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
+const getQuote = async (
+  token0,
+  token1,
+  fee,
+  amountIn,
+  sqrtPriceLimitX96,
+  chain
+) => {
+  const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   const quoterContract = new ethers.Contract(
     quoter,
     IUniswapQuoterABI,
@@ -327,7 +334,7 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
 };
 
 const getPoolexchangeRate = async (poolAddress, chain) => {
-  provider =
+  const provider =
     chain === ETHEREUM_CHAIN_ID ? await etherProvider : await arbitProvider;
   try {
     const poolContract = new ethers.Contract(
@@ -352,7 +359,7 @@ const getPoolexchangeRate = async (poolAddress, chain) => {
 };
 
 const getCurrentBlockNumber = async (chain) => {
-  provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+  const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   const blockNumber = await provider.getBlockNumber();
   return blockNumber;
 };
@@ -395,11 +402,11 @@ async function getTokenAmounts(
 const decoder = new InputDataDecoder("abis/UniV3NFT.json");
 
 const loadPositionInitDataByTxHash = async (txhash, position) => {
-  provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+  const provider =
+    position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+
   try {
     const block = await provider.getTransaction(txhash);
-
     const blockTimestemp =
       (await provider.getBlock(block.blockNumber)).timestamp * 1000;
     const txDesc = await provider.getTransaction(txhash).then(async (tx) => {
@@ -418,7 +425,7 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
       ERC20,
       provider
     ).symbol();
-    const [token0symbol, token1symbol] = fixSymbolBinanceConvention(
+    const [token0symbol, token1symbol] = fixTokensSymbol(
       token0Name,
       token1Name
     );
@@ -446,12 +453,11 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
 
     return initData;
   } catch (err) {
-    logger.error("error with retrive data for TX", err);
-    return;
+    logger.error("error with retrive data for TX");
   }
 };
 
-const fixSymbolBinanceConvention = (token0symbol, token1symbol) => {
+const fixTokensSymbol = (token0symbol, token1symbol) => {
   let token0symbolFixed, token1symbolFixed; // = USDT
 
   token0symbolFixed =

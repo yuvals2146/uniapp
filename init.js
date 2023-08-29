@@ -4,9 +4,7 @@ const logger = require("./logger.js");
 const { userSaveNewPosition } = require("./savePositionData.js");
 
 const init = async () => {
-  //await saveOrValidateInitPositionInfo(position);
   const positions = (await loadAllPositions()).map((position) => {
-    if (position.hasHistoricalData) return;
     return {
       id: position.id,
       chain: position.chainId,
@@ -18,19 +16,17 @@ const init = async () => {
     process.exit(0);
   }
 
-  logger.info(`run ${positions.length} positions`, positions);
+  logger.info(`Found ${positions.length} positions`, positions);
   logger.info("init", "done");
 
   await notify(
-    `unihedge Bot is up and running for ${positions.length} positions`,
+    `UniApp Bot is up and running on ${positions.length} positions`,
     "🤖🦄 Startup 🤖🦄"
   );
   return positions;
 };
 
-// userSaveNewPosition(
-//   { id: 795484, chain: 42161 },
-//   "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e"
-// );
+userSaveNewPosition({ id: 482139, chain: 1 });
+//"0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e"
 
 module.exports = { init };

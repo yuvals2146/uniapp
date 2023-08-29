@@ -22,7 +22,6 @@ model Position {
   initToken0USDRate     Float?
   initToken1USDRate     Float?
   initPriceT0T1         Float?
-  HasHistoricalData     Boolean
   dataPoints            PositionInfo[]
 }
 
