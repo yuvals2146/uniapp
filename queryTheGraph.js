@@ -71,9 +71,9 @@ const queryTheGraphForMintTransactHash = async (position) => {
     return txHash;
   } catch (err) {
     throw new Error(
-      `theGraph - could not get mint TX for position ${
-        position.id
-      } on chain id ${chains[position.chain].name}`
+      `theGraph - could not get mint TX for position ${position.id} on chain ${
+        chains[position.chain].name
+      }`
     );
   }
 };

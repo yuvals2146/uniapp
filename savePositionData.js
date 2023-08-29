@@ -9,7 +9,7 @@ const { chains } = require("./chains.js");
 const prisma = new PrismaClient();
 
 const saveNewPositionInDB = async (position, initData) => {
-  await prisma.Position.create({
+  await prisma.Position.create({ 
     data: {
       id: parseInt(position.id),
       chainId: parseInt(position.chain),
