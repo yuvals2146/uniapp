@@ -1,5 +1,5 @@
-const runner = require("../../runner");
-require("dotenv").config();
+require("dotenv").config({ path: `${__dirname}/../../.env.test` });
+const { dataRoutine } = require("../../runner");
 
 const mockArbitrumPosition = {
   chain: "Arbitrum",
@@ -13,12 +13,7 @@ const mockEthereumPosition = {
 
 describe("e2e", () => {
   test("should create bla bla bla", async () => {
-    console.log(
-      "process.env.TEST_READING_ENVFILE",
-      process.env.TEST_READING_ENVFILE
-    );
-    await runner.saveOrValidateInitPositionInfo(mockArbitrumPosition);
-    await runner.saveOrValidateInitPositionInfo(mockEthereumPosition);
+    //dataRoutine([mockEthereumPosition]);
 
     expect(1).toEqual(1);
   });

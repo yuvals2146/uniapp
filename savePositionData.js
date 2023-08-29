@@ -6,8 +6,8 @@ const { fetchHistoricalPriceData } = require("./binance.js");
 const { notify } = require("./notifer.js");
 const { chains } = require("./chains.js");
 
+const prisma = new PrismaClient();
 async function saveOrValidateInitPositionInfo(position) {
-  const prisma = new PrismaClient();
   let pos = await prisma.Position.findUnique({
     where: {
       id: parseInt(position.id),
@@ -26,10 +26,10 @@ async function saveOrValidateInitPositionInfo(position) {
     );
     return;
   }
-
   const [initData, historicalData] = await retriveInitalAndHistoricalData(
     position
   );
+
   if (!initData) {
     logger.error("No init data found for position", {
       position_id: position.id,
@@ -44,6 +44,10 @@ async function saveOrValidateInitPositionInfo(position) {
     return;
   }
 
+  //logger.note("Saved initial position data to SQL", position.id);
+}
+
+const saveNewPositionInDB = async (position, initData, historicalData) => {
   await prisma.Position.create({
     data: {
       id: parseInt(position.id),
@@ -67,9 +71,7 @@ async function saveOrValidateInitPositionInfo(position) {
         : null,
     },
   });
-  logger.note("Saved initial position data to SQL", position.id);
-}
-
+};
 async function savePositionDataSQL(
   positionData,
   etherUsdExchangeRate,
@@ -77,7 +79,6 @@ async function savePositionDataSQL(
   positionId,
   blockNumber
 ) {
-  const prisma = new PrismaClient();
   let pid = await prisma.Position.findUnique({
     where: {
       id: positionId,
@@ -102,28 +103,37 @@ async function savePositionDataSQL(
   });
 }
 
-const retriveInitalAndHistoricalData = async (position) => {
+const retriveInitalAndHistoricalData = async (position, txHash = null) => {
   // load position from mint txHash
-  const tx = await queryTheGraphForMintTransactHash(position);
-  const initData = await loadPositionInitDataByTxHash(tx, position);
-  if (!initData) return [null, null];
-  let historicalData;
+  let historicalData, initData;
+
+  try {
+    const tx = txHash
+      ? txHash
+      : await queryTheGraphForMintTransactHash(position);
+    initData = await loadPositionInitDataByTxHash(tx, position);
+
+    if (!initData) return [null, null];
+  } catch (err) {
+    throw new Error(err);
+  }
   try {
     historicalData = await fetchHistoricalPriceData(
       initData.token0symbol,
       initData.token1symbol,
       initData.blockTimestemp
     );
-  } catch (err) {
-    logger.error("No historical data found for position", position.id);
-    notify(
-      "🪙🕰️ Action Needed 🕰️🪙",
-      `No historical data found for position ${position.id} on chain ${
-        chains[position.chain].name
-      } for tokens ${initData.token0symbol} and ${
-        initData.token1symbol
-      } please do it manually`
-    );
+  } catch (e) {
+    if (!historicalData) {
+      logger.error(e.message);
+      logger.error("No historical data found for position", position.id);
+      notify(
+        "🪙🕰️ Action Needed 🕰️🪙",
+        `No historical data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        } please do it manually`
+      );
+    }
   }
   return [initData, historicalData];
 };
@@ -133,13 +143,12 @@ const userSaveHistoricalDataToPosition = async (
   initToken0USDRate,
   initToken1USDRate
 ) => {
-  const prisma = new PrismaClient();
   let pos = await prisma.Position.findUnique({
     where: {
       id: position.id,
     },
   });
-  if (!position) {
+  if (!pos) {
     logger.note(`Position id Not Exist`, position.id);
     notify(
       "🔴🆔Error with fetch position ID 🆔🔴",
@@ -160,7 +169,26 @@ const userSaveHistoricalDataToPosition = async (
   });
 };
 
-const userSaveNewPosition = async (position, txHash) => {};
+const userSaveNewPosition = async (position, txHash) => {
+  let pos = await prisma.Position.findUnique({
+    where: {
+      id: parseInt(position.id),
+    },
+  });
+  if (pos) {
+    logger.error("could not save postition, position already exist");
+    return;
+  }
+  try {
+    const [initData, historicalData] = await retriveInitalAndHistoricalData(
+      position,
+      txHash
+    );
+    saveNewPositionInDB(position, initData, historicalData);
+  } catch (err) {
+    logger.error("error in userSaveNewPosition", err);
+  }
+};
 module.exports = {
   saveOrValidateInitPositionInfo,
   savePositionDataSQL,

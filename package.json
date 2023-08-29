@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": ". ./.env.test; yarn jest --forceExit --runInBand",
+    "test": "yarn jest --forceExit --runInBand",
     "start": "node runner.js"
   },
   "author": "yuvalschneider",

@@ -11,7 +11,7 @@ const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
 const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 const MIN_TICK = -887272;
 const MAX_TICK = 887272;
-
+const ETHEREUM_CHAIN_ID = 1;
 function getTickAtSqrtRatio(sqrtPriceX96) {
   let tick = Math.floor(Math.log((sqrtPriceX96 / Q96) ** 2) / Math.log(1.0001));
   return tick;
@@ -49,7 +49,7 @@ const arbitProvider = new ethers.providers.JsonRpcProvider(
 const etherProvider = new ethers.providers.JsonRpcProvider(
   process.env.ETHER_RPC_URL
 );
-const provider = process.env.CHAIN_ID === "1" ? etherProvider : arbitProvider;
+let provider;
 
 // V3 standard addresses
 if (
@@ -65,7 +65,10 @@ const factory = process.env.FACTORY_ADDRESS;
 const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
-async function getData(tokenID) {
+async function getData(position) {
+  provider =
+    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+
   var FactoryContract = new ethers.Contract(
     factory,
     IUniswapV3FactoryABI,
@@ -78,27 +81,23 @@ async function getData(tokenID) {
     provider
   );
 
-  var position = await NFTContract.positions(tokenID);
-
-  var token0contract = new ethers.Contract(position.token0, ERC20, provider);
-  var token1contract = new ethers.Contract(position.token1, ERC20, provider);
+  var pos = await NFTContract.positions(position.id);
+  var token0contract = new ethers.Contract(pos.token0, ERC20, provider);
+  var token1contract = new ethers.Contract(pos.token1, ERC20, provider);
   var Decimal0 = await token0contract.decimals();
   var Decimal1 = await token1contract.decimals();
 
   var token0sym = await token0contract.symbol();
   var token1sym = await token1contract.symbol();
 
-  var V3pool = await FactoryContract.getPool(
-    position.token0,
-    position.token1,
-    position.fee
-  );
+  var V3pool = await FactoryContract.getPool(pos.token0, pos.token1, pos.fee);
 
   var poolContract = new ethers.Contract(V3pool, IUniswapV3PoolABI, provider);
 
   var slot0 = await poolContract.slot0();
-  var tickLow = await poolContract.ticks(position.tickLower.toString());
-  var tickHi = await poolContract.ticks(position.tickUpper.toString());
+
+  var tickLow = await poolContract.ticks(pos.tickLower.toString());
+  var tickHi = await poolContract.ticks(pos.tickUpper.toString());
 
   var feeGrowthGlobal0 = await poolContract.feeGrowthGlobal0X128();
   var feeGrowthGlobal1 = await poolContract.feeGrowthGlobal1X128();
@@ -110,15 +109,15 @@ async function getData(tokenID) {
     Decimal0: Decimal0,
     Decimal1: Decimal1,
     tickCurrent: slot0.tick,
-    tickLow: position.tickLower,
-    tickHigh: position.tickUpper,
-    liquidity: position.liquidity.toString(),
+    tickLow: pos.tickLower,
+    tickHigh: pos.tickUpper,
+    liquidity: pos.liquidity.toString(),
     feeGrowth0Low: tickLow.feeGrowthOutside0X128.toString(),
     feeGrowth0Hi: tickHi.feeGrowthOutside0X128.toString(),
     feeGrowth1Low: tickLow.feeGrowthOutside1X128.toString(),
     feeGrowth1Hi: tickHi.feeGrowthOutside1X128.toString(),
-    feeGrowthInside0LastX128: position.feeGrowthInside0LastX128.toString(),
-    feeGrowthInside1LastX128: position.feeGrowthInside1LastX128.toString(),
+    feeGrowthInside0LastX128: pos.feeGrowthInside0LastX128.toString(),
+    feeGrowthInside1LastX128: pos.feeGrowthInside1LastX128.toString(),
     feeGrowthGlobal0X128: feeGrowthGlobal0.toString(),
     feeGrowthGlobal1X128: feeGrowthGlobal1.toString(),
     sqrtPriceX96: slot0.sqrtPriceX96.toString(),
@@ -245,7 +244,7 @@ async function getFees(
 }
 
 async function getPostionData(position) {
-  var PositionInfo = await getData(position.id);
+  var PositionInfo = await getData(position);
 
   const fees = await getFees(
     PositionInfo.feeGrowthGlobal0X128,
@@ -327,22 +326,33 @@ const getQuote = async (token0, token1, fee, amountIn, sqrtPriceLimitX96) => {
   );
 };
 
-const getPoolexchangeRate = async (poolAddress) => {
-  const poolContract = new ethers.Contract(
-    poolAddress,
-    IUniswapV3PoolABI,
-    provider
-  );
+const getPoolexchangeRate = async (poolAddress, chain) => {
+  provider =
+    chain === ETHEREUM_CHAIN_ID ? await etherProvider : await arbitProvider;
+  try {
+    const poolContract = new ethers.Contract(
+      poolAddress,
+      IUniswapV3PoolABI,
+      provider
+    );
+    const PositionInfo = await poolContract.slot0();
+    const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
+    const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
+    return price;
+  } catch (err) {
+    const providerName =
+      provider?._network.name === "homestead"
+        ? "ethereum"
+        : provider._network.name;
 
-  const PositionInfo = await poolContract.slot0();
-
-  const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
-  const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
-
-  return price;
+    throw new Error(
+      `error with retrive pool exchange rate for pool ${poolAddress} on provider ${providerName}`
+    );
+  }
 };
 
-const getCurrentBlockNumber = async () => {
+const getCurrentBlockNumber = async (chain) => {
+  provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   const blockNumber = await provider.getBlockNumber();
   return blockNumber;
 };
@@ -385,8 +395,11 @@ async function getTokenAmounts(
 const decoder = new InputDataDecoder("abis/UniV3NFT.json");
 
 const loadPositionInitDataByTxHash = async (txhash, position) => {
+  provider =
+    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   try {
     const block = await provider.getTransaction(txhash);
+
     const blockTimestemp =
       (await provider.getBlock(block.blockNumber)).timestamp * 1000;
     const txDesc = await provider.getTransaction(txhash).then(async (tx) => {
@@ -439,26 +452,12 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
 };
 
 const fixSymbolBinanceConvention = (token0symbol, token1symbol) => {
-  let token0symbolFixed; // = USDT
-  let token1symbolFixed; // = WETH
-  // if token0 not ETH swap token0 and token1 and rename if needed for binance api
-  if (token1symbol === "WETH" || token1symbol === "ETH") {
-    token1symbolFixed = token0symbol;
-    token0symbolFixed = "ETH";
-    // if order currect but Token0 is WETH, rename to ETH for binance api
-  } else if (token1symbol === "ARB") {
-    token1symbolFixed = token0symbol;
-    token0symbolFixed = "ARB";
-  } else if (token0symbol === "WETH") {
-    token0symbolFixed = "ETH";
-    token1symbolFixed = token1symbol;
-  } else {
-    // if no ETH in pair, return as is
-    token0symbolFixed = token0symbol;
-    token1symbolFixed = token1symbol;
-  }
+  let token0symbolFixed, token1symbolFixed; // = USDT
 
-  token1symbolFixed = token1symbolFixed === "WBTC" ? "BTC" : token1symbolFixed;
+  token0symbolFixed =
+    token0symbol.charAt(0) === "W" ? token0symbol.slice(1) : token0symbol;
+  token1symbolFixed =
+    token1symbol.charAt(0) === "W" ? token1symbol.slice(1) : token1symbol;
 
   return [token0symbolFixed, token1symbolFixed];
 };
