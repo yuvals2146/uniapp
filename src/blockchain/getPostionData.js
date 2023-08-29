@@ -2,8 +2,9 @@ require("dotenv").config();
 const { JSBI } = require("@uniswap/sdk");
 const { ethers } = require("ethers");
 const fs = require("fs");
-const logger = require("./logger.js");
+const logger = require("../utils/logger.js");
 const InputDataDecoder = require("ethereum-input-data-decoder");
+const { fetchHistoricalPriceData } = require("../lib/binance.js");
 
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
@@ -333,7 +334,7 @@ const getQuote = async (
   );
 };
 
-const getPoolexchangeRate = async (poolAddress, chain) => {
+const getPoolExchangeRate = async (poolAddress, chain) => {
   const provider =
     chain === ETHEREUM_CHAIN_ID ? await etherProvider : await arbitProvider;
   try {
@@ -440,8 +441,7 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
       //tickLower: resultArgs.inputs[0][3],
       tickUpper: resultArgs.inputs[0][4],
       amount0Desired: ethers.utils.formatEther(resultArgs.inputs[0][5]),
-      initValueToken0:
-        ethers.utils.formatEther(resultArgs.inputs[0][5]) * 10 ** 6,
+      initValueToken0: ethers.utils.formatEther(resultArgs.inputs[0][5]),
       amount1Desired: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
       initValueToken1: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
       amount0Min: ethers.utils.formatEther(resultArgs.inputs[0][7]),
@@ -468,10 +468,55 @@ const fixTokensSymbol = (token0symbol, token1symbol) => {
   return [token0symbolFixed, token1symbolFixed];
 };
 
+// new position - get data online
+const retriveInitalPositionData = async (position, txHash = null) => {
+  // load position from mint txHash
+  let initData;
+  try {
+    const tx = txHash
+      ? txHash
+      : await queryTheGraphForMintTransactHash(position);
+    initData = await loadPositionInitDataByTxHash(tx, position);
+
+    if (!initData) throw new Error("no init data found");
+    const [initToken0USDRate, initToken1USDRate] =
+      await fetchHistoricalPriceData(
+        initData.token0symbol,
+        initData.token1symbol,
+        initData.blockTimestemp
+      );
+    initData.initToken0USDRate = initToken0USDRate;
+    initData.initToken1USDRate = initToken1USDRate;
+  } catch (e) {
+    if (!initData.initToken0USDRate || !initData.initToken1USDRate) {
+      logger.error(e.message);
+      logger.error("No historical data found for position", position.id);
+      notify(
+        "🪙🕰️ Action Needed 🕰️🪙",
+        `No historical data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        } please do it manually`
+      );
+    } else {
+      logger.error(e.message);
+      logger.error("No init data found for position", position.id);
+      notify(
+        "🪙🕰️ Action Needed 🕰️🪙",
+        `No initial data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        } please do it manually`
+      );
+    }
+  }
+
+  return initData;
+};
+
 module.exports = {
   getPostionData,
-  getPoolexchangeRate,
+  getPoolExchangeRate,
   getCurrentBlockNumber,
   getTickAtSqrtRatio,
   loadPositionInitDataByTxHash,
+  retriveInitalPositionData,
 };

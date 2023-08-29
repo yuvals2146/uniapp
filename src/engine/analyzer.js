@@ -1,7 +1,10 @@
-const { getPostionData, getTickAtSqrtRatio } = require("../getPostionData.js");
-const { loadPositionInit } = require("../loadPositionData.js");
-const { notify } = require("../notifer.js");
-const logger = require("../logger.js");
+const {
+  getPostionData,
+  getTickAtSqrtRatio,
+} = require("../blockchain/getPostionData.js");
+const { loadPositionInit } = require("../db/loadPositionDataDB.js");
+const { notify } = require("../utils/notifer.js");
+const logger = require("../utils/logger.js");
 
 // constants
 const MILLISECONDS_PER_DAY = 8.64e7;

@@ -2,10 +2,11 @@ const axios = require("axios");
 
 // Binance API base URL
 const baseURL = "https://api.binance.com/api/v3";
-const logger = require("./logger.js");
+
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
   const endpoint = "/klines";
+
   if (
     !tokenToUSDTSymblos[token0] ||
     (!tokenToUSDTSymblos[token1] && token1 !== "USDT")
@@ -30,6 +31,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     logger.error(`Error fetching historical data for Token0: ${token0}`);
     throw new Error(`Error fetching historical data for Token0: ${token0}`);
   }
+
   try {
     token1PriceResponse =
       token1 !== "USDT"
@@ -39,6 +41,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     logger.error(`Error fetching historical data for Token1: ${token1}`);
     throw new Error(`Error fetching historical data for Token1: ${token1}`);
   }
+
   const initToken1USDRate = symbolToken1 ? token1PriceResponse.data[0][1] : 1;
   const initToken0USDRate = token0PriceResponse.data[0][1];
 

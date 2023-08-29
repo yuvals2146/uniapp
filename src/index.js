@@ -1,4 +1,4 @@
-const logger = require("./logger.js");
+const logger = require("./utils/logger.js");
 const { getNewDataAndAnalyzed } = require("./analyzeRoutine.js");
 const { init } = require("./init.js");
 

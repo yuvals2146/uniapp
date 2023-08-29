@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "yarn jest --forceExit --runInBand",
-    "start": "node runner.js"
+    "start": "node src/index.js"
   },
   "author": "yuvalschneider",
   "license": "ISC",
