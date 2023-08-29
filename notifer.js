@@ -38,20 +38,16 @@ const pushoverNotify = async (text, title) => {
     device: "devicename",
     priority: 1,
   };
-
-  pushover_yuval.send(msg, function (err, result) {
-    if (err) {
-      logger.error(err);
-      throw err;
-    }
-  });
-
-  pushover_dany.send(msg, function (err, result) {
-    if (err) {
-      logger.error(err);
-      throw err;
-    }
-  });
+  try {
+    pushover_yuval.send(msg);
+  } catch (err) {
+    throw new Error("error in pushover to yuval");
+  }
+  try {
+    pushover_dany.send(msg);
+  } catch (err) {
+    throw new Error("error in pushover to dany");
+  }
 };
 
 const notify = async (text, title) => {
