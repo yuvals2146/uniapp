@@ -7,9 +7,6 @@ const { chains } = require("./chains.js");
 const ETHEREUM_CHAIN_ID = 1;
 
 const getNewDataAndAnalyzed = async (position) => {
-  console.log(
-    `analyezing token: ${position.id} chain: ${chains[position.chain].name}`
-  );
   try {
     const Token0USDRate = await getPoolexchangeRate(
       position.chain === ETHEREUM_CHAIN_ID
