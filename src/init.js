@@ -4,7 +4,8 @@ const logger = require("./utils/logger.js");
 const { userSaveNewPosition } = require("./db/savePositionDataDB.js");
 
 const init = async () => {
-  await addNewPositionTemp();
+  // await addNewPositionTemp();
+
   const positions = (await loadAllPositions()).map((position) => {
     return {
       id: position.id,
@@ -28,10 +29,17 @@ const init = async () => {
 };
 
 const addNewPositionTemp = async () => {
-  await userSaveNewPosition(
-    { id: 795484, chain: 42161 },
-    "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e"
-  );
+  array = [
+    [
+      { id: 795484, chain: 42161 },
+      "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e",
+    ],
+    [{ id: 482139, chain: 1 }],
+  ];
+
+  array.forEach(async (pos) => {
+    await userSaveNewPosition(pos[0], pos[1]);
+  });
 };
 
 module.exports = { init, addNewPositionTemp };
