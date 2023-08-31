@@ -26,17 +26,17 @@ model Position {
 }
 
 model PositionInfo {
-  id                    Int  @id @default(autoincrement())
-  positionId            Position @relation(fields: [inter_pos_id], references: [id])
-  inter_pos_id          Int 
-  createdAt             DateTime @default(now())
-  pair                  String
-  liquidityToken0       Float
-  liquidityToken1       Float     
-  feesToken0            Float
-  feesToken1            Float 
-  priceToken0           Float
-  etherUsdExchangeRate  Float
-  ArbitUsdExchangeRate  Float
-  blockNumber           Int
+  id                      Int  @id @default(autoincrement())
+  positionId              Position @relation(fields: [inter_pos_id], references: [id], onDelete: Cascade)
+  inter_pos_id            Int
+  createdAt               DateTime @default(now())
+  pair                    String
+  liquidityToken0         Float
+  liquidityToken1         Float
+  feesToken0              Float
+  feesToken1              Float
+  token0Token1Rate        Float
+  token0USDCExchangeRate  Float
+  token1USDCExchangeRate  Float
+  blockNumber             Int
 }

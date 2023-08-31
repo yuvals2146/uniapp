@@ -29,9 +29,19 @@ async function analyzeDataPoint(
       positionData.tickCurr <= positionData.tickLeft) &&
     updateAlertStatus(positionId, OUT_OF_BOUNDS_ALERT)
   ) {
-    logger.info("Position Out of Limits", positionData.tickCurr);
+    logger.info(
+      "Position",
+      positionId,
+      " is out of limits",
+      "Left:",
+      positionData.tickLeft,
+      "Right:",
+      positionData.tickRight,
+      "Current:",
+      positionData.tickCurr
+    );
     await notify(
-      `Position Out of Limits: ${positionData.tickCurr}`,
+      `Position ${positionId} is out of limits: Left: ${positionData.tickLeft}, Right: ${positionData.tickRight}, Curr: ${positionData.tickCurr}`,
       "🚨 Reposition 🚨"
     );
   }
@@ -41,9 +51,9 @@ async function analyzeDataPoint(
   const positionAge = Date.now() - positionInitData.createdAt;
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (posAgeDays > 10 && updateAlertStatus(positionId, OLD_POSITION_ALERT)) {
-    logger.info("Position > 10 days old", posAgeDays);
+    logger.info("Position", positionId, " > 10 days old", posAgeDays);
     await notify(
-      `Position Over 10 days Old: ${posAgeDays}`,
+      `Position ${positionId} > 10 days old: ${posAgeDays}`,
       "⏰ Reposition? ⏰"
     );
   }
@@ -66,13 +76,30 @@ async function analyzeDataPoint(
   const profitLossRatio =
     ((totalPositionValueUSD - initPositionValueUSD) / totalPositionValueUSD) *
     100;
+
   if (
     profitLossRatio.toFixed(2) >= 20 &&
     updateAlertStatus(positionId, PNL_ALERT)
   ) {
-    logger.info("Position in high USD profit:", profitLossRatio.toFixed(2));
+    logger.info(
+      "Position",
+      positionId,
+      "is in high USD profit:",
+      totalPositionValueUSD,
+      initPositionValueUSD,
+      profitLossRatio.toFixed(2),
+      positionData,
+      totalLiquidityToken0,
+      totalLiquidityToken1,
+      token0USDRate,
+      token1USDRate,
+      amountToken0USD,
+      amountToken1USD
+    );
     await notify(
-      `Position in high USD profit: ${profitLossRatio.toFixed(2)}%`,
+      `Position ${positionId} in high USD profit: ${profitLossRatio.toFixed(
+        2
+      )}%`,
       "💵 Cash out 💵"
     );
   }
@@ -88,13 +115,17 @@ async function analyzeDataPoint(
     updateAlertStatus(positionId, IMP_LOSS_ALERT)
   ) {
     logger.info(
-      "Total position value less than holding initial assets value:",
+      "Position:",
+      positionId,
+      " is at impermanent loss:",
       totalPositionValueUSD,
       totalHoldValueUSD,
       ilRate.toFixed(2)
     );
     await notify(
-      `Position is currently in impermanent loss: ${ilRate.toFixed(2)}%`,
+      `Position ${positionId} is currently at impermanent loss: ${ilRate.toFixed(
+        2
+      )}%`,
       "🚨 Exit position! 🚨"
     );
   }
