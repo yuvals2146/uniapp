@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "(. ./.envrc.test; yarn jest --forceExit --runInBand --detectOpenHandles)",
+    "test": "(. ./.envrc.test; yarn jest --detectOpenHandles --no-cache --watchAll)",
     "start": ". ./.envrc; node src/index.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy --preview-feature && yarn db:generate",

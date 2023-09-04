@@ -32,3 +32,6 @@ export WHATSAPP_ALERT_GROUP=""
 
 #logger settings:
 
+# only for envrc.test!
+
+export SUITE_TO_RUN=""

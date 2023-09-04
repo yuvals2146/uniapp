@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source .envrc
+# import logger
 source "./bin/logger"
 
 yarn start

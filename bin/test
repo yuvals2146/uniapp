@@ -3,14 +3,19 @@
 set -e
 source "./bin/logger"
 . ./.envrc.test
- 
+
+# reset db 
+yarn db:reset & yarn db:migrate
+
+# check if we need to run a single test
 if [ -z "$SUITE_TO_RUN" ]
 then
+# if SUITE_TO_RUN is empty run all tests
     pp_note "running all tests" "to spesify a single test use SUITE_TO_RUN envrc"
     yarn test
 else
+# if SUITE_TO_RUN is not empty run a single test
     pp_info "running test: " "$SUITE_TO_RUN"
     pp_note "** if you wish to run all tests please remove SUITE_TO_RUN from .envrc.test **"
-    yarn db:reset & yarn db:migrate
-    yarn jest --forceExit --runInBand --detectOpenHandles --testNamePattern=${SUITE_TO_RUN}
+    yarn jest --detectOpenHandles --no-cache --watchAll --testNamePattern=${SUITE_TO_RUN}
 fi 
