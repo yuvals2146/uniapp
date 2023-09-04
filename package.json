@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "yarn jest --forceExit --runInBand",
-    "start": "node src/index.js"
+    "test": "(. ./.envrc.test; yarn jest --forceExit --runInBand --detectOpenHandles)",
+    "start": ". ./.envrc; node src/index.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy --preview-feature && yarn db:generate",
+    "db:gen:migration": "prisma migrate dev --preview-feature --create-only",
+    "db:reset": "prisma migrate reset --preview-feature"
   },
   "author": "yuvalschneider",
   "license": "ISC",

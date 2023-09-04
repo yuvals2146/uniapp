@@ -4,6 +4,6 @@ if (process.env.NODE_ENV !== "test") {
 
 module.exports = {
   testEnvironment: "node",
-  testTimeout: 20000,
+  testTimeout: 50000,
   moduleDirectories: ["node_modules", "<rootDir>/src"],
 };

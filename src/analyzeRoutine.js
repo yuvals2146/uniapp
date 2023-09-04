@@ -3,7 +3,7 @@ const {
   getPoolExchangeRate,
   getCurrentBlockNumber,
 } = require("./blockchain/getPostionData.js");
-const { savePositionDataSQL } = require("./db/savePositionDataDB.js");
+const { savePositionData } = require("./db/savePositionDataDB.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
 const { chains } = require("./utils/chains.js");
 const ETHEREUM_CHAIN_ID = 1;
@@ -25,7 +25,7 @@ const getNewDataAndAnalyzed = async (position) => {
     const postionDataFromContract = await getPostionData(position);
     const currentBlockNumber = await getCurrentBlockNumber(position.chain);
 
-    savePositionDataSQL(
+    savePositionData(
       postionDataFromContract,
       Token0USDRate,
       Token1USDRate,

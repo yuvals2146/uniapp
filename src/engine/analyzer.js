@@ -1,8 +1,4 @@
-const {
-  getPostionData,
-  getTickAtSqrtRatio,
-} = require("../blockchain/getPostionData.js");
-const { loadPositionInit } = require("../db/loadPositionDataDB.js");
+const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
 
@@ -37,7 +33,11 @@ async function analyzeDataPoint(
   }
 
   // check position lifetime
-  const positionInitData = await loadPositionInit(positionId);
+  const positionInitData = await loadPosition({
+    position: positionId,
+    chain: positionData.chainId,
+  });
+
   const positionAge = Date.now() - positionInitData.createdAt;
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (posAgeDays > 10 && updateAlertStatus(positionId, OLD_POSITION_ALERT)) {

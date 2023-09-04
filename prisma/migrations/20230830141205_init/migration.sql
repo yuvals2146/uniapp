@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE "Position" (
     "id" INTEGER NOT NULL,
+    "chainId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "initValueToken0" DOUBLE PRECISION NOT NULL,
     "token0Symbol" TEXT NOT NULL,
@@ -9,8 +10,6 @@ CREATE TABLE "Position" (
     "initToken0USDRate" DOUBLE PRECISION,
     "initToken1USDRate" DOUBLE PRECISION,
     "initPriceT0T1" DOUBLE PRECISION,
-    "chainId" INTEGER NOT NULL,
-    "HasHistoricalData" BOOLEAN NOT NULL,
 
     CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
 );

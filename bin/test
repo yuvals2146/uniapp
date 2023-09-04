@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e
+source "./bin/logger"
+. ./.envrc.test
+ 
+if [ -z "$SUITE_TO_RUN" ]
+then
+    pp_note "running all tests" "to spesify a single test use SUITE_TO_RUN envrc"
+    yarn test
+else
+    pp_info "running test: " "$SUITE_TO_RUN"
+    pp_note "** if you wish to run all tests please remove SUITE_TO_RUN from .envrc.test **"
+    yarn db:reset & yarn db:migrate
+    yarn jest --forceExit --runInBand --detectOpenHandles --testNamePattern=${SUITE_TO_RUN}
+fi 

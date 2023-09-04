@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+source .envrc
+source "./bin/logger"
+
+yarn start
+

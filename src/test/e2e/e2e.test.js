@@ -1,5 +1,4 @@
 require("dotenv").config({ path: `${__dirname}/../../.env.test` });
-const { dataRoutine } = require("../../runner");
 
 const mockArbitrumPosition = {
   chain: "Arbitrum",

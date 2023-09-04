@@ -4,5 +4,14 @@
 
 running locally:
 
-1. start local DB (postgres):
-   npx prisma migrate dev --name init
+1. DB stuff
+   `yarn db:migrate` to migrate the db by the schema 
+   `yarn db:gen:migration` after change in prisma schema
+   `yarn db:reset` to delete the db
+
+
+TEST:
+
+. .bin/test 
+to run spesific test add it to envrc SUITE_TO_RUN
+if empty will run all

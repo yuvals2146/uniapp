@@ -1,6 +1,6 @@
 const axios = require("axios");
-const logger = require("./logger.js");
-const { chains } = require("./chains.js");
+const logger = require("../utils/logger");
+const { chains } = require("../utils/chains.js");
 
 const queryTheGraph = async (poolId) => {
   try {
@@ -41,16 +41,16 @@ const queryTheGraph = async (poolId) => {
 
 const queryTheGraphForMintTransactHash = async (position) => {
   try {
-    // decide if chainID is needed!
+    // no subgraph for chain arbitrum
+    if (!chains[position.chain].subGraph) {
+      logger.error("no subgraph for chain", chains[position.chain].name);
+      throw new Error(
+        `no subgraph for chain id:${position.chain} name:${
+          chains[position.chain].name
+        }`
+      );
+    }
 
-    // if (!chains[position.chain].subGraph) {
-    //   logger.error("no subgraph for chain", chains[position.chain].name);
-    //   throw new Error(
-    //     `no subgraph for chain id:${position.chain} name:${
-    //       chains[position.chain].name
-    //     }`
-    //   );
-    // }
     const result = await axios.post(chains[position.chain].subGraph, {
       query: `
       {
