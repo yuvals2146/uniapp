@@ -23,6 +23,7 @@ describe("TheGraph - get Tx Hash From Position id", () => {
   });
 
   test("should not retreive tx hash for unvalid position", async () => {
+
     expect(() =>
       queryTheGraphForMintTransactHash(unvalidPosition)
     ).rejects.toThrow(
