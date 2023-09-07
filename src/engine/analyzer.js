@@ -20,18 +20,18 @@ async function analyzeDataPoint(
   positionData,
   token0USDRate,
   token1USDRate,
-  positionId
+  position
   //  blockNumber
 ) {
   // check position boundaries
   if (
     (positionData.tickCurr >= positionData.tickRight ||
       positionData.tickCurr <= positionData.tickLeft) &&
-    updateAlertStatus(positionId, OUT_OF_BOUNDS_ALERT)
+    updateAlertStatus(position, OUT_OF_BOUNDS_ALERT)
   ) {
     logger.info(
       "Position",
-      positionId,
+      position,
       " is out of limits",
       "Left:",
       positionData.tickLeft,
@@ -41,19 +41,26 @@ async function analyzeDataPoint(
       positionData.tickCurr
     );
     await notify(
-      `Position ${positionId} is out of limits: Left: ${positionData.tickLeft}, Right: ${positionData.tickRight}, Curr: ${positionData.tickCurr}`,
+      `Position ${position.id}, ${position.chain} is out of limits: Left: ${positionData.tickLeft}, Right: ${positionData.tickRight}, Curr: ${positionData.tickCurr}`,
       "🚨 Reposition 🚨"
     );
   }
 
   // check position lifetime
-  const positionInitData = await loadPositionInit(positionId);
+  const positionInitData = await loadPositionInit(position);
   const positionAge = Date.now() - positionInitData.createdAt;
   const posAgeDays = parseInt(positionAge / 8.64e7);
-  if (posAgeDays > 10 && updateAlertStatus(positionId, OLD_POSITION_ALERT)) {
-    logger.info("Position", positionId, " > 10 days old", posAgeDays);
+  if (posAgeDays > 10 && updateAlertStatus(position, OLD_POSITION_ALERT)) {
+    logger.info(
+      "Position:",
+      position.id,
+      "on chain:",
+      position.chain,
+      " > 10 days old",
+      posAgeDays
+    );
     await notify(
-      `Position ${positionId} > 10 days old: ${posAgeDays}`,
+      `Position ${position.id} on chain ${position.chain} > 10 days old: ${posAgeDays}`,
       "⏰ Reposition? ⏰"
     );
   }
@@ -79,11 +86,13 @@ async function analyzeDataPoint(
 
   if (
     profitLossRatio.toFixed(2) >= 20 &&
-    updateAlertStatus(positionId, PNL_ALERT)
+    updateAlertStatus(position, PNL_ALERT)
   ) {
     logger.info(
       "Position",
-      positionId,
+      position.id,
+      "on chaoin",
+      position.chain,
       "is in high USD profit:",
       totalPositionValueUSD,
       initPositionValueUSD,
@@ -97,9 +106,9 @@ async function analyzeDataPoint(
       amountToken1USD
     );
     await notify(
-      `Position ${positionId} in high USD profit: ${profitLossRatio.toFixed(
-        2
-      )}%`,
+      `Position ${position.id} on chain ${
+        position.chain
+      } in high USD profit: ${profitLossRatio.toFixed(2)}%`,
       "💵 Cash out 💵"
     );
   }
@@ -112,20 +121,22 @@ async function analyzeDataPoint(
     ((totalPositionValueUSD - totalHoldValueUSD) / totalPositionValueUSD) * 100;
   if (
     totalPositionValueUSD < totalHoldValueUSD &&
-    updateAlertStatus(positionId, IMP_LOSS_ALERT)
+    updateAlertStatus(position, IMP_LOSS_ALERT)
   ) {
     logger.info(
       "Position:",
-      positionId,
+      position.id,
+      "on chain:",
+      position.chain,
       " is at impermanent loss:",
       totalPositionValueUSD,
       totalHoldValueUSD,
       ilRate.toFixed(2)
     );
     await notify(
-      `Position ${positionId} is currently at impermanent loss: ${ilRate.toFixed(
-        2
-      )}%`,
+      `Position ${position.id} on chain ${
+        position.chain
+      } is currently at impermanent loss: ${ilRate.toFixed(2)}%`,
       "🚨 Exit position! 🚨"
     );
   }
@@ -135,16 +146,16 @@ async function analyzeDataPoint(
   // check liquidity in surroudings
 }
 
-const updateAlertStatus = (postionId, alertType) => {
+const updateAlertStatus = (postion, alertType) => {
   const now = new Date();
   const last_alert_time =
-    alertsTypeAndTime[postionId]?.[alertType] || new Date(0);
+    alertsTypeAndTime[postion]?.[alertType] || new Date(0);
 
   if (now - last_alert_time < process.env.REPEAT_ALERT_INTERVAL) {
     return false;
   } else {
-    alertsTypeAndTime[postionId] = {
-      ...alertsTypeAndTime[postionId],
+    alertsTypeAndTime[postion] = {
+      ...alertsTypeAndTime[postion],
       [alertType]: now,
     };
   }
