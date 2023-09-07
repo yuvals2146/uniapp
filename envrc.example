@@ -18,18 +18,18 @@ export DEBUG=0
 export DISCORD_CLIENT_TOKEN=''
 
 #runnig settings:
-export INTERVAL=30000
+#don't repeat last alert unless an hour passed
+export INTERVAL=60000000
 export SKIP_EVENT_LOOP=1
 
 #notifer settings:
 export UNISWAP_POOL_URL_PREFIX=""
 export UNISWAP_POSITION_URL_PREFIX=""
-export WHATSAPP_USER_DANY=""
-export WHATSAPP_USER_YUVAL=""
-export WHATSAPP_ALERT_GROUP=""
 
 #logger settings:
-
+PUSHOVER_TOKEN=
+PUSHOVER_YUVAL=
+PUSHOVER_DANY=
 # only for envrc.test!
 
 export SUITE_TO_RUN=""
