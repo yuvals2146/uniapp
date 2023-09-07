@@ -3,11 +3,11 @@ const logger = require("../utils/logger.js");
 
 const prisma = new PrismaClient();
 
-async function loadPosition(position) {
+async function loadPosition(positionKey) {
   try {
     let pos = await prisma.Position.findUnique({
       where: {
-        id: position.id,
+        id: positionKey.id,
       },
     });
     if (!pos) {

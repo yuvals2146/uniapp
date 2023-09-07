@@ -10,6 +10,7 @@ const {
 } = require("../utils/queryTheGraph.js");
 const { chains } = require("../utils/chains.js");
 const { notify } = require("../utils/notifer.js");
+
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
 const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
@@ -69,6 +70,17 @@ const factory = process.env.FACTORY_ADDRESS;
 const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
+async function getPositionJson(positionId, provider) {
+  var NFTContract = new ethers.Contract(
+    NFTmanager,
+    IUniswapV3NFTmanagerABI,
+    provider
+  );
+
+  var pos = await NFTContract.positions(positionId);
+  return pos;
+}
+
 async function getData(position) {
   const provider =
     position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
@@ -79,13 +91,8 @@ async function getData(position) {
     provider
   );
 
-  var NFTContract = new ethers.Contract(
-    NFTmanager,
-    IUniswapV3NFTmanagerABI,
-    provider
-  );
+  const pos = await getPositionJson(position.id, provider);
 
-  var pos = await NFTContract.positions(position.id);
   var token0contract = new ethers.Contract(pos.token0, ERC20, provider);
   var token1contract = new ethers.Contract(pos.token1, ERC20, provider);
   var Decimal0 = await token0contract.decimals();
@@ -308,6 +315,7 @@ async function getPostionData(position) {
     tickLeft: PositionInfo.tickLow,
     tickRight: PositionInfo.tickHigh,
     tickCurr: PositionInfo.tickCurrent,
+    sqrtPriceX96: PositionInfo.sqrtPriceX96,
   };
 
   return data;
@@ -360,9 +368,28 @@ const getQuote = async (
   );
 };
 
-const getPoolExchangeRate = async (poolAddress, chain) => {
+const getPoolExchangeRate = async (position, index) => {
   const provider =
-    chain === ETHEREUM_CHAIN_ID ? await etherProvider : await arbitProvider;
+    position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+
+  const contractAddrUSDC =
+    position.chain === ETHEREUM_CHAIN_ID
+      ? process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH
+      : process.env.USDC_TOKEN_TRACKER_ADDRESS_ARB;
+
+  var FactoryContract = new ethers.Contract(
+    factory,
+    IUniswapV3FactoryABI,
+    provider
+  );
+
+  const pos = await getPositionJson(position.id, provider);
+  var poolAddress = await FactoryContract.getPool(
+    index === 0 ? pos.token0 : pos.token1,
+    contractAddrUSDC,
+    pos.fee
+  );
+
   try {
     const poolContract = new ethers.Contract(
       poolAddress,
@@ -372,7 +399,14 @@ const getPoolExchangeRate = async (poolAddress, chain) => {
 
     const PositionInfo = await poolContract.slot0();
     const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
-    const price = (sqrtPriceX96 / 2 ** 96) ** 2 * 10 ** 12;
+    const price = (sqrtPriceX96 / 2 ** 96) ** 2;
+
+    const poolToken0ContractAddr = await poolContract.token0();
+
+    return poolToken0ContractAddr === contractAddrUSDC
+      ? (1 / price) * 10 ** 12
+      : price * 10 ** 12;
+
     return price;
   } catch (err) {
     const providerName =
@@ -381,7 +415,7 @@ const getPoolExchangeRate = async (poolAddress, chain) => {
         : provider._network.name;
 
     throw new Error(
-      `error with retrive pool exchange rate for pool ${poolAddress} on provider ${providerName}`
+      `Error while retrieving pool exchange rate for pool ${poolAddress} on provider ${providerName}`
     );
   }
 };
@@ -464,6 +498,12 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
       token0Name,
       token1Name
     );
+
+    const multiplier0 =
+      token0symbol === "USDC" || token0symbol === "USDT" ? 10 ** 12 : 1;
+    const multiplier1 =
+      token1symbol === "USDC" || token1symbol === "USDT" ? 10 ** 12 : 1;
+
     //inputs keys names: token0address,token1address,fee,tickLower,tickUpper,amount0Desired,amount1Desired,amount0Min,amount1Min,recipient
     const initData = {
       token0address: resultArgs.inputs[0][0],
@@ -475,9 +515,11 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
       //tickLower: resultArgs.inputs[0][3],
       tickUpper: resultArgs.inputs[0][4],
       amount0Desired: ethers.utils.formatEther(resultArgs.inputs[0][5]),
-      initValueToken0: ethers.utils.formatEther(resultArgs.inputs[0][5]),
+      initValueToken0:
+        ethers.utils.formatEther(resultArgs.inputs[0][5]) * multiplier0,
       amount1Desired: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
-      initValueToken1: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
+      initValueToken1:
+        ethers.utils.formatUnits(resultArgs.inputs[0][6]) * multiplier1,
       amount0Min: ethers.utils.formatEther(resultArgs.inputs[0][7]),
       amount1Min: ethers.utils.formatEther(resultArgs.inputs[0][8]),
       recipient: resultArgs.inputs[0][9],
@@ -510,6 +552,7 @@ const fixTokensSymbol = (token0symbol, token1symbol) => {
 const retriveInitalPositionData = async (position, txHash = null) => {
   // load position from mint txHash
   let initData;
+
   try {
     const tx = txHash
       ? txHash

@@ -10,40 +10,42 @@ const ETHEREUM_CHAIN_ID = 1;
 
 const getNewDataAndAnalyzed = async (position) => {
   try {
-    const Token0USDRate = await getPoolExchangeRate(
-      position.chain === ETHEREUM_CHAIN_ID
-        ? process.env.ETH_TOKEN0_USDC_POOL_ADDRESS
-        : process.env.ARB_TOKEN0_USDC_POOL_ADDRESS,
-      position.chain
-    );
-    const Token1USDRate = await getPoolExchangeRate(
-      position.chain === ETHEREUM_CHAIN_ID
-        ? process.env.ETH_TOKEN1_USDC_POOL_ADDRESS
-        : process.env.ARB_TOKEN1_USDC_POOL_ADDRESS,
-      position.chain
-    );
-    const postionDataFromContract = await getPostionData(position);
+    const positionDataFromContract = await getPostionData(position);
+
+    const [token0Symbol, token1Symbol] =
+      positionDataFromContract.pair.split("/");
+
+    const Token0USDCRate =
+      token0Symbol === "USDC" || token0Symbol === "USDT"
+        ? 1
+        : await getPoolExchangeRate(position, 0);
+
+    const Token1USDCRate =
+      token1Symbol === "USDC" || token1Symbol === "USDT"
+        ? 1
+        : await getPoolExchangeRate(position, 1);
+
     const currentBlockNumber = await getCurrentBlockNumber(position.chain);
 
     savePositionData(
-      postionDataFromContract,
-      Token0USDRate,
-      Token1USDRate,
+      positionDataFromContract,
+      Token0USDCRate,
+      Token1USDCRate,
       parseInt(position.id),
       currentBlockNumber
     );
 
     analyzeDataPoint(
-      postionDataFromContract,
-      Token0USDRate,
-      Token1USDRate,
-      parseInt(position.id)
+      positionDataFromContract,
+      Token0USDCRate,
+      Token1USDCRate,
+      position
     );
   } catch (err) {
     throw new Error(
-      `could not get data and analyze psoition ${position.id} 
-      on chain ${chains[position.chain].name}
-      reason: ${err.message}`
+      `Could not get data and analyze position ${position.id} on chain ${
+        chains[position.chain].name
+      }. Reason: ${err.message}`
     );
   }
 };
