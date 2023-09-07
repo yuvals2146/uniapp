@@ -1,6 +1,6 @@
 const axios = require("axios");
-const logger = require("../utils/logger");
-const { chains } = require("../utils/chains.js");
+const logger = require("./logger");
+const { chains } = require("./chains.js");
 
 const queryTheGraph = async (poolId) => {
   try {

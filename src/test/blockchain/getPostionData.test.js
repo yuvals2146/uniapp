@@ -6,9 +6,9 @@ const {
 } = require("../../blockchain/getPostionData");
 const {
   mockEtherPositionOne,
-  mockEthereumPositionOneItitialData,
+  mockEthereumPositionOneInitialData,
   mockArbitPositionOne,
-  mockArbitPositionOneItitialData,
+  mockArbitPositionOneInitialData,
   mockArbitPositionThree,
 } = require("../mocks.js");
 const { chainsNames } = require("../../utils/chains");
@@ -136,54 +136,54 @@ describe("retriveInitalPositionData", () => {
   test("should retrive Inital Position Data for valid etherum position without tx hash", async () => {
     const resultData = await retriveInitalPositionData(mockEtherPositionOne);
     expect(resultData.token0address).toEqual(
-      mockEthereumPositionOneItitialData.token0address
+      mockEthereumPositionOneInitialData.token0address
     );
     expect(resultData.token0symbol).toEqual(
-      mockEthereumPositionOneItitialData.token0symbol
+      mockEthereumPositionOneInitialData.token0symbol
     );
     expect(resultData.token1address).toEqual(
-      mockEthereumPositionOneItitialData.token1address
+      mockEthereumPositionOneInitialData.token1address
     );
     expect(resultData.token1symbol).toEqual(
-      mockEthereumPositionOneItitialData.token1symbol
+      mockEthereumPositionOneInitialData.token1symbol
     );
-    expect(resultData.fee).toEqual(mockEthereumPositionOneItitialData.fee);
+    expect(resultData.fee).toEqual(mockEthereumPositionOneInitialData.fee);
 
     expect(resultData.tickUpper).toEqual(
-      mockEthereumPositionOneItitialData.tickUpper
+      mockEthereumPositionOneInitialData.tickUpper
     );
     expect(resultData.amount0Desired).toEqual(
-      mockEthereumPositionOneItitialData.amount0Desired
+      mockEthereumPositionOneInitialData.amount0Desired
     );
     expect(resultData.initValueToken0).toEqual(
-      mockEthereumPositionOneItitialData.initValueToken0
+      mockEthereumPositionOneInitialData.initValueToken0
     );
     expect(resultData.amount1Desired).toEqual(
-      mockEthereumPositionOneItitialData.amount1Desired
+      mockEthereumPositionOneInitialData.amount1Desired
     );
     expect(resultData.initValueToken1).toEqual(
-      mockEthereumPositionOneItitialData.initValueToken1
+      mockEthereumPositionOneInitialData.initValueToken1
     );
     expect(resultData.amount0Min).toEqual(
-      mockEthereumPositionOneItitialData.amount0Min
+      mockEthereumPositionOneInitialData.amount0Min
     );
     expect(resultData.amount1Min).toEqual(
-      mockEthereumPositionOneItitialData.amount1Min
+      mockEthereumPositionOneInitialData.amount1Min
     );
     expect(resultData.recipient).toEqual(
-      mockEthereumPositionOneItitialData.recipient
+      mockEthereumPositionOneInitialData.recipient
     );
     expect(resultData.blockNumber).toEqual(
-      mockEthereumPositionOneItitialData.blockNumber
+      mockEthereumPositionOneInitialData.blockNumber
     );
     expect(resultData.blockTimestemp).toEqual(
-      mockEthereumPositionOneItitialData.blockTimestemp
+      mockEthereumPositionOneInitialData.blockTimestemp
     );
     expect(resultData.initToken0USDRate).toEqual(
-      mockEthereumPositionOneItitialData.initToken0USDRate
+      mockEthereumPositionOneInitialData.initToken0USDRate
     );
     expect(resultData.initToken1USDRate).toEqual(
-      mockEthereumPositionOneItitialData.initToken1USDRate
+      mockEthereumPositionOneInitialData.initToken1USDRate
     );
   });
 
@@ -195,54 +195,54 @@ describe("retriveInitalPositionData", () => {
       txHash
     );
     expect(resultData.token0address).toEqual(
-      mockEthereumPositionOneItitialData.token0address
+      mockEthereumPositionOneInitialData.token0address
     );
     expect(resultData.token0symbol).toEqual(
-      mockEthereumPositionOneItitialData.token0symbol
+      mockEthereumPositionOneInitialData.token0symbol
     );
     expect(resultData.token1address).toEqual(
-      mockEthereumPositionOneItitialData.token1address
+      mockEthereumPositionOneInitialData.token1address
     );
     expect(resultData.token1symbol).toEqual(
-      mockEthereumPositionOneItitialData.token1symbol
+      mockEthereumPositionOneInitialData.token1symbol
     );
-    expect(resultData.fee).toEqual(mockEthereumPositionOneItitialData.fee);
+    expect(resultData.fee).toEqual(mockEthereumPositionOneInitialData.fee);
 
     expect(resultData.tickUpper).toEqual(
-      mockEthereumPositionOneItitialData.tickUpper
+      mockEthereumPositionOneInitialData.tickUpper
     );
     expect(resultData.amount0Desired).toEqual(
-      mockEthereumPositionOneItitialData.amount0Desired
+      mockEthereumPositionOneInitialData.amount0Desired
     );
     expect(resultData.initValueToken0).toEqual(
-      mockEthereumPositionOneItitialData.initValueToken0
+      mockEthereumPositionOneInitialData.initValueToken0
     );
     expect(resultData.amount1Desired).toEqual(
-      mockEthereumPositionOneItitialData.amount1Desired
+      mockEthereumPositionOneInitialData.amount1Desired
     );
     expect(resultData.initValueToken1).toEqual(
-      mockEthereumPositionOneItitialData.initValueToken1
+      mockEthereumPositionOneInitialData.initValueToken1
     );
     expect(resultData.amount0Min).toEqual(
-      mockEthereumPositionOneItitialData.amount0Min
+      mockEthereumPositionOneInitialData.amount0Min
     );
     expect(resultData.amount1Min).toEqual(
-      mockEthereumPositionOneItitialData.amount1Min
+      mockEthereumPositionOneInitialData.amount1Min
     );
     expect(resultData.recipient).toEqual(
-      mockEthereumPositionOneItitialData.recipient
+      mockEthereumPositionOneInitialData.recipient
     );
     expect(resultData.blockNumber).toEqual(
-      mockEthereumPositionOneItitialData.blockNumber
+      mockEthereumPositionOneInitialData.blockNumber
     );
     expect(resultData.blockTimestemp).toEqual(
-      mockEthereumPositionOneItitialData.blockTimestemp
+      mockEthereumPositionOneInitialData.blockTimestemp
     );
     expect(resultData.initToken0USDRate).toEqual(
-      mockEthereumPositionOneItitialData.initToken0USDRate
+      mockEthereumPositionOneInitialData.initToken0USDRate
     );
     expect(resultData.initToken1USDRate).toEqual(
-      mockEthereumPositionOneItitialData.initToken1USDRate
+      mockEthereumPositionOneInitialData.initToken1USDRate
     );
   });
 
@@ -269,54 +269,54 @@ describe("retriveInitalPositionData", () => {
       txHash
     );
     expect(resultData.token0address).toEqual(
-      mockArbitPositionOneItitialData.token0address
+      mockArbitPositionOneInitialData.token0address
     );
     expect(resultData.token0symbol).toEqual(
-      mockArbitPositionOneItitialData.token0symbol
+      mockArbitPositionOneInitialData.token0symbol
     );
     expect(resultData.token1address).toEqual(
-      mockArbitPositionOneItitialData.token1address
+      mockArbitPositionOneInitialData.token1address
     );
     expect(resultData.token1symbol).toEqual(
-      mockArbitPositionOneItitialData.token1symbol
+      mockArbitPositionOneInitialData.token1symbol
     );
-    expect(resultData.fee).toEqual(mockArbitPositionOneItitialData.fee);
+    expect(resultData.fee).toEqual(mockArbitPositionOneInitialData.fee);
 
     expect(resultData.tickUpper).toEqual(
-      mockArbitPositionOneItitialData.tickUpper
+      mockArbitPositionOneInitialData.tickUpper
     );
     expect(resultData.amount0Desired).toEqual(
-      mockArbitPositionOneItitialData.amount0Desired
+      mockArbitPositionOneInitialData.amount0Desired
     );
     expect(resultData.initValueToken0).toEqual(
-      mockArbitPositionOneItitialData.initValueToken0
+      mockArbitPositionOneInitialData.initValueToken0
     );
     expect(resultData.amount1Desired).toEqual(
-      mockArbitPositionOneItitialData.amount1Desired
+      mockArbitPositionOneInitialData.amount1Desired
     );
     expect(resultData.initValueToken1).toEqual(
-      mockArbitPositionOneItitialData.initValueToken1
+      mockArbitPositionOneInitialData.initValueToken1
     );
     expect(resultData.amount0Min).toEqual(
-      mockArbitPositionOneItitialData.amount0Min
+      mockArbitPositionOneInitialData.amount0Min
     );
     expect(resultData.amount1Min).toEqual(
-      mockArbitPositionOneItitialData.amount1Min
+      mockArbitPositionOneInitialData.amount1Min
     );
     expect(resultData.recipient).toEqual(
-      mockArbitPositionOneItitialData.recipient
+      mockArbitPositionOneInitialData.recipient
     );
     expect(resultData.blockNumber).toEqual(
-      mockArbitPositionOneItitialData.blockNumber
+      mockArbitPositionOneInitialData.blockNumber
     );
     expect(resultData.blockTimestemp).toEqual(
-      mockArbitPositionOneItitialData.blockTimestemp
+      mockArbitPositionOneInitialData.blockTimestemp
     );
     expect(resultData.initToken0USDRate).toEqual(
-      mockArbitPositionOneItitialData.initToken0USDRate
+      mockArbitPositionOneInitialData.initToken0USDRate
     );
     expect(resultData.initToken1USDRate).toEqual(
-      mockArbitPositionOneItitialData.initToken1USDRate
+      mockArbitPositionOneInitialData.initToken1USDRate
     );
   });
 

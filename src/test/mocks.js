@@ -21,7 +21,7 @@ const mockEtherPositionWithDataOne = {
   initToken1USDRate: 1872.32,
 };
 
-const mockEthereumPositionOneItitialData = {
+const mockEthereumPositionOneInitialData = {
   token0address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
   token0symbol: "USDC",
   token1symbol: "ETH",
@@ -147,7 +147,7 @@ const mockArbitPositionWithDataOne = {
   initToken1USDRate: 0.9415,
 };
 
-const mockArbitPositionOneItitialData = {
+const mockArbitPositionOneInitialData = {
   token0address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
   token0symbol: "ETH",
   token1symbol: "ARB",
@@ -199,7 +199,7 @@ const mockUnvalidPositionChain = {
 
 module.exports = {
   mockEtherPositionOne,
-  mockEthereumPositionOneItitialData,
+  mockEthereumPositionOneInitialData,
   mockEtherPositionWithDataOne,
   mockEtherPositionInfoDataOne,
 
@@ -215,7 +215,7 @@ module.exports = {
 
   mockArbitPositionOne,
   mockArbitPositionWithDataOne,
-  mockArbitPositionOneItitialData,
+  mockArbitPositionOneInitialData,
 
   mockArbitPositionTwo,
   mockArbitPositionThree,
