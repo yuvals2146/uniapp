@@ -1,6 +1,6 @@
-const { fetchHistoricalPriceData } = require("../../binance");
+const { fetchHistoricalPriceData } = require("../../lib/binance.js");
 
-const { chains } = require("../../chains");
+const { chains } = require("../../utils/chains");
 //async function fetchHistoricalPriceData(token0, token1, startTime) {
 const validPairs = [
   ["ARB", "BTC", "GMX", "PENDLE"], // ETH
@@ -15,14 +15,14 @@ describe("Fetch historical Data from Binance API", () => {
   test("should fetch data for all valid pairs and time", async () => {
     for (let i = 0; i < validTokens.length; i++) {
       for (let j = 0; j < validPairs[i].length; j++) {
-        const res = await fetchHistoricalPriceData(
-          validTokens[i],
-          validPairs[i][j],
-          1693056174000
-        );
-        expect(res).toHaveProperty("initToken0USDRate");
-        expect(res).toHaveProperty("initToken1USDRate");
-        expect(res).toHaveProperty("initPriceT0T1");
+        const [resInitToken0USDRate, resInitToken1USDRate] =
+          await fetchHistoricalPriceData(
+            validTokens[i],
+            validPairs[i][j],
+            1693056174000
+          );
+        expect(resInitToken0USDRate).not.toBeUndefined();
+        expect(resInitToken1USDRate).not.toBeUndefined();
       }
     }
   });

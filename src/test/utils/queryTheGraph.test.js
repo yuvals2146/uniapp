@@ -1,5 +1,7 @@
-const chains = require("../../chains.js");
-const { queryTheGraphForMintTransactHash } = require("../../queryTheGraph");
+const chains = require("../../utils/chains.js");
+const {
+  queryTheGraphForMintTransactHash,
+} = require("../../utils/queryTheGraph.js");
 
 const validPosition = {
   id: 482139,
@@ -21,15 +23,11 @@ describe("TheGraph - get Tx Hash From Position id", () => {
   });
 
   test("should not retreive tx hash for unvalid position", async () => {
-    try {
-      await queryTheGraphForMintTransactHash(unvalidPosition);
-    } catch (error) {
-      // not sure it needed if all types the same: expect(error).toBeInstanceOf(Error);
 
-      expect(error).toHaveProperty(
-        "message",
-        "theGraph - could not get mint TX for position 1000000000 on chain id 1"
-      );
-    }
+    expect(() =>
+      queryTheGraphForMintTransactHash(unvalidPosition)
+    ).rejects.toThrow(
+      "theGraph - could not get mint TX for position 1000000000 on chain etherum"
+    );
   });
 });

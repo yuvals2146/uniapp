@@ -1,16 +1,3 @@
-require("dotenv").config({ path: `${__dirname}/../../.env.test` });
-const { dataRoutine } = require("../../runner");
-
-const mockArbitrumPosition = {
-  chain: "Arbitrum",
-  id: 1,
-};
-
-const mockEthereumPosition = {
-  chain: "Ethereum",
-  id: 2,
-};
-
 describe("e2e", () => {
   test("should create bla bla bla", async () => {
     //dataRoutine([mockEthereumPosition]);

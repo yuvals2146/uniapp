@@ -7,11 +7,15 @@ const chains = {
   42161: {
     name: "arbitrum",
     RPC: process.env.ARB_RPC_URL,
-    subGraph:
-      "https://gateway-arbitrum.network.thegraph.com/api/bb1d7db189c33229a9e60e21afc93eff/subgraphs/id/HUZDsRpEVP2AvzDCyzDHtdc64dyDxx8FQjzsmqSg4H3B",
   },
+};
+
+chainsNames = {
+  etherum: 1,
+  arbitrum: 42161,
 };
 
 module.exports = {
   chains,
+  chainsNames,
 };

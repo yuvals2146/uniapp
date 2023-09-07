@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE "Position" (
     "id" INTEGER NOT NULL,
+    "chainId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "initValueToken0" DOUBLE PRECISION NOT NULL,
     "token0Symbol" TEXT NOT NULL,
@@ -9,8 +10,6 @@ CREATE TABLE "Position" (
     "initToken0USDRate" DOUBLE PRECISION,
     "initToken1USDRate" DOUBLE PRECISION,
     "initPriceT0T1" DOUBLE PRECISION,
-    "chainId" INTEGER NOT NULL,
-    "HasHistoricalData" BOOLEAN NOT NULL,
 
     CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
 );
@@ -25,13 +24,13 @@ CREATE TABLE "PositionInfo" (
     "liquidityToken1" DOUBLE PRECISION NOT NULL,
     "feesToken0" DOUBLE PRECISION NOT NULL,
     "feesToken1" DOUBLE PRECISION NOT NULL,
-    "priceToken0" DOUBLE PRECISION NOT NULL,
-    "etherUsdExchangeRate" DOUBLE PRECISION NOT NULL,
-    "ArbitUsdExchangeRate" DOUBLE PRECISION NOT NULL,
+    "token0Token1Rate" DOUBLE PRECISION NOT NULL,
+    "token0USDCExchangeRate" DOUBLE PRECISION NOT NULL,
+    "token1USDCExchangeRate" DOUBLE PRECISION NOT NULL,
     "blockNumber" INTEGER NOT NULL,
 
     CONSTRAINT "PositionInfo_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
-ALTER TABLE "PositionInfo" ADD CONSTRAINT "PositionInfo_inter_pos_id_fkey" FOREIGN KEY ("inter_pos_id") REFERENCES "Position"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PositionInfo" ADD CONSTRAINT "PositionInfo_inter_pos_id_fkey" FOREIGN KEY ("inter_pos_id") REFERENCES "Position"("id") ON DELETE CASCADE ON UPDATE CASCADE;

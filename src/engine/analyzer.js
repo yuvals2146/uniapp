@@ -1,8 +1,4 @@
-const {
-  getPostionData,
-  getTickAtSqrtRatio,
-} = require("../blockchain/getPostionData.js");
-const { loadPositionInit } = require("../db/loadPositionDataDB.js");
+const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
 

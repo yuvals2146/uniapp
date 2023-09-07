@@ -25,6 +25,7 @@ const saveInitialPositionInfo = async (position, initData) => {
     },
   });
 };
+
 async function savePositionData(
   positionData,
   etherUsdExchangeRate,
@@ -32,16 +33,18 @@ async function savePositionData(
   positionId,
   blockNumber
 ) {
-  let pid = await prisma.Position.findUnique({
+  let position = await prisma.Position.findUnique({
     where: {
       id: positionId,
     },
   });
 
-  const PositionInfo = await prisma.PositionInfo.create({
+  if (!position) throw new Error("position not found");
+
+  await prisma.PositionInfo.create({
     data: {
       positionId: {
-        connect: { id: pid.id },
+        connect: { id: position.id },
       },
       pair: positionData.pair,
       liquidityToken0: parseFloat(positionData.liquidityToken0),
@@ -75,6 +78,6 @@ const userSaveNewPosition = async (position, txHash) => {
   }
 };
 module.exports = {
-  savePositionDataSQL: savePositionData,
+  savePositionData,
   userSaveNewPosition,
 };

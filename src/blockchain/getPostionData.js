@@ -8,6 +8,8 @@ const { fetchHistoricalPriceData } = require("../lib/binance.js");
 const {
   queryTheGraphForMintTransactHash,
 } = require("../utils/queryTheGraph.js");
+const { chains } = require("../utils/chains.js");
+const { notify } = require("../utils/notifer.js");
 
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
@@ -65,6 +67,7 @@ if (
   process.exit(1);
 }
 const factory = process.env.FACTORY_ADDRESS;
+
 const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
@@ -252,8 +255,29 @@ async function getFees(
   return fees;
 }
 
+const postitionKeyValidate = (position) => {
+  // input validation
+  if (!chains[position.chain])
+    throw new Error(`not valid chain id ${position.chain}`);
+  if (!position.id || position.id < 0 || typeof position.id !== "number")
+    throw new Error("not valid position id or not exist");
+};
+
 async function getPostionData(position) {
-  var PositionInfo = await getData(position);
+  try {
+    postitionKeyValidate(position);
+  } catch (err) {
+    throw new Error(err.message);
+  }
+  try {
+    var PositionInfo = await getData(position);
+  } catch (err) {
+    throw new Error(
+      `could not get data for position ${position.id} on chain ${
+        chains[position.chain].name
+      } \n reason: ${err.message}`
+    );
+  }
 
   const fees = await getFees(
     PositionInfo.feeGrowthGlobal0X128,
@@ -272,6 +296,7 @@ async function getPostionData(position) {
     PositionInfo.tickCurrent,
     PositionInfo.sqrtPriceX96
   );
+
   const pairRates = await calcPairRate(PositionInfo);
   [liquidityToken0, liquidityToken1] = await getTokenAmounts(
     PositionInfo.liquidity,
@@ -347,7 +372,7 @@ const getQuote = async (
 const getPoolExchangeRate = async (position, index) => {
   const provider =
     position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
-
+  if (index !== 0 && index !== 1) throw new Error("index must be 0 or 1");
   const contractAddrUSDC =
     position.chain === ETHEREUM_CHAIN_ID
       ? process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH
@@ -360,36 +385,35 @@ const getPoolExchangeRate = async (position, index) => {
   );
 
   const pos = await getPositionJson(position.id, provider);
-  var poolAddress = await FactoryContract.getPool(
-    index === 0 ? pos.token0 : pos.token1,
+  const fromTokenContract = index === 0 ? pos.token0 : pos.token1;
+  if (fromTokenContract === contractAddrUSDC)
+    throw new Error("cannot get pool exchange rate for token USDC or USDT");
+
+  let poolAddress = await FactoryContract.getPool(
+    fromTokenContract,
     contractAddrUSDC,
     pos.fee
   );
-
   try {
     const poolContract = new ethers.Contract(
       poolAddress,
       IUniswapV3PoolABI,
       provider
     );
-
     const PositionInfo = await poolContract.slot0();
+
     const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
+
     const price = (sqrtPriceX96 / 2 ** 96) ** 2;
-
     const poolToken0ContractAddr = await poolContract.token0();
-
     return poolToken0ContractAddr === contractAddrUSDC
       ? (1 / price) * 10 ** 12
       : price * 10 ** 12;
-
-    return price;
   } catch (err) {
     const providerName =
       provider?._network.name === "homestead"
         ? "ethereum"
         : provider._network.name;
-
     throw new Error(
       `Error while retrieving pool exchange rate for pool ${poolAddress} on provider ${providerName}`
     );
@@ -397,9 +421,16 @@ const getPoolExchangeRate = async (position, index) => {
 };
 
 const getCurrentBlockNumber = async (chain) => {
+  if (!chains[chain]) throw new Error(`not valid chain id ${chain}`);
   const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
-  const blockNumber = await provider.getBlockNumber();
-  return blockNumber;
+
+  try {
+    return await provider.getBlockNumber();
+  } catch (err) {
+    throw new Error(
+      `error with retrive current block number for chain ${chain}`
+    );
+  }
 };
 
 async function getTokenAmounts(
@@ -498,7 +529,11 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
 
     return initData;
   } catch (err) {
-    logger.error("error with retrive data for TX");
+    logger.error(
+      `error with retrive data to TX 0x...${txhash.slice(-6, -1)} for token ${
+        position.id
+      } on ${chains[position.chain].name}`
+    );
   }
 };
 
@@ -523,7 +558,6 @@ const retriveInitalPositionData = async (position, txHash = null) => {
       ? txHash
       : await queryTheGraphForMintTransactHash(position);
     initData = await loadPositionInitDataByTxHash(tx, position);
-
     if (!initData) throw new Error("no init data found");
     const [initToken0USDRate, initToken1USDRate] =
       await fetchHistoricalPriceData(
@@ -534,23 +568,30 @@ const retriveInitalPositionData = async (position, txHash = null) => {
     initData.initToken0USDRate = initToken0USDRate;
     initData.initToken1USDRate = initToken1USDRate;
   } catch (e) {
-    if (!initData.initToken0USDRate || !initData.initToken1USDRate) {
-      logger.error(e.message);
-      logger.error("No historical data found for position", position.id);
-      notify(
-        "🪙🕰️ Action Needed 🕰️🪙",
-        `No historical data found for position ${position.id} on chain ${
-          chains[position.chain].name
-        } please do it manually`
-      );
-    } else {
-      logger.error(e.message);
-      logger.error("No init data found for position", position.id);
+    if (!initData) {
       notify(
         "🪙🕰️ Action Needed 🕰️🪙",
         `No initial data found for position ${position.id} on chain ${
           chains[position.chain].name
         } please do it manually`
+      );
+      throw new Error(
+        `No inital data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        }`
+      );
+    } else {
+      notify(
+        "🪙🕰️ Action Needed 🕰️🪙",
+        `No historical data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        } please try to do it manually`
+      );
+
+      throw new Error(
+        `No historical data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        } please try to do it manually`
       );
     }
   }
@@ -562,7 +603,6 @@ module.exports = {
   getPostionData,
   getPoolExchangeRate,
   getCurrentBlockNumber,
-  getTickAtSqrtRatio,
   loadPositionInitDataByTxHash,
   retriveInitalPositionData,
 };
