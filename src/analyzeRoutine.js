@@ -31,7 +31,7 @@ const getNewDataAndAnalyzed = async (position) => {
       positionDataFromContract,
       Token0USDCRate,
       Token1USDCRate,
-      parseInt(position.id),
+      position,
       currentBlockNumber
     );
 

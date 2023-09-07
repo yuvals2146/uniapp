@@ -6,6 +6,7 @@ const { userSaveNewPosition } = require("./db/savePositionDataDB.js");
 const init = async () => {
   // await addNewPositionTemp();
 
+  console.log("init1");
   const positions = (await loadAllPositions()).map((position) => {
     return {
       id: position.id,
@@ -37,9 +38,9 @@ const addNewPositionTemp = async () => {
     [{ id: 482139, chain: 1 }],
   ];
 
-  array.forEach(async (pos) => {
-    await userSaveNewPosition(pos[0], pos[1]);
-  });
+  for (let i = 0; i < array.length; i++) {
+    await userSaveNewPosition(array[i][0], array[i][1]);
+  }
 };
 
 module.exports = { init, addNewPositionTemp };

@@ -12,7 +12,7 @@ datasource db {
 
 
 model Position {
-  id                    Int  @id
+  id                    Int
   chainId               Int
   createdAt             DateTime
   initValueToken0       Float
@@ -23,12 +23,15 @@ model Position {
   initToken1USDRate     Float?
   initPriceT0T1         Float?
   dataPoints            PositionInfo[]
+
+  @@id([id, chainId], name: "positionKey")
 }
 
 model PositionInfo {
   id                      Int  @id @default(autoincrement())
-  positionId              Position @relation(fields: [inter_pos_id], references: [id], onDelete: Cascade)
-  inter_pos_id            Int
+  position                Position @relation(fields: [posId, posChain], references: [id, chainId], onDelete: Cascade)
+  posId                   Int
+  posChain                Int
   createdAt               DateTime @default(now())
   pair                    String
   liquidityToken0         Float

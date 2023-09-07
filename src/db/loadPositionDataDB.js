@@ -7,7 +7,10 @@ async function loadPosition(positionKey) {
   try {
     let pos = await prisma.Position.findUnique({
       where: {
-        id: positionKey.id,
+        positionKey: {
+          id: positionKey.id,
+          chainId: positionKey.chain,
+        },
       },
     });
     if (!pos) {
