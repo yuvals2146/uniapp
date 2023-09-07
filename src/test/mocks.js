@@ -29,9 +29,9 @@ const mockEthereumPositionOneItitialData = {
   fee: 500,
   tickUpper: 201560,
   amount0Desired: "0.000000000965856802",
-  initValueToken0: "0.000000000965856802",
+  initValueToken0: 965.8568019999999,
   amount1Desired: "1.999999998264815215",
-  initValueToken1: "1.999999998264815215",
+  initValueToken1: 1.999999998264815215,
   amount0Min: "0.000000000887550067",
   amount1Min: "1.958114099215592832",
   recipient: "0x735Fe3BB02D5961f064Ae5B6E0d89eE2ed73136b",
@@ -91,7 +91,7 @@ const mockEtherPositionInfoDataTwo = {
 // ether position 3:
 
 const mockEtherPositionThree = {
-  id: 3,
+  id: 12,
   chain: 1,
 };
 
@@ -125,6 +125,7 @@ const mockEtherPositionWithDataFour = {
   initToken0USDRate: 0,
   initToken1USDRate: 0,
 };
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ARBIT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -154,9 +155,9 @@ const mockArbitPositionOneItitialData = {
   fee: 500,
   tickUpper: 75430,
   amount0Desired: "0.329534836654748873",
-  initValueToken0: "0.329534836654748873",
+  initValueToken0: 0.329534836654748873,
   amount1Desired: "566.671305985847971808",
-  initValueToken1: "566.671305985847971808",
+  initValueToken1: 566.671305985847971808,
   amount0Min: "0.307832909350950479",
   amount1Min: "528.573542037187932972",
   recipient: "0xFC3df89F8AF7D957B2283D0306B091a90ab1A648",
@@ -170,21 +171,21 @@ const mockArbitPositionOneItitialData = {
 
 const mockArbitPositionTwo = {
   id: 2,
-  chain: 1,
+  chain: 42161,
 };
 
 // arbit position 3:
 
 const mockArbitPositionThree = {
-  id: 3,
-  chain: 1,
+  id: 795484,
+  chain: 42161,
 };
 
 // arbit position 4:
 
 const mockArbitPositionFour = {
   id: 3,
-  chain: 1,
+  chain: 42161,
 };
 
 const mockUnvalidPositionId = {

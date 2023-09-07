@@ -1,5 +1,3 @@
-require("dotenv").config({ path: `${__dirname}/../../.env.test` }); //initialize dotenv
-
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();

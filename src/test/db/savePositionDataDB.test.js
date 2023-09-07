@@ -26,6 +26,7 @@ describe("savePositionData", () => {
     );
 
     const [res] = await factory.loadAllPositionInfoFromDB();
+
     expect(res.inter_pos_id).toEqual(mockEtherPositionInfoDataOne.positionId);
     expect(res).toHaveProperty("pair");
     expect(res).toHaveProperty("createdAt");
@@ -33,9 +34,9 @@ describe("savePositionData", () => {
     expect(res).toHaveProperty("liquidityToken1");
     expect(res).toHaveProperty("feesToken0");
     expect(res).toHaveProperty("feesToken1");
-    expect(res).toHaveProperty("priceToken0");
-    expect(res).toHaveProperty("etherUsdExchangeRate");
-    expect(res).toHaveProperty("ArbitUsdExchangeRate");
+    expect(res).toHaveProperty("token0Token1Rate");
+    expect(res).toHaveProperty("token0USDCExchangeRate");
+    expect(res).toHaveProperty("token1USDCExchangeRate");
     expect(res).toHaveProperty("blockNumber");
   });
 

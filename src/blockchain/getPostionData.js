@@ -67,6 +67,7 @@ if (
   process.exit(1);
 }
 const factory = process.env.FACTORY_ADDRESS;
+
 const NFTmanager = process.env.NFTMANAGER_ADDRESS;
 const quoter = process.env.QUOTER_CONTRACT_ADDRESS;
 
@@ -254,8 +255,8 @@ async function getFees(
   return fees;
 }
 
-// do something with me!
-const postitionValidate = (position) => {
+const postitionKeyValidate = (position) => {
+  // input validation
   if (!chains[position.chain])
     throw new Error(`not valid chain id ${position.chain}`);
   if (!position.id || position.id < 0 || typeof position.id !== "number")
@@ -263,11 +264,11 @@ const postitionValidate = (position) => {
 };
 
 async function getPostionData(position) {
-  // input validation
-  if (!chains[position.chain])
-    throw new Error(`not valid chain id ${position.chain}`);
-  if (!position.id || position.id < 0 || typeof position.id !== "number")
-    throw new Error("not valid position id or not exist");
+  try {
+    postitionKeyValidate(position);
+  } catch (err) {
+    throw new Error(err.message);
+  }
   try {
     var PositionInfo = await getData(position);
   } catch (err) {
@@ -371,7 +372,7 @@ const getQuote = async (
 const getPoolExchangeRate = async (position, index) => {
   const provider =
     position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
-
+  if (index !== 0 && index !== 1) throw new Error("index must be 0 or 1");
   const contractAddrUSDC =
     position.chain === ETHEREUM_CHAIN_ID
       ? process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH
@@ -384,36 +385,35 @@ const getPoolExchangeRate = async (position, index) => {
   );
 
   const pos = await getPositionJson(position.id, provider);
-  var poolAddress = await FactoryContract.getPool(
-    index === 0 ? pos.token0 : pos.token1,
+  const fromTokenContract = index === 0 ? pos.token0 : pos.token1;
+  if (fromTokenContract === contractAddrUSDC)
+    throw new Error("cannot get pool exchange rate for token USDC or USDT");
+
+  let poolAddress = await FactoryContract.getPool(
+    fromTokenContract,
     contractAddrUSDC,
     pos.fee
   );
-
   try {
     const poolContract = new ethers.Contract(
       poolAddress,
       IUniswapV3PoolABI,
       provider
     );
-
     const PositionInfo = await poolContract.slot0();
+
     const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
+
     const price = (sqrtPriceX96 / 2 ** 96) ** 2;
-
     const poolToken0ContractAddr = await poolContract.token0();
-
     return poolToken0ContractAddr === contractAddrUSDC
       ? (1 / price) * 10 ** 12
       : price * 10 ** 12;
-
-    return price;
   } catch (err) {
     const providerName =
       provider?._network.name === "homestead"
         ? "ethereum"
         : provider._network.name;
-
     throw new Error(
       `Error while retrieving pool exchange rate for pool ${poolAddress} on provider ${providerName}`
     );
@@ -576,7 +576,9 @@ const retriveInitalPositionData = async (position, txHash = null) => {
         } please do it manually`
       );
       throw new Error(
-        `No inital data found for position ${position.id} reason ${e.message}`
+        `No inital data found for position ${position.id} on chain ${
+          chains[position.chain].name
+        }`
       );
     } else {
       notify(

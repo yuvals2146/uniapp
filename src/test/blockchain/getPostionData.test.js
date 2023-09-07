@@ -2,43 +2,20 @@ const {
   getPostionData,
   getCurrentBlockNumber,
   retriveInitalPositionData,
+  getPoolExchangeRate,
 } = require("../../blockchain/getPostionData");
 const {
+  mockEtherPositionOne,
   mockEthereumPositionOneItitialData,
+  mockArbitPositionOne,
   mockArbitPositionOneItitialData,
+  mockArbitPositionThree,
 } = require("../mocks.js");
-const { chains, chainsNames } = require("../../utils/chains");
-// async function getData(position) {...} return PositionInfo;
+const { chainsNames } = require("../../utils/chains");
 
-const mockPosition = {
-  positionData: {
-    pair: "",
-    liquidityToken0: "",
-    liquidityToken1: "",
-    feesToken0: "",
-    feesToken1: "",
-    priceToken0: "",
-    initData: {
-      blockTimestemp: "",
-      initValueToken0: "",
-      token0symbol: "",
-      initValueToken1: "",
-      token1symbol: "",
-    },
-    //????? auto generated need to validate!
-  },
-  etherUsdExchangeRate: 1,
-  ArbitUsdExchangeRate: 1,
-  positionId: 1,
-  blockNumber: 2,
-};
-const mockPositionChain = 1;
 describe("getPostionData", () => {
   test("should get position data for valid etherum position", async () => {
-    const resultData = await getPostionData({
-      id: 482139,
-      chain: chainsNames.etherum,
-    });
+    const resultData = await getPostionData(mockEtherPositionOne);
     expect(resultData).toHaveProperty("feesToken0");
     expect(resultData).toHaveProperty("feesToken1");
     expect(resultData).toHaveProperty("priceToken0");
@@ -105,17 +82,36 @@ describe("getPostionData", () => {
   });
 });
 
-// ON HOLD UNTIL DANY FINISH THIS PART
-//const getPoolExchangeRate = async (poolAddress, chain) => {...} return exchangeRate;
-// describe("getPoolExchangeRate", () => {
-//   test("should get Exchange rate from arbitrum for a valid token0?? pool address and chain", async () => {
-//     //     getPoolExchangeRate(validPoolsAddress.arb0, cha);
-//     expect(1).toEqual(1);
-//   });
-// });
-// ON HOLD UNTIL DANY FINISH THIS PART
+describe("getPoolExchangeRate", () => {
+  //test("should get Exchange rate from ethereum for a valid token", async () => {
+  //expect(await getPoolExchangeRate(VALID_POSITION, 0)).toEqual(20);
 
-//const getCurrentBlockNumber = async (chain) => {...} return blockNumber;
+  // });
+  test("should get Exchange rate from arbitrum for a valid token", async () => {
+    expect(
+      await getPoolExchangeRate(mockArbitPositionThree, 1)
+    ).toBeGreaterThan(0);
+  });
+
+  test("should not get Exchange rate from ethereum for a invalid token", async () => {
+    expect(
+      async () => await getPoolExchangeRate(mockEtherPositionOne, 0)
+    ).rejects.toThrow("cannot get pool exchange rate for token USDC or USD");
+  });
+
+  // test("should not get Exchange rate from arbitrum for a invalid token", async () => {
+  //   expect(
+  //     async () => await getPoolExchangeRate(mockArbitPositionOne, 1)
+  //   ).rejects.toThrow("cannot get pool exchange rate for token USDC or USD");
+  // });
+
+  test("should not get Exchange rate from invalid index", async () => {
+    expect(
+      async () => await getPoolExchangeRate(mockEtherPositionOne, 2)
+    ).rejects.toThrow("index must be 0 or 1");
+  });
+});
+
 describe("getCurrentBlockNumber", () => {
   test("Should get current block for etherum", async () => {
     const resultBlock = await getCurrentBlockNumber(chainsNames.etherum);
@@ -136,28 +132,118 @@ describe("getCurrentBlockNumber", () => {
   });
 });
 
-// const retriveInitalPositionData = async (position) => {...} return PositionInfo;
-
 describe("retriveInitalPositionData", () => {
   test("should retrive Inital Position Data for valid etherum position without tx hash", async () => {
-    const resultData = await retriveInitalPositionData({
-      id: 482139,
-      chain: chainsNames.etherum,
-    });
-    expect(resultData).toEqual(mockEthereumPositionOneItitialData);
+    const resultData = await retriveInitalPositionData(mockEtherPositionOne);
+    expect(resultData.token0address).toEqual(
+      mockEthereumPositionOneItitialData.token0address
+    );
+    expect(resultData.token0symbol).toEqual(
+      mockEthereumPositionOneItitialData.token0symbol
+    );
+    expect(resultData.token1address).toEqual(
+      mockEthereumPositionOneItitialData.token1address
+    );
+    expect(resultData.token1symbol).toEqual(
+      mockEthereumPositionOneItitialData.token1symbol
+    );
+    expect(resultData.fee).toEqual(mockEthereumPositionOneItitialData.fee);
+
+    expect(resultData.tickUpper).toEqual(
+      mockEthereumPositionOneItitialData.tickUpper
+    );
+    expect(resultData.amount0Desired).toEqual(
+      mockEthereumPositionOneItitialData.amount0Desired
+    );
+    expect(resultData.initValueToken0).toEqual(
+      mockEthereumPositionOneItitialData.initValueToken0
+    );
+    expect(resultData.amount1Desired).toEqual(
+      mockEthereumPositionOneItitialData.amount1Desired
+    );
+    expect(resultData.initValueToken1).toEqual(
+      mockEthereumPositionOneItitialData.initValueToken1
+    );
+    expect(resultData.amount0Min).toEqual(
+      mockEthereumPositionOneItitialData.amount0Min
+    );
+    expect(resultData.amount1Min).toEqual(
+      mockEthereumPositionOneItitialData.amount1Min
+    );
+    expect(resultData.recipient).toEqual(
+      mockEthereumPositionOneItitialData.recipient
+    );
+    expect(resultData.blockNumber).toEqual(
+      mockEthereumPositionOneItitialData.blockNumber
+    );
+    expect(resultData.blockTimestemp).toEqual(
+      mockEthereumPositionOneItitialData.blockTimestemp
+    );
+    expect(resultData.initToken0USDRate).toEqual(
+      mockEthereumPositionOneItitialData.initToken0USDRate
+    );
+    expect(resultData.initToken1USDRate).toEqual(
+      mockEthereumPositionOneItitialData.initToken1USDRate
+    );
   });
 
   test("should retrive Inital Position Data for valid etherum position with tx hash", async () => {
     const txHash =
       "0x4c2056c796abd55edbfb65e25687a80f2f357b2726928cb33f61c4511f01373b";
     const resultData = await retriveInitalPositionData(
-      {
-        id: 482139,
-        chain: chainsNames.etherum,
-      },
+      mockEtherPositionOne,
       txHash
     );
-    expect(resultData).toEqual(mockEthereumPositionOneItitialData);
+    expect(resultData.token0address).toEqual(
+      mockEthereumPositionOneItitialData.token0address
+    );
+    expect(resultData.token0symbol).toEqual(
+      mockEthereumPositionOneItitialData.token0symbol
+    );
+    expect(resultData.token1address).toEqual(
+      mockEthereumPositionOneItitialData.token1address
+    );
+    expect(resultData.token1symbol).toEqual(
+      mockEthereumPositionOneItitialData.token1symbol
+    );
+    expect(resultData.fee).toEqual(mockEthereumPositionOneItitialData.fee);
+
+    expect(resultData.tickUpper).toEqual(
+      mockEthereumPositionOneItitialData.tickUpper
+    );
+    expect(resultData.amount0Desired).toEqual(
+      mockEthereumPositionOneItitialData.amount0Desired
+    );
+    expect(resultData.initValueToken0).toEqual(
+      mockEthereumPositionOneItitialData.initValueToken0
+    );
+    expect(resultData.amount1Desired).toEqual(
+      mockEthereumPositionOneItitialData.amount1Desired
+    );
+    expect(resultData.initValueToken1).toEqual(
+      mockEthereumPositionOneItitialData.initValueToken1
+    );
+    expect(resultData.amount0Min).toEqual(
+      mockEthereumPositionOneItitialData.amount0Min
+    );
+    expect(resultData.amount1Min).toEqual(
+      mockEthereumPositionOneItitialData.amount1Min
+    );
+    expect(resultData.recipient).toEqual(
+      mockEthereumPositionOneItitialData.recipient
+    );
+    expect(resultData.blockNumber).toEqual(
+      mockEthereumPositionOneItitialData.blockNumber
+    );
+    expect(resultData.blockTimestemp).toEqual(
+      mockEthereumPositionOneItitialData.blockTimestemp
+    );
+    expect(resultData.initToken0USDRate).toEqual(
+      mockEthereumPositionOneItitialData.initToken0USDRate
+    );
+    expect(resultData.initToken1USDRate).toEqual(
+      mockEthereumPositionOneItitialData.initToken1USDRate
+    );
   });
 
   // no support for arbit subgraph for now
@@ -182,8 +268,56 @@ describe("retriveInitalPositionData", () => {
       },
       txHash
     );
+    expect(resultData.token0address).toEqual(
+      mockArbitPositionOneItitialData.token0address
+    );
+    expect(resultData.token0symbol).toEqual(
+      mockArbitPositionOneItitialData.token0symbol
+    );
+    expect(resultData.token1address).toEqual(
+      mockArbitPositionOneItitialData.token1address
+    );
+    expect(resultData.token1symbol).toEqual(
+      mockArbitPositionOneItitialData.token1symbol
+    );
+    expect(resultData.fee).toEqual(mockArbitPositionOneItitialData.fee);
 
-    expect(resultData).toEqual(mockArbitPositionOneItitialData);
+    expect(resultData.tickUpper).toEqual(
+      mockArbitPositionOneItitialData.tickUpper
+    );
+    expect(resultData.amount0Desired).toEqual(
+      mockArbitPositionOneItitialData.amount0Desired
+    );
+    expect(resultData.initValueToken0).toEqual(
+      mockArbitPositionOneItitialData.initValueToken0
+    );
+    expect(resultData.amount1Desired).toEqual(
+      mockArbitPositionOneItitialData.amount1Desired
+    );
+    expect(resultData.initValueToken1).toEqual(
+      mockArbitPositionOneItitialData.initValueToken1
+    );
+    expect(resultData.amount0Min).toEqual(
+      mockArbitPositionOneItitialData.amount0Min
+    );
+    expect(resultData.amount1Min).toEqual(
+      mockArbitPositionOneItitialData.amount1Min
+    );
+    expect(resultData.recipient).toEqual(
+      mockArbitPositionOneItitialData.recipient
+    );
+    expect(resultData.blockNumber).toEqual(
+      mockArbitPositionOneItitialData.blockNumber
+    );
+    expect(resultData.blockTimestemp).toEqual(
+      mockArbitPositionOneItitialData.blockTimestemp
+    );
+    expect(resultData.initToken0USDRate).toEqual(
+      mockArbitPositionOneItitialData.initToken0USDRate
+    );
+    expect(resultData.initToken1USDRate).toEqual(
+      mockArbitPositionOneItitialData.initToken1USDRate
+    );
   });
 
   test("should not retrive Inital Position Data for non valid etherum position", async () => {
@@ -193,7 +327,7 @@ describe("retriveInitalPositionData", () => {
         chain: chainsNames.etherum,
       })
     ).rejects.toThrow(
-      "No inital data found for position 10000000 reason theGraph - could not get mint TX for position 10000000 on chain etherum"
+      "No inital data found for position 10000000 on chain etherum"
     );
   });
 
@@ -207,7 +341,7 @@ describe("retriveInitalPositionData", () => {
         "0x12345"
       )
     ).rejects.toThrow(
-      "No inital data found for position 795484 reason no init data found"
+      "No inital data found for position 795484 on chain etherum"
     );
   });
 });
@@ -219,7 +353,7 @@ test("should not retrive Inital Position Data for valid arbitrum without tx hash
       chain: chainsNames.arbitrum,
     })
   ).rejects.toThrow(
-    "No inital data found for position 795484 reason theGraph - could not get mint TX for position 795484 on chain arbitrum"
+    "No inital data found for position 795484 on chain arbitrum"
   );
 });
 
@@ -233,6 +367,6 @@ test("should not retrive Inital Position Data for non valid arbitrum tx hash", a
       "0x12345"
     )
   ).rejects.toThrow(
-    "No inital data found for position 795484 reason no init data found"
+    "No inital data found for position 795484 on chain arbitrum"
   );
 });
