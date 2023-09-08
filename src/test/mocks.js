@@ -133,6 +133,7 @@ const mockEtherPositionWithDataFour = {
 const mockArbitPositionOne = {
   id: 795484,
   chain: chainsNames.arbitrum,
+  txHash: "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e",
 };
 
 const mockArbitPositionWithDataOne = {

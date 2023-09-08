@@ -14,7 +14,7 @@ const {
 const { chainsNames } = require("../../utils/chains");
 
 describe("getPostionData", () => {
-  test("should get position data for valid etherum position", async () => {
+  test("should get position data for valid ethereum position", async () => {
     const resultData = await getPostionData(mockEtherPositionOne);
     expect(resultData).toHaveProperty("feesToken0");
     expect(resultData).toHaveProperty("feesToken1");
@@ -77,7 +77,7 @@ describe("getPostionData", () => {
     expect(async () => {
       await getPostionData({ id: 10000000000, chain: 1 });
     }).rejects.toThrow(
-      /could not get data for position 10000000000 on chain etherum/
+      /could not get data for position 10000000000 on chain ethereum/
     );
   });
 });
@@ -113,9 +113,9 @@ describe("getPoolExchangeRate", () => {
 });
 
 describe("getCurrentBlockNumber", () => {
-  test("Should get current block for etherum", async () => {
-    const resultBlock = await getCurrentBlockNumber(chainsNames.etherum);
-    // 18025927 etherum block on the first test run
+  test("Should get current block for ethereum", async () => {
+    const resultBlock = await getCurrentBlockNumber(chainsNames.ethereum);
+    // 18025927 ethereum block on the first test run
     expect(resultBlock).toBeGreaterThan(18025927);
   });
 
@@ -133,7 +133,7 @@ describe("getCurrentBlockNumber", () => {
 });
 
 describe("retriveInitalPositionData", () => {
-  test("should retrive Inital Position Data for valid etherum position without tx hash", async () => {
+  test("should retrive Inital Position Data for valid ethereum position without tx hash", async () => {
     const resultData = await retriveInitalPositionData(mockEtherPositionOne);
     expect(resultData.token0address).toEqual(
       mockEthereumPositionOneInitialData.token0address
@@ -187,7 +187,7 @@ describe("retriveInitalPositionData", () => {
     );
   });
 
-  test("should retrive Inital Position Data for valid etherum position with tx hash", async () => {
+  test("should retrive Inital Position Data for valid ethereum position with tx hash", async () => {
     const txHash =
       "0x4c2056c796abd55edbfb65e25687a80f2f357b2726928cb33f61c4511f01373b";
     const resultData = await retriveInitalPositionData(
@@ -320,29 +320,27 @@ describe("retriveInitalPositionData", () => {
     );
   });
 
-  test("should not retrive Inital Position Data for non valid etherum position", async () => {
+  test("should not retrive Inital Position Data for non valid ethereum position", async () => {
     expect(() =>
       retriveInitalPositionData({
         id: 10000000,
-        chain: chainsNames.etherum,
+        chain: chainsNames.ethereum,
       })
     ).rejects.toThrow(
-      "No inital data found for position 10000000 on chain etherum"
+      "No inital data found for position 10000000 on chain ethereum"
     );
   });
 
-  test("should not retrive Inital Position Data for non valid etherum tx hash", async () => {
+  test("should not retrive Inital Position Data for non valid ethereum tx hash", async () => {
     expect(() =>
       retriveInitalPositionData(
         {
           id: 795484,
-          chain: chainsNames.etherum,
+          chain: chainsNames.ethereum,
         },
         "0x12345"
       )
-    ).rejects.toThrow(
-      "No inital data found for position 795484 on chain etherum"
-    );
+    ).rejects.toThrow("No tx hash found for position 795484 on chain ethereum");
   });
 });
 
@@ -366,7 +364,5 @@ test("should not retrive Inital Position Data for non valid arbitrum tx hash", a
       },
       "0x12345"
     )
-  ).rejects.toThrow(
-    "No inital data found for position 795484 on chain arbitrum"
-  );
+  ).rejects.toThrow("No tx hash found for position 795484 on chain arbitrum");
 });

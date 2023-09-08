@@ -1,3 +1,4 @@
+require("dotenv").config({ path: `${__dirname}/../../.env.test` }); //initialize dotenv
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -22,11 +23,23 @@ const addPositionIntoDB = async (position) => {
 };
 
 const removePositionFromDB = async (position) => {
-  await prisma.Position.delete({
+  let pos = await prisma.Position.findUnique({
     where: {
       id: parseInt(position.id),
     },
   });
+
+  if (!pos) return;
+
+  try {
+    await prisma.Position.delete({
+      where: {
+        id: parseInt(position.id),
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const loadAllPositionInfoFromDB = async () => {

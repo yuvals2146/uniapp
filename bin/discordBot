@@ -1,0 +1,10 @@
+
+#!/usr/bin/env bash
+
+source .envrc
+# import logger
+source "./bin/logger"
+
+pp_info "starting discord bot" "with env: $ENV"
+
+yarn discordBot

@@ -17,5 +17,5 @@ else
 # if SUITE_TO_RUN is not empty run a single test
     pp_info "running test: " "$SUITE_TO_RUN"
     pp_note "** if you wish to run all tests please remove SUITE_TO_RUN from .envrc.test **"
-    yarn jest --detectOpenHandles --no-cache --watchAll --testNamePattern=${SUITE_TO_RUN}
+    yarn jest --detectOpenHandles --no-cache --runInBand --watchAll --testNamePattern=${SUITE_TO_RUN}
 fi 

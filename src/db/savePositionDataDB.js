@@ -68,16 +68,35 @@ const userSaveNewPosition = async (position, txHash) => {
 
   if (pos) {
     logger.error("could not save postition, position already exist");
-    return;
+    throw new Error(
+      `could not save postition ${position.id} on ${
+        chains[position.chain].name
+      }, position already exist`
+    );
   }
   try {
     const initData = await retriveInitalPositionData(position, txHash);
+    if (!initData) throw new Error("could not retrive initial data");
     saveInitialPositionInfo(position, initData);
   } catch (err) {
-    logger.error("error in userSaveNewPosition", err);
+    throw new Error(err.message);
   }
 };
+
+const deletePosition = async (position) => {
+  try {
+    await prisma.Position.delete({
+      where: {
+        id: parseInt(position.id),
+      },
+    });
+  } catch (err) {
+    throw new Error("could not delete position, reason: ", err.message);
+  }
+};
+
 module.exports = {
   savePositionData,
   userSaveNewPosition,
+  deletePosition,
 };

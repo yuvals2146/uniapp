@@ -23,7 +23,7 @@ describe("loadPositionInit", () => {
     await factory.removePositionFromDB(mockArbitPositionOne);
   });
 
-  test("should load valid etherum position for db", async () => {
+  test("should load valid ethereum position for db", async () => {
     const result = await loadPosition(mockEtherPositionOne);
 
     expect(result.chain).toEqual(mockEtherPositionWithDataOne.chainId);
@@ -225,5 +225,4 @@ describe("loadAllPositions", () => {
       mockArbitPositionWithDataOne.token1Symbol
     );
   });
-  
 });

@@ -43,7 +43,7 @@ async function analyzeDataPoint(
   }
 
   // check position lifetime
-  const positionInitData = await loadPositionInit(position);
+  const positionInitData = await loadPosition(position);
   const positionAge = Date.now() - positionInitData.createdAt;
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (posAgeDays > 10 && updateAlertStatus(position, OLD_POSITION_ALERT)) {
