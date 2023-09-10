@@ -17,7 +17,8 @@ const longSleep = 10000;
 describe("discordBot", () => {
   beforeAll(async () => {
     await new Promise((r) => setTimeout(r, longSleep));
-    expect(getClientReady()).toEqual(true);
+    const clientIsReady = await getClientReady();
+    expect(clientIsReady).toEqual(true);
     sendMsg(
       "---------------------------------------------------- \n this is an autmated test for discord bot \n----------------------------------------------------"
     );
@@ -198,4 +199,3 @@ describe("discordBot", () => {
     });
   });
 });
-
