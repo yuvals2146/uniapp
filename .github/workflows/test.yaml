@@ -30,9 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Print db url
-        run: echo "DB ${{ secrets.DATABASE_URL }}"
-
       - name: Set up Node.js 16.x
         uses: actions/setup-node@v1
         with:
@@ -44,9 +41,6 @@ jobs:
       - name: migrate database
         run: yarn db:migrate
         env:
-          DBURL: "postgres://postgres:postgres@localhost:5432/postgres"
-
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - name: Run the mock tests function
         run: yarn test
-        env:
-          DBURL: postgres://postgres:postgres@localhost:5432/postgres
