@@ -585,7 +585,7 @@ const retriveInitalPositionData = async (position, txHash = null) => {
       throw new Error(
         `could not get historical initial data found for position ${
           position.id
-        } on chain ${chains[position.chain].name}`
+        } on chain ${chains[position.chain].name} reason: ${e.message}`
       );
     }
   }
