@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "yarn jest --detectOpenHandles --no-cache --runInBand",
+    "test": "yarn jest --detectOpenHandles --no-cache --runInBand --forceExit",
     "start": "node src/index.js",
     "discordBot": "node src/discordBot.js",
     "db:generate": "prisma generate",
