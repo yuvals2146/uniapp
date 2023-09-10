@@ -5,7 +5,7 @@ on: [push]
 jobs:
   Test:
     runs-on: ubuntu-latest
-    environment: test-ci
+    environment: ci-test
 
     services:
       postgres:
