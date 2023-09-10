@@ -11,6 +11,11 @@ jobs:
       postgres:
         image: postgres
 
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -36,5 +41,9 @@ jobs:
         run: yarn db:migrate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Run the mock tests function
         run: yarn test
+        env:
+          ARB_RPC_URL: ${{ secrets.ARB_RPC_URL }}
+          ETHER_RPC_URL: ${{ secrets.ETHER_RPC_URL }}
