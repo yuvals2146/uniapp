@@ -88,15 +88,15 @@ describe("getPoolExchangeRate", () => {
 
   // });
   test("should get Exchange rate from arbitrum for a valid token", async () => {
-    expect(
-      await getPoolExchangeRate(mockArbitPositionThree, 1)
-    ).toBeGreaterThan(0);
+    expect(async () => {
+      await getPoolExchangeRate(mockArbitPositionThree, 1);
+    }).toBeGreaterThan(0);
   });
 
   test("should not get Exchange rate from ethereum for a invalid token", async () => {
-    expect(
-      async () => await getPoolExchangeRate(mockEtherPositionOne, 0)
-    ).rejects.toThrow("cannot get pool exchange rate for token USDC or USD");
+    expect(async () => {
+      await getPoolExchangeRate(mockEtherPositionOne, 0);
+    }).rejects.toThrow("cannot get pool exchange rate for token USDC or USD");
   });
 
   // test("should not get Exchange rate from arbitrum for a invalid token", async () => {
@@ -106,9 +106,9 @@ describe("getPoolExchangeRate", () => {
   // });
 
   test("should not get Exchange rate from invalid index", async () => {
-    expect(
-      async () => await getPoolExchangeRate(mockEtherPositionOne, 2)
-    ).rejects.toThrow("index must be 0 or 1");
+    expect(async () => {
+      await getPoolExchangeRate(mockEtherPositionOne, 2);
+    }).rejects.toThrow("index must be 0 or 1");
   });
 });
 
