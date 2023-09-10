@@ -88,9 +88,8 @@ describe("getPoolExchangeRate", () => {
 
   // });
   test("should get Exchange rate from arbitrum for a valid token", async () => {
-    expect(async () => {
-      await getPoolExchangeRate(mockArbitPositionThree, 1);
-    }).toBeGreaterThan(0);
+    const result = await getPoolExchangeRate(mockArbitPositionThree, 1);
+    expect(result).toBeGreaterThan(0);
   });
 
   test("should not get Exchange rate from ethereum for a invalid token", async () => {
