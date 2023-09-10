@@ -555,7 +555,7 @@ const retriveInitalPositionData = async (position, txHash = null) => {
   let tx;
   try {
     tx = txHash ? txHash : await queryTheGraphForMintTransactHash(position);
-    
+
     initData = await loadPositionInitDataByTxHash(tx, position);
     if (!initData) throw new Error("no init data found");
     const [initToken0USDRate, initToken1USDRate] =
@@ -583,7 +583,7 @@ const retriveInitalPositionData = async (position, txHash = null) => {
       }
     } else {
       throw new Error(
-        `could not get historical initial data found foe position ${
+        `could not get historical initial data found for position ${
           position.id
         } on chain ${chains[position.chain].name}`
       );

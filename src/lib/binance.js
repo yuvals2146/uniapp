@@ -1,5 +1,5 @@
 const axios = require("axios");
-
+const logger = require("../utils/logger.js");
 // Binance API base URL
 const baseURL = "https://api.binance.com/api/v3";
 
