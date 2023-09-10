@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "(. ./.envrc.test; yarn jest --detectOpenHandles --no-cache --watchAll)",
+    "test": "yarn jest --detectOpenHandles --no-cache",
     "start": "node src/index.js",
     "discordBot": "node src/discordBot.js",
     "db:generate": "prisma generate",
