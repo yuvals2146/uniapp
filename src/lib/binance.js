@@ -29,7 +29,10 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     );
   } catch (err) {
     logger.error(`Error fetching historical data for Token0: ${token0}`);
-    throw new Error(`Error fetching historical data for Token0: ${token0}`);
+    console.log(err.message);
+    throw new Error(
+      `Error fetching historical data for Token0: ${token0} with query ${queryUSDTPriceToken0}`
+    );
   }
 
   try {
@@ -39,7 +42,9 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
         : null;
   } catch (err) {
     logger.error(`Error fetching historical data for Token1: ${token1}`);
-    throw new Error(`Error fetching historical data for Token1: ${token1}`);
+    throw new Error(
+      `Error fetching historical data for Token1: ${token1} with query ${queryUSDTPriceToken1}`
+    );
   }
 
   const initToken1USDRate = symbolToken1 ? token1PriceResponse.data[0][1] : 1;
