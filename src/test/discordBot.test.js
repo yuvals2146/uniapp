@@ -34,14 +34,17 @@ describe("discordBot", () => {
     test("should ask for help form bot", async () => {
       await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> help`);
       await new Promise((r) => setTimeout(r, sleep));
-      expect(await getRespose()).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         "I can help you with the following commands: \n- `GetAllActivePositions` \n- `AddPosition` \n- `RemovePosition`"
       );
     });
     test("should not recived help menu for diffrent keyword form bot", async () => {
       await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> hell`);
       await new Promise((r) => setTimeout(r, sleep));
-      expect(await getRespose()).toEqual(
+      const response = await getRespose();
+
+      expect(response).toEqual(
         "I don't understand this command, try to use `help` to find posible commands"
       );
     });
@@ -71,8 +74,8 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
-      expect(addPositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on chain ${
           chains[mockArbitPositionOne.chain].name
         } was added successfully`
@@ -86,8 +89,8 @@ describe("discordBot", () => {
         } ${mockArbitPositionTwo.id}`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
-      expect(addPositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         `No inital data found for position 2 on chain arbitrum`
       );
     });
@@ -97,8 +100,8 @@ describe("discordBot", () => {
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition sababirum ${mockArbitPositionOne.id} 0xa123`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
-      expect(addPositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         "Chain id not supported, must be ethereum or arbitrum"
       );
     });
@@ -111,8 +114,8 @@ describe("discordBot", () => {
       );
 
       await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
-      expect(addPositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         `could not save postition ${mockArbitPositionOne.id} on ${
           chains[mockArbitPositionOne.chain].name
         }, position already exist`
@@ -126,8 +129,8 @@ describe("discordBot", () => {
         } 100000000`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
-      expect(addPositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         "No inital data found for position 100000000 on chain ethereum"
       );
     });
@@ -139,8 +142,8 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id} 0x123`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
-      expect(addPositionRes).toEqual("TX hash is not valid");
+      const response = await getRespose();
+      expect(response).toEqual("TX hash is not valid");
     });
   });
 
@@ -152,8 +155,8 @@ describe("discordBot", () => {
 
       await new Promise((r) => setTimeout(r, 10000));
 
-      const getAllActivePositionsRes = await getRespose();
-      expect(getAllActivePositionsRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         `Positions: \n- id: \`${mockEtherPositionOne.id}\` , chain: \`${
           chains[mockEtherPositionOne.chain].name
         }\` \n- id: \`${mockArbitPositionOne.id}\` , chain: \`${
@@ -171,8 +174,8 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const removePositionRes = await getRespose();
-      expect(removePositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
           chains[mockEtherPositionOne.chain].name
         } removed successfully`
@@ -186,8 +189,8 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id}`
       );
       await new Promise((r) => setTimeout(r, sleep));
-      const removePositionRes = await getRespose();
-      expect(removePositionRes).toEqual(
+      const response = await getRespose();
+      expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on ${
           chains[mockArbitPositionOne.chain].name
         } removed successfully`
@@ -195,3 +198,4 @@ describe("discordBot", () => {
     });
   });
 });
+

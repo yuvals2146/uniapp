@@ -37,8 +37,8 @@ const mockEthereumPositionOneInitialData = {
   recipient: "0x735Fe3BB02D5961f064Ae5B6E0d89eE2ed73136b",
   blockNumber: 16975737,
   blockTimestemp: 1680613919000,
-  initToken0USDRate: process.env.ENV === "ci-test" ? 1 : 0.9995,
-  initToken1USDRate: process.env.ENV === "ci-test" ? 2 : 1872.32,
+  initToken0USDRate: process.env.ENV === "ci-test" ? 1 : "0.99950000",
+  initToken1USDRate: process.env.ENV === "ci-test" ? 2 : "1872.32000000",
 };
 
 const mockEtherPositionInfoDataOne = {
@@ -164,8 +164,8 @@ const mockArbitPositionOneInitialData = {
   recipient: "0xFC3df89F8AF7D957B2283D0306B091a90ab1A648",
   blockNumber: 125225248,
   blockTimestemp: 1693071326000,
-  initToken0USDRate: process.env.ENV === "ci-test" ? 1 : 1645.12,
-  initToken1USDRate: process.env.ENV === "ci-test" ? 2 : 0.9415,
+  initToken0USDRate: process.env.ENV === "ci-test" ? 1 : "1645.12000000",
+  initToken1USDRate: process.env.ENV === "ci-test" ? 2 : "0.94150000",
 };
 
 // arbit position 2:
