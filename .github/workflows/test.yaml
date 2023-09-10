@@ -46,6 +46,7 @@ jobs:
         run: yarn test
         env:
           ENV: ${{ secrets.ENV }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ARB_RPC_URL: ${{ secrets.ARB_RPC_URL }}
           ETHER_RPC_URL: ${{ secrets.ETHER_RPC_URL }}
           FACTORY_ADDRESS: ${{ secrets.FACTORY_ADDRESS }}
