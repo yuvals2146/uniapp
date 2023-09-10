@@ -5,6 +5,13 @@ const baseURL = "https://api.binance.com/api/v3";
 
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
+  // THERE IS AN ERROR WITH BINANCE AND US ISP's SO WE NEED TO BYPASS BINANCE FOR GITHUB WORKFLOW
+  // WHEN REGION SELECTION WILL BE AVILABLE LETS REMOVE IT [https://github.com/orgs/community/discussions/11727]
+  if (process.env.ENV === "ci-test") {
+    const mockInitToken0USDRate = 1;
+    const mockInitToken1USDRate = 2;
+    return [mockInitToken0USDRate, mockInitToken1USDRate];
+  }
   const endpoint = "/klines";
 
   if (
