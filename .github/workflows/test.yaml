@@ -15,7 +15,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
           POSTGRES_DB: postgres
-
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -28,6 +28,9 @@ jobs:
       # run steps required in the workflow
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Print db url
+        run: echo "DB $DATABASE_URL"
 
       - name: Set up Node.js 16.x
         uses: actions/setup-node@v1
