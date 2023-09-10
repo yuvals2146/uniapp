@@ -42,9 +42,10 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Run the mock tests function
+      - name: Run tests
         run: yarn test
         env:
+          ENV: ${{ secrets.ENV }}
           ARB_RPC_URL: ${{ secrets.ARB_RPC_URL }}
           ETHER_RPC_URL: ${{ secrets.ETHER_RPC_URL }}
           FACTORY_ADDRESS: ${{ secrets.FACTORY_ADDRESS }}
@@ -53,7 +54,7 @@ jobs:
           USDC_TOKEN_TRACKER_ADDRESS_ETH: ${{ secrets.USDC_TOKEN_TRACKER_ADDRESS_ETH }}
           USDC_TOKEN_TRACKER_ADDRESS_ARB: ${{ secrets.USDC_TOKEN_TRACKER_ADDRESS_ARB }}
           DISCORD_CLIENT_TOKEN: ${{ secrets.DISCORD_CLIENT_TOKEN}}
-          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID}}
+          DISCORD_CLIENT_ID: ${{ env.DISCORD_CLIENT_ID}}
           DISCORD_TEST_CLIENT_TOKEN: ${{ secrets.DISCORD_TEST_CLIENT_TOKEN}}
           DISCORD_TEST_CLIENT_ID: ${{ secrets.DISCORD_TEST_CLIENT_ID}}
           DISCORD_TEST_CHANNEL_ID: ${{ secrets.DISCORD_TEST_CHANNEL_ID}}
