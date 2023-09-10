@@ -38,7 +38,7 @@ describe("loadPositionInit", () => {
       mockEtherPositionWithDataOne.initToken0USDRate /
         mockEtherPositionWithDataOne.initToken1USDRate
     );
-
+  
     expect(result.initToken0USDRate).toEqual(
       mockEtherPositionWithDataOne.initToken0USDRate
     );
