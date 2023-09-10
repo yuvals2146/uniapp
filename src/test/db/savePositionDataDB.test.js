@@ -41,14 +41,15 @@ describe("savePositionData", () => {
   });
 
   test("should not save position info data to db if position", async () => {
-    expect(() =>
-      savePositionData(
-        mockEtherPositionInfoDataTwo.positionData,
-        mockEtherPositionInfoDataTwo.etherUsdExchangeRate,
-        mockEtherPositionInfoDataTwo.ArbitUsdExchangeRate,
-        mockEtherPositionInfoDataTwo.positionId,
-        mockEtherPositionInfoDataTwo.blockNumber
-      )
+    expect(
+      async () =>
+        await savePositionData(
+          mockEtherPositionInfoDataTwo.positionData,
+          mockEtherPositionInfoDataTwo.etherUsdExchangeRate,
+          mockEtherPositionInfoDataTwo.ArbitUsdExchangeRate,
+          mockEtherPositionInfoDataTwo.positionId,
+          mockEtherPositionInfoDataTwo.blockNumber
+        )
     ).rejects.toThrow("position not found");
   });
 });

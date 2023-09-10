@@ -23,8 +23,8 @@ describe("TheGraph - get Tx Hash From Position id", () => {
   });
 
   test("should not retreive tx hash for unvalid position", async () => {
-    expect(() =>
-      queryTheGraphForMintTransactHash(unvalidPosition)
+    expect(
+      async () => await queryTheGraphForMintTransactHash(unvalidPosition)
     ).rejects.toThrow(
       "theGraph - could not get mint TX for position 1000000000 on chain ethereum"
     );

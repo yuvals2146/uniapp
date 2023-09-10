@@ -38,7 +38,7 @@ describe("loadPositionInit", () => {
       mockEtherPositionWithDataOne.initToken0USDRate /
         mockEtherPositionWithDataOne.initToken1USDRate
     );
-  
+
     expect(result.initToken0USDRate).toEqual(
       mockEtherPositionWithDataOne.initToken0USDRate
     );
@@ -115,9 +115,9 @@ describe("loadPositionInit", () => {
   });
 
   test("should not load invalid position id form db", async () => {
-    expect(() => loadPosition(mockUnvalidPositionId)).rejects.toThrow(
-      "position not found"
-    );
+    expect(
+      async () => await loadPosition(mockUnvalidPositionId)
+    ).rejects.toThrow("position not found");
   });
 
   //   test("should not load invalid position chain form db", async () => {

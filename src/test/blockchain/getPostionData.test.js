@@ -321,48 +321,52 @@ describe("retriveInitalPositionData", () => {
   });
 
   test("should not retrive Inital Position Data for non valid ethereum position", async () => {
-    expect(() =>
-      retriveInitalPositionData({
-        id: 10000000,
-        chain: chainsNames.ethereum,
-      })
+    expect(
+      async () =>
+        await retriveInitalPositionData({
+          id: 10000000,
+          chain: chainsNames.ethereum,
+        })
     ).rejects.toThrow(
       "No inital data found for position 10000000 on chain ethereum"
     );
   });
 
   test("should not retrive Inital Position Data for non valid ethereum tx hash", async () => {
-    expect(() =>
-      retriveInitalPositionData(
-        {
-          id: 795484,
-          chain: chainsNames.ethereum,
-        },
-        "0x12345"
-      )
+    expect(
+      async () =>
+        await retriveInitalPositionData(
+          {
+            id: 795484,
+            chain: chainsNames.ethereum,
+          },
+          "0x12345"
+        )
     ).rejects.toThrow("No tx hash found for position 795484 on chain ethereum");
   });
 });
 
 test("should not retrive Inital Position Data for valid arbitrum without tx hash", async () => {
-  expect(() =>
-    retriveInitalPositionData({
-      id: 795484,
-      chain: chainsNames.arbitrum,
-    })
+  expect(
+    async () =>
+      await retriveInitalPositionData({
+        id: 795484,
+        chain: chainsNames.arbitrum,
+      })
   ).rejects.toThrow(
     "No inital data found for position 795484 on chain arbitrum"
   );
 });
 
 test("should not retrive Inital Position Data for non valid arbitrum tx hash", async () => {
-  expect(() =>
-    retriveInitalPositionData(
-      {
-        id: 795484,
-        chain: chainsNames.arbitrum,
-      },
-      "0x12345"
-    )
+  expect(
+    async () =>
+      await retriveInitalPositionData(
+        {
+          id: 795484,
+          chain: chainsNames.arbitrum,
+        },
+        "0x12345"
+      )
   ).rejects.toThrow("No tx hash found for position 795484 on chain arbitrum");
 });
