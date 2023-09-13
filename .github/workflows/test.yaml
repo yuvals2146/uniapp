@@ -64,3 +64,5 @@ jobs:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN}}
           PUSHOVER_YUVAL: ${{ secrets.PUSHOVER_YUVAL}}
           PUSHOVER_DANY: ${{ secrets.PUSHOVER_DANY}}
+          ALERTS_CHECK_INTERVAL: 6000
+          ALERTS_NOTIFY_INTERVAL_IN_MINUTES: 1
