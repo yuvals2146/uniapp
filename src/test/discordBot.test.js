@@ -21,11 +21,13 @@ const sleep = () => new Promise((r) => setTimeout(r, 5000));
 
 describe("discordBot", () => {
   beforeAll(async () => {
-    await longSleep();
     const clientIsReady = await getClientReady();
+    await longSleep();
     expect(clientIsReady).toEqual(true);
     sendMsg(
-      "---------------------------------------------------- \n this is an autmated test for discord bot \n----------------------------------------------------"
+      `---------------------------------------------------- \n this is an autmated test for discord bot on ${
+        process.env.ENV === "ci-test" ? "CI" : "local"
+      } \n----------------------------------------------------`
     );
   });
 
@@ -33,7 +35,9 @@ describe("discordBot", () => {
     await factory.removePositionFromDB(mockEtherPositionOne);
     await factory.removePositionFromDB(mockArbitPositionOne);
     sendMsg(
-      "---------------------------------------------------- \n end of the autmated test for discord bot \n----------------------------------------------------"
+      `---------------------------------------------------- \n end of the autmated test for discord bot on ${
+        process.env.ENV === "ci-test" ? "CI" : "local"
+      } \n----------------------------------------------------`
     );
   });
   describe("discord bot - help", () => {
@@ -302,6 +306,9 @@ describe("discordBot", () => {
         alertsTypes.OUT_OF_BOUNDS
       );
       await longSleep();
+      await longSleep();
+      await longSleep();
+
       const res = await getAlertMessage();
       expect(res).toEqual(
         `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **out of bounds** 🚨`
