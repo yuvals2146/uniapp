@@ -77,12 +77,7 @@ const inTimeWindow = async (time) => {
   if (!time) return false;
   const now = new Date();
   const timeWindow = new Date(time);
-  // uncomment for production!!!
-  // timeWindow.setHours(
-  //   timeWindow.getHours() +
-  //     parseInt(process.env.ALERTS_NOTIFY_INTERVAL_IN_HOURS)
-  // );
-  // for testing purposes we use minutes.
+
   timeWindow.setMinutes(
     timeWindow.getMinutes() +
       parseInt(process.env.ALERTS_NOTIFY_INTERVAL_IN_MINUTES)

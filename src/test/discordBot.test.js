@@ -25,9 +25,9 @@ describe("discordBot", () => {
     const clientIsReady = await getClientReady();
     expect(clientIsReady).toEqual(true);
     sendMsg(
-      `---------------------------------------------------- \n this is an autmated test for discord bot on ${
+      `---------------------------------------------------- \n this is an autmated test for discord bot on ***${
         process.env.ENV === "ci-test" ? "CI" : "local"
-      } \n----------------------------------------------------`
+      }*** \n----------------------------------------------------`
     );
   });
 
@@ -305,8 +305,7 @@ describe("discordBot", () => {
         mockEtherPositionOne,
         alertsTypes.OUT_OF_BOUNDS
       );
-      await longSleep();
-      await longSleep();
+
       await longSleep();
 
       const res = await getAlertMessage();
@@ -320,7 +319,9 @@ describe("discordBot", () => {
         mockEtherPositionOne,
         alertsTypes.OLD_POSITION
       );
+
       await longSleep();
+
       const res = await getAlertMessage();
       expect(res).toEqual(
         `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **old position** 🚨`
