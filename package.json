@@ -6,7 +6,7 @@
   "scripts": {
     "test": "yarn jest --detectOpenHandles --no-cache --runInBand --forceExit",
     "start": "node src/index.js",
-    "discordBot": "node src/discordBot.js",
+    "discordBot": "node src/discordBot/discordBot.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy --preview-feature && yarn db:generate",
     "db:gen:migration": "prisma migrate dev --preview-feature --create-only",

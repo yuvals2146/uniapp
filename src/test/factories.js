@@ -1,6 +1,6 @@
 require("dotenv").config({ path: `${__dirname}/../../.env.test` }); //initialize dotenv
 const { PrismaClient } = require("@prisma/client");
-
+const { alertsTypes } = require("../../src/utils/alertsTypes.js");
 const prisma = new PrismaClient();
 
 const addPositionIntoDB = async (position) => {
@@ -46,8 +46,29 @@ const loadAllPositionInfoFromDB = async () => {
   return await prisma.positionInfo.findMany();
 };
 
+const setAlertActiveForTest = async (position, alertType) => {
+  let yesterday = new Date().setDate(new Date().getDate() - 1);
+
+  await prisma.Position.update({
+    where: {
+      id: parseInt(position.id),
+    },
+    data: {
+      OutOfBounds: alertType === alertsTypes.OUT_OF_BOUNDS ? true : false,
+      OutOfBoundsLastTriggered: new Date(yesterday),
+      OldPosition: alertType === alertsTypes.OLD_POSITION ? true : false,
+      OldPositionLastTriggered: new Date(yesterday),
+      PNL: alertType === alertsTypes.PNL ? true : false,
+      PNLLastTriggered: new Date(yesterday),
+      IMPLoss: alertType === alertsTypes.IMP_LOSS ? true : false,
+      IMPLossLastTriggered: new Date(yesterday),
+    },
+  });
+};
+
 module.exports = {
   addPositionIntoDB,
   removePositionFromDB,
   loadAllPositionInfoFromDB,
+  setAlertActiveForTest,
 };

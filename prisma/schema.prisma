@@ -12,17 +12,26 @@ datasource db {
 
 
 model Position {
-  id                    Int  @id
-  chainId               Int
-  createdAt             DateTime
-  initValueToken0       Float
-  token0Symbol          String
-  initValueToken1       Float
-  token1Symbol          String
-  initToken0USDRate     Float?
-  initToken1USDRate     Float?
-  initPriceT0T1         Float?
-  dataPoints            PositionInfo[]
+  id                         Int  @id
+  chainId                    Int
+  createdAt                  DateTime
+  initValueToken0            Float
+  token0Symbol               String
+  initValueToken1            Float
+  token1Symbol               String
+  initToken0USDRate          Float?
+  initToken1USDRate          Float?
+  initPriceT0T1              Float?
+  OutOfBounds                Boolean @default(false)
+  OutOfBoundsLastTriggered   DateTime?
+  OldPosition                Boolean @default(false)
+  OldPositionLastTriggered   DateTime?
+  PNL                        Boolean @default(false)
+  PNLLastTriggered           DateTime?
+  IMPLoss                    Boolean @default(false)
+  IMPLossLastTriggered       DateTime?
+  IsAlertMuted               Boolean @default(false)
+  dataPoints                 PositionInfo[]
 }
 
 model PositionInfo {

@@ -1,22 +1,27 @@
-const discordBot = require("../discordbot.js");
+const discordBot = require("../discordBot/discordbot.js");
 const factory = require("./factories.js");
 const { chains } = require("../utils/chains.js");
 const {
+  getClientReady,
+  sendMsg,
+  getReplayToMessage,
+  getAlertMessage,
+} = require("./helpers/discordTestClinetHelper");
+const {
   mockEtherPositionOne,
+  mockEtherPositionWithDataOne,
   mockArbitPositionOne,
   mockArbitPositionTwo,
 } = require("./mocks.js");
-const {
-  getClientReady,
-  sendMsg,
-  getRespose,
-} = require("./helpers/discordTestClinetHelper");
-const sleep = 10000;
-const longSleep = 10000;
+
+const { alertsTypes } = require("../utils/alertsTypes.js");
+
+const longSleep = () => new Promise((r) => setTimeout(r, 10000));
+const sleep = () => new Promise((r) => setTimeout(r, 5000));
 
 describe("discordBot", () => {
   beforeAll(async () => {
-    await new Promise((r) => setTimeout(r, longSleep));
+    await longSleep();
     const clientIsReady = await getClientReady();
     expect(clientIsReady).toEqual(true);
     sendMsg(
@@ -33,17 +38,17 @@ describe("discordBot", () => {
   });
   describe("discord bot - help", () => {
     test("should ask for help form bot", async () => {
-      await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> help`);
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> help`);
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
-        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `AddPosition` \n- `RemovePosition`"
+        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
     });
     test("should not recived help menu for diffrent keyword form bot", async () => {
-      await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> hell`);
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> hell`);
+      await sleep();
+      const response = await getReplayToMessage(msgId);
 
       expect(response).toEqual(
         "I don't understand this command, try to use `help` to find posible commands"
@@ -53,14 +58,14 @@ describe("discordBot", () => {
 
   describe("discord bot - AddPosition", () => {
     test("should add ethereum position to db", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockEtherPositionOne.chain].name
         } ${mockEtherPositionOne.id}`
       );
 
-      await new Promise((r) => setTimeout(r, sleep));
-      const addPositionRes = await getRespose();
+      await sleep();
+      const addPositionRes = await getReplayToMessage(msgId);
       expect(addPositionRes).toEqual(
         `Position ${mockEtherPositionOne.id} on chain ${
           chains[mockEtherPositionOne.chain].name
@@ -69,13 +74,13 @@ describe("discordBot", () => {
     });
 
     test("should add arbitrum position to db", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockArbitPositionOne.chain].name
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on chain ${
           chains[mockArbitPositionOne.chain].name
@@ -84,38 +89,38 @@ describe("discordBot", () => {
     });
 
     test("should not add arbitrum position to db without txhash", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockArbitPositionTwo.chain].name
         } ${mockArbitPositionTwo.id}`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `No inital data found for position 2 on chain arbitrum`
       );
     });
 
     test("should not add position to db for none valid chain", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition sababirum ${mockArbitPositionOne.id} 0xa123`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         "Chain id not supported, must be ethereum or arbitrum"
       );
     });
 
     test("should not add position to db for if alredy exist", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockArbitPositionOne.chain].name
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
 
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `could not save postition ${mockArbitPositionOne.id} on ${
           chains[mockArbitPositionOne.chain].name
@@ -124,39 +129,39 @@ describe("discordBot", () => {
     });
 
     test("should not add position to db for none valid id", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockEtherPositionOne.chain].name
         } 100000000`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         "No inital data found for position 100000000 on chain ethereum"
       );
     });
 
     test("should not add arbitrum position to db for none valid Txhash", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockArbitPositionOne.chain].name
         } ${mockArbitPositionOne.id} 0x123`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual("TX hash is not valid");
     });
   });
 
   describe("discord bot - GetAllActivePositions", () => {
     test("should get all active positions", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetAllActivePositions`
       );
 
       await new Promise((r) => setTimeout(r, 10000));
 
-      const response = await getRespose();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `Positions: \n- id: \`${mockEtherPositionOne.id}\` , chain: \`${
           chains[mockEtherPositionOne.chain].name
@@ -169,13 +174,13 @@ describe("discordBot", () => {
 
   describe("discord bot - RemovePosition", () => {
     test("should remove ethereum position from db", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> RemovePosition ${
           chains[mockEtherPositionOne.chain].name
         } ${mockEtherPositionOne.id}`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
           chains[mockEtherPositionOne.chain].name
@@ -184,17 +189,158 @@ describe("discordBot", () => {
     });
 
     test("should remove arbitrum position from db", async () => {
-      await sendMsg(
+      const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> RemovePosition ${
           chains[mockArbitPositionOne.chain].name
         } ${mockArbitPositionOne.id}`
       );
-      await new Promise((r) => setTimeout(r, sleep));
-      const response = await getRespose();
+      await sleep();
+      const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on ${
           chains[mockArbitPositionOne.chain].name
         } removed successfully`
+      );
+    });
+  });
+
+  describe("discord bot - MuteAlerts", () => {
+    beforeAll(async () => {
+      await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+    });
+
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+    });
+    test("should Mute Active Alert", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> MuteAlerts ${
+          chains[mockEtherPositionOne.chain].name
+        } ${mockEtherPositionOne.id}`
+      );
+      await sleep();
+
+      const response = await getReplayToMessage(msgId);
+      expect(response).toEqual(
+        `Position ${mockEtherPositionOne.id} on ${
+          chains[mockEtherPositionOne.chain].name
+        } was muted successfully`
+      );
+    });
+
+    test("should not Mute unavilable Active Alert id", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> MuteAlerts ${
+          chains[mockEtherPositionOne.chain].name
+        } 100000000`
+      );
+      await sleep();
+
+      const response = await getReplayToMessage(msgId);
+      expect(response).toEqual(
+        `Failed to mute position 100000000 on ${
+          chains[mockEtherPositionOne.chain].name
+        }, check logs for more details`
+      );
+    });
+  });
+
+  describe("discord bot - UnMuteAlerts", () => {
+    beforeAll(async () => {
+      await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+    });
+
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+    });
+
+    test("should Unmute Active Alert", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> UnmuteAlerts ${
+          chains[mockEtherPositionOne.chain].name
+        } ${mockEtherPositionOne.id}`
+      );
+      await sleep();
+
+      const response = await getReplayToMessage(msgId);
+      expect(response).toEqual(
+        `Position ${mockEtherPositionOne.id} on ${
+          chains[mockEtherPositionOne.chain].name
+        } was unmuted successfully`
+      );
+    });
+
+    test("should not Unmute unavilable Active Alert id", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> UnmuteAlerts ${
+          chains[mockEtherPositionOne.chain].name
+        } 100000000`
+      );
+      await sleep();
+
+      const response = await getReplayToMessage(msgId);
+      expect(response).toEqual(
+        `Failed to unmute position 100000000 on ${
+          chains[mockEtherPositionOne.chain].name
+        }, check logs for more details`
+      );
+    });
+  });
+
+  describe("discord bot - checkForAlerts and notify", () => {
+    beforeAll(async () => {
+      await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+    });
+
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+    });
+
+    test("should notify for active out of bounds alert", async () => {
+      await factory.setAlertActiveForTest(
+        mockEtherPositionOne,
+        alertsTypes.OUT_OF_BOUNDS
+      );
+      await longSleep();
+      const res = await getAlertMessage();
+      expect(res).toEqual(
+        `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **out of bounds** 🚨`
+      );
+    });
+
+    test("should notify for active old position alert", async () => {
+      await factory.setAlertActiveForTest(
+        mockEtherPositionOne,
+        alertsTypes.OLD_POSITION
+      );
+      await longSleep();
+      const res = await getAlertMessage();
+      expect(res).toEqual(
+        `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **old position** 🚨`
+      );
+    });
+
+    test("should notify for active PNL alert", async () => {
+      await factory.setAlertActiveForTest(
+        mockEtherPositionOne,
+        alertsTypes.PNL
+      );
+      await longSleep();
+      const res = await getAlertMessage();
+      expect(res).toEqual(
+        `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **permanent loss** 🚨`
+      );
+    });
+
+    test("should notify for active impermanent loss alert", async () => {
+      await factory.setAlertActiveForTest(
+        mockEtherPositionOne,
+        alertsTypes.IMP_LOSS
+      );
+      await longSleep();
+      const res = await getAlertMessage();
+      expect(res).toEqual(
+        `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **impermanent loss** 🚨`
       );
     });
   });

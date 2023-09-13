@@ -4,7 +4,7 @@ const {
   retriveInitalPositionData,
 } = require("../blockchain/getPostionData.js");
 const { chains } = require("../utils/chains.js");
-
+const { alertsTypes } = require("../utils/alertsTypes.js");
 const prisma = new PrismaClient();
 
 const saveInitialPositionInfo = async (position, initData) => {
@@ -95,8 +95,115 @@ const deletePosition = async (position) => {
   }
 };
 
+const muteOrUnmutePositionAlert = async (position, mute) => {
+  try {
+    await prisma.Position.update({
+      where: {
+        id: parseInt(position.id),
+      },
+      data: {
+        IsAlertMuted: mute,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error("could not mute position, reason: ", err.message);
+  }
+};
+
+const updatePositionActiveAlert = async (position, alertType, isActive) => {
+  let currentAlerts;
+
+  currentAlerts = await prisma.Position.findUnique({
+    where: {
+      id: position.id,
+    },
+  });
+
+  if (!currentAlerts) {
+    throw new Error(`could not find Position ${position.id}`);
+  }
+
+  await prisma.Position.update({
+    where: {
+      id: parseInt(position.id),
+    },
+    data: {
+      OutOfBounds:
+        alertType === alertsTypes.OUT_OF_BOUNDS
+          ? isActive
+          : currentAlerts.outOfBounds,
+      OutOfBoundsLastTriggered:
+        alertType === alertsTypes.OUT_OF_BOUNDS && isActive === true
+          ? new Date()
+          : currentAlerts.OutOfBoundsLastTriggered,
+      OldPosition:
+        alertType === alertsTypes.OLD_POSITION
+          ? isActive
+          : currentAlerts.oldPosition,
+      OldPositionLastTriggered:
+        alertType === alertsTypes.OLD_POSITION && isActive === true
+          ? new Date()
+          : currentAlerts.oldPositionLastTriggered,
+      PNL: alertType === alertsTypes.PNL ? isActive : currentAlerts.PNL,
+      PNLLastTriggered:
+        alertType === alertsTypes.PNL && isActive === true
+          ? new Date()
+          : currentAlerts.PNLLastTriggered,
+      IMPLoss:
+        alertType === alertsTypes.IMP_LOSS ? isActive : currentAlerts.IMPLoss,
+      IMPLossLastTriggered:
+        alertType === alertsTypes.IMP_LOSS && isActive === true
+          ? new Date()
+          : currentAlerts.IMPLossLastTriggered,
+    },
+  });
+};
+
+const updatePositionActiveAlertTriggeredTime = async (
+  positionId,
+  alertType
+) => {
+  let pos = await prisma.Position.findUnique({
+    where: {
+      id: positionId,
+    },
+  });
+  if (!pos) {
+    throw new Error("could not find active alert");
+  }
+
+  await prisma.Position.update({
+    where: {
+      id: parseInt(positionId),
+    },
+    data: {
+      OutOfBoundsLastTriggered:
+        alertType === alertsTypes.OUT_OF_BOUNDS
+          ? new Date()
+          : pos.OutOfBoundsLastTriggered,
+
+      OldPositionLastTriggered:
+        alertType === alertsTypes.OLD_POSITION
+          ? new Date()
+          : pos.oldPositionLastTriggered,
+
+      PNLLastTriggered:
+        alertType === alertsTypes.PNL ? new Date() : pos.PNLLastTriggered,
+
+      IMPLossLastTriggered:
+        alertType === alertsTypes.IMP_LOSS
+          ? new Date()
+          : pos.IMPLossLastTriggered,
+    },
+  });
+};
+
 module.exports = {
   savePositionData,
   userSaveNewPosition,
   deletePosition,
+  muteOrUnmutePositionAlert,
+  updatePositionActiveAlert,
+  updatePositionActiveAlertTriggeredTime,
 };

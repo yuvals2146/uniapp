@@ -1,7 +1,7 @@
 const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
-
+const { updatePositionActiveAlert } = require("../db/savePositionDataDB.js");
 // constants
 const MILLISECONDS_PER_DAY = 8.64e7;
 
@@ -142,7 +142,9 @@ async function analyzeDataPoint(
   // check liquidity in surroudings
 }
 
-const updateAlertStatus = (postion, alertType) => {
+const updateAlertStatus = async (postion, alertType) => {
+  await updatePositionActiveAlert(postion, alertType, true);
+
   const now = new Date();
   const last_alert_time =
     alertsTypeAndTime[postion]?.[alertType] || new Date(0);
