@@ -6,7 +6,6 @@ const {
   deletePosition,
   muteOrUnmutePositionAlert,
 } = require("../db/savePositionDataDB");
-const { format } = require("express/lib/response");
 
 const formatChainName = (chain) => {
   if (chain === "1") return "ethereum";
