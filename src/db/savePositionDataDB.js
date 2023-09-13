@@ -46,8 +46,8 @@ async function savePositionData(
 
   await prisma.PositionInfo.create({
     data: {
-      posId: pid.id,
-      posChain: pid.chainId,
+      posId: posKey.id,
+      posChain: posKey.chain,
       pair: positionData.pair,
       liquidityToken0: parseFloat(positionData.liquidityToken0),
       liquidityToken1: parseFloat(positionData.liquidityToken1),

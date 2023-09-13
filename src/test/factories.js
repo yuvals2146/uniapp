@@ -24,7 +24,10 @@ const addPositionIntoDB = async (position) => {
 const removePositionFromDB = async (position) => {
   await prisma.Position.delete({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: parseInt(position.id),
+        chainId: parseInt(position.chain),
+      },
     },
   });
 };

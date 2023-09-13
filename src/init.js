@@ -6,7 +6,6 @@ const { userSaveNewPosition } = require("./db/savePositionDataDB.js");
 const init = async () => {
   // await addNewPositionTemp();
 
-  console.log("init1");
   const positions = (await loadAllPositions()).map((position) => {
     return {
       id: position.id,
