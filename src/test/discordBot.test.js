@@ -21,8 +21,8 @@ const sleep = () => new Promise((r) => setTimeout(r, 5000));
 
 describe("discordBot", () => {
   beforeAll(async () => {
-    const clientIsReady = await getClientReady();
     await longSleep();
+    const clientIsReady = await getClientReady();
     expect(clientIsReady).toEqual(true);
     sendMsg(
       `---------------------------------------------------- \n this is an autmated test for discord bot on ${
