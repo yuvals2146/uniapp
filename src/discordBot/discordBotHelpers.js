@@ -1,11 +1,22 @@
 const { alertsTypes } = require("../utils/alertsTypes");
 const { chains } = require("../utils/chains");
-const { loadAllPositions } = require("../db/loadPositionDataDB");
+const { loadAllPositions, loadPosition } = require("../db/loadPositionDataDB");
 const {
   userSaveNewPosition,
   deletePosition,
   muteOrUnmutePositionAlert,
 } = require("../db/savePositionDataDB");
+const { format } = require("express/lib/response");
+
+const formatChainName = (chain) => {
+  if (chain === "ethereum") return "ethereum";
+  if (chain === "arbitrum") return "arbitrum";
+  if (chain === "1") return "ethereum";
+  if (chain === "42161") return "arbitrum";
+  if (chain === "eth" || chain === "ETH") return "ethereum";
+  if (chain === "arb" || chain === "ARB") return "arbitrum";
+  return chain.toLowerCase();
+};
 
 const getAllActivePositions = async (args) => {
   selectedChain = args[0];
@@ -29,11 +40,36 @@ const getAllActivePositions = async (args) => {
   return res;
 };
 
+const getActiveAlerts = async (args) => {
+  if (args.length < 2)
+    return "Need to supply at least position id and chain id";
+
+  const [chain, positionId] = args;
+  const positionChainName = formatChainName(chain);
+  let position;
+  try {
+    position = await loadPosition({
+      id: positionId,
+      chain: chainsNames[positionChainName],
+    });
+  } catch (e) {
+    return `Failed to load position ${positionId} on ${positionChainName}, ${e.message}`;
+  }
+
+  const activeAlerts = `Active alerts for position ${positionId} on ${positionChainName}:\n- OutOfBounds: ${
+    position.OutOfBounds ? "🚨" : "✅"
+  }\n- OldPosition: ${position.OldPosition ? "🚨" : "✅"}\n- PNL: ${
+    position.PNL ? "🚨" : "✅"
+  }\n- IMPLoss: ${position.IMPLoss ? "🚨" : "✅"}`;
+  return activeAlerts;
+};
+
 const addPosition = async (args) => {
   if (args.length < 2)
     return "Need to supply at least position id and chain id";
 
-  const [positionChainName, positionId, txHash] = args;
+  const [chain, positionId, txHash] = args;
+  const positionChainName = formatChainName(chain);
 
   if (positionChainName !== "ethereum" && positionChainName !== "arbitrum")
     return "Chain id not supported, must be ethereum or arbitrum";
@@ -60,8 +96,8 @@ const removePosition = async (args) => {
   if (args.length < 2)
     return "Need to supply at least position id and chain id";
 
-  const [positionChainName, positionId] = args;
-
+  const [chain, positionId] = args;
+  const positionChainName = formatChainName(chain);
   try {
     await deletePosition({
       id: positionId,
@@ -105,7 +141,8 @@ const muteOrUnmuteAlert = async (args, mute) => {
   if (args.length < 2)
     return "Need to supply at least position id and chain id";
 
-  const [positionChainName, positionId] = args;
+  const [chain, positionId] = args;
+  const positionChainName = formatChainName(chain);
 
   try {
     await muteOrUnmutePositionAlert(
@@ -125,6 +162,7 @@ const muteOrUnmuteAlert = async (args, mute) => {
 
 module.exports = {
   getAllActivePositions,
+  getActiveAlerts,
   addPosition,
   removePosition,
   checkIfActiveAlert,

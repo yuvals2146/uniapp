@@ -7,6 +7,7 @@ const logger = require("../utils/logger");
 const { alertsTypeNames } = require("../utils/alertsTypes");
 const {
   getAllActivePositions,
+  getActiveAlerts,
   addPosition,
   removePosition,
   checkIfActiveAlert,
@@ -46,11 +47,16 @@ client.on("messageCreate", async (msg) => {
   switch (command) {
     case "help":
       await msg.reply(
-        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
+        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
       break;
     case "GetAllActivePositions":
       response = await getAllActivePositions(args);
+      await msg.reply(response);
+      break;
+
+    case "GetActiveAlerts":
+      response = await getActiveAlerts(args);
       await msg.reply(response);
       break;
 

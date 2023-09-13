@@ -46,22 +46,23 @@ const loadAllPositionInfoFromDB = async () => {
   return await prisma.positionInfo.findMany();
 };
 
-const setAlertActiveForTest = async (position, alertType) => {
+const setAlertActiveForTest = async (position, alertType, shouldNotify) => {
   let yesterday = new Date().setDate(new Date().getDate() - 1);
-
+  let tommorow = new Date().setDate(new Date().getDate() + 1);
+  const lastTriggered = shouldNotify ? yesterday : tommorow;
   await prisma.Position.update({
     where: {
       id: parseInt(position.id),
     },
     data: {
       OutOfBounds: alertType === alertsTypes.OUT_OF_BOUNDS ? true : false,
-      OutOfBoundsLastTriggered: new Date(yesterday),
+      OutOfBoundsLastTriggered: new Date(lastTriggered),
       OldPosition: alertType === alertsTypes.OLD_POSITION ? true : false,
-      OldPositionLastTriggered: new Date(yesterday),
+      OldPositionLastTriggered: new Date(lastTriggered),
       PNL: alertType === alertsTypes.PNL ? true : false,
-      PNLLastTriggered: new Date(yesterday),
+      PNLLastTriggered: new Date(lastTriggered),
       IMPLoss: alertType === alertsTypes.IMP_LOSS ? true : false,
-      IMPLossLastTriggered: new Date(yesterday),
+      IMPLossLastTriggered: new Date(lastTriggered),
     },
   });
 };

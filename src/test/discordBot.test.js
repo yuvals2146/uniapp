@@ -47,7 +47,7 @@ describe("discordBot", () => {
       await sleep();
       const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
-        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
+        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
     });
     test("should not recived help menu for diffrent keyword form bot", async () => {
@@ -164,7 +164,7 @@ describe("discordBot", () => {
         `<@${process.env.DISCORD_CLIENT_ID}> GetAllActivePositions`
       );
 
-      await new Promise((r) => setTimeout(r, 10000));
+      await sleep();
 
       const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
@@ -173,6 +173,48 @@ describe("discordBot", () => {
         }\` \n- id: \`${mockArbitPositionOne.id}\` , chain: \`${
           chains[mockArbitPositionOne.chain].name
         }\``
+      );
+    });
+  });
+
+  describe("discord bot - GetActiveAlerts", () => {
+    test("should get all active alerts for position", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> GetActiveAlerts ${
+          chains[mockEtherPositionOne.chain].name
+        } ${mockEtherPositionOne.id}`
+      );
+      await sleep();
+
+      const response = await getReplayToMessage(msgId);
+      expect(response).toEqual(
+        `Active alerts for position ${mockEtherPositionOne.id} on ${
+          chains[mockEtherPositionOne.chain].name
+        }:\n- OutOfBounds: ✅\n- OldPosition: ✅\n- PNL: ✅\n- IMPLoss: ✅`
+      );
+
+      await factory.setAlertActiveForTest(
+        mockEtherPositionOne,
+        alertsTypes.OUT_OF_BOUNDS,
+        false
+      );
+
+      await sleep();
+
+      const msgId2 = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> GetActiveAlerts ${
+          chains[mockEtherPositionOne.chain].name
+        } ${mockEtherPositionOne.id}`
+      );
+
+      await sleep();
+
+      const response2 = await getReplayToMessage(msgId2);
+
+      expect(response2).toEqual(
+        `Active alerts for position ${mockEtherPositionOne.id} on ${
+          chains[mockEtherPositionOne.chain].name
+        }:\n- OutOfBounds: 🚨\n- OldPosition: ✅\n- PNL: ✅\n- IMPLoss: ✅`
       );
     });
   });
@@ -304,11 +346,11 @@ describe("discordBot", () => {
     test("should notify for active out of bounds alert", async () => {
       await factory.setAlertActiveForTest(
         mockEtherPositionOne,
-        alertsTypes.OUT_OF_BOUNDS
+        alertsTypes.OUT_OF_BOUNDS,
+        true
       );
 
       await longSleep();
-      console.log(await loadAllPositions());
 
       const res = await getAlertMessage();
       expect(res).toEqual(
@@ -319,7 +361,8 @@ describe("discordBot", () => {
     test("should notify for active old position alert", async () => {
       await factory.setAlertActiveForTest(
         mockEtherPositionOne,
-        alertsTypes.OLD_POSITION
+        alertsTypes.OLD_POSITION,
+        true
       );
 
       await longSleep();
@@ -333,7 +376,8 @@ describe("discordBot", () => {
     test("should notify for active PNL alert", async () => {
       await factory.setAlertActiveForTest(
         mockEtherPositionOne,
-        alertsTypes.PNL
+        alertsTypes.PNL,
+        true
       );
       await longSleep();
       const res = await getAlertMessage();
@@ -345,7 +389,8 @@ describe("discordBot", () => {
     test("should notify for active impermanent loss alert", async () => {
       await factory.setAlertActiveForTest(
         mockEtherPositionOne,
-        alertsTypes.IMP_LOSS
+        alertsTypes.IMP_LOSS,
+        true
       );
       await longSleep();
       const res = await getAlertMessage();
