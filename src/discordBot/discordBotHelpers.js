@@ -9,8 +9,6 @@ const {
 const { format } = require("express/lib/response");
 
 const formatChainName = (chain) => {
-  if (chain === "ethereum") return "ethereum";
-  if (chain === "arbitrum") return "arbitrum";
   if (chain === "1") return "ethereum";
   if (chain === "42161") return "arbitrum";
   if (chain === "eth" || chain === "ETH") return "ethereum";
