@@ -15,6 +15,7 @@ const {
 } = require("./mocks.js");
 
 const { alertsTypes } = require("../utils/alertsTypes.js");
+const { loadAllPositions } = require("../db/loadPositionDataDB.js");
 
 const longSleep = () => new Promise((r) => setTimeout(r, 10000));
 const sleep = () => new Promise((r) => setTimeout(r, 5000));
@@ -307,6 +308,7 @@ describe("discordBot", () => {
       );
 
       await longSleep();
+      console.log(await loadAllPositions());
 
       const res = await getAlertMessage();
       expect(res).toEqual(
