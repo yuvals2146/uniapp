@@ -240,7 +240,7 @@ describe("discordBot", () => {
       expect(response).toEqual(
         `Failed to mute position 100000000 on ${
           chains[mockEtherPositionOne.chain].name
-        }, check logs for more details`
+        }, could not find Position 100000000`
       );
     });
   });
@@ -282,7 +282,7 @@ describe("discordBot", () => {
       expect(response).toEqual(
         `Failed to unmute position 100000000 on ${
           chains[mockEtherPositionOne.chain].name
-        }, check logs for more details`
+        }, could not find Position 100000000`
       );
     });
   });

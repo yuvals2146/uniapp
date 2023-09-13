@@ -124,7 +124,7 @@ const muteOrUnmuteAlert = async (args, mute) => {
   } catch (e) {
     return `Failed to ${
       mute ? "mute" : "unmute"
-    } position ${positionId} on ${positionChainName}, check logs for more details`;
+    } position ${positionId} on ${positionChainName}, ${e.message}`;
   }
 };
 

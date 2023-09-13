@@ -96,6 +96,15 @@ const deletePosition = async (position) => {
 };
 
 const muteOrUnmutePositionAlert = async (position, mute) => {
+  const pos = await prisma.Position.findUnique({
+    where: {
+      id: parseInt(position.id),
+    },
+  });
+  if (!pos) {
+    throw new Error(`could not find Position ${position.id}`);
+  }
+
   try {
     await prisma.Position.update({
       where: {

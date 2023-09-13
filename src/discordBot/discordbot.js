@@ -45,37 +45,37 @@ client.on("messageCreate", async (msg) => {
   // }
   switch (command) {
     case "help":
-      msg.reply(
+      await msg.reply(
         "I can help you with the following commands: \n- `GetAllActivePositions` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
       break;
     case "GetAllActivePositions":
       response = await getAllActivePositions(args);
-      msg.reply(response);
+      await msg.reply(response);
       break;
 
     case "AddPosition":
       response = await addPosition(args);
-      msg.reply(response);
+      await msg.reply(response);
       break;
 
     case "RemovePosition":
       response = await removePosition(args);
-      msg.reply(response);
+      await msg.reply(response);
       break;
 
     case "MuteAlerts":
       response = await muteOrUnmuteAlert(args, true);
-      msg.reply(response);
+      await msg.reply(response);
       break;
 
     case "UnmuteAlerts":
       response = await muteOrUnmuteAlert(args, false);
-      msg.reply(response);
+      await msg.reply(response);
       break;
 
     default:
-      msg.reply(
+      await msg.reply(
         "I don't understand this command, try to use `help` to find posible commands"
       );
       break;
