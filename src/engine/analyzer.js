@@ -127,7 +127,8 @@ async function analyzeDataPoint(
       " is at impermanent loss:",
       totalPositionValueUSD,
       totalHoldValueUSD,
-      ilRate.toFixed(2)
+      ilRate.toFixed(2),
+      "%"
     );
     await notify(
       `Position ${position.id} on chain ${
@@ -142,16 +143,17 @@ async function analyzeDataPoint(
   // check liquidity in surroudings
 }
 
-const updateAlertStatus = (postion, alertType) => {
+// temporarily index alerts only by position id, until we move all alerts to DB
+const updateAlertStatus = (position, alertType) => {
   const now = new Date();
   const last_alert_time =
-    alertsTypeAndTime[postion]?.[alertType] || new Date(0);
+    alertsTypeAndTime[position.id]?.[alertType] || new Date(0);
 
   if (now - last_alert_time < process.env.REPEAT_ALERT_INTERVAL) {
     return false;
   } else {
-    alertsTypeAndTime[postion] = {
-      ...alertsTypeAndTime[postion],
+    alertsTypeAndTime[position.id] = {
+      ...alertsTypeAndTime[position.id],
       [alertType]: now,
     };
   }

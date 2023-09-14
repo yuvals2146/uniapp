@@ -18,8 +18,10 @@ export DEBUG=0
 export DISCORD_CLIENT_TOKEN=''
 
 #runnig settings:
+#interval for sampling positions
+export INTERVAL=30000
 #don't repeat last alert unless an hour passed
-export INTERVAL=60000000
+export REPEAT_ALERT_INTERVAL=3600000
 export SKIP_EVENT_LOOP=1
 
 #notifer settings:
