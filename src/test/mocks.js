@@ -53,6 +53,7 @@ const mockEtherPositionInfoDataOne = {
   etherUsdExchangeRate: 1,
   ArbitUsdExchangeRate: 1,
   positionId: 482139,
+  positionChain: 1,
   blockNumber: 16975737,
 };
 // ether position 2:
@@ -85,6 +86,7 @@ const mockEtherPositionInfoDataTwo = {
   etherUsdExchangeRate: 1,
   ArbitUsdExchangeRate: 1,
   positionId: 2,
+  positionChain: 1,
   blockNumber: 16975737,
 };
 
@@ -189,11 +191,11 @@ const mockArbitPositionFour = {
   chain: 42161,
 };
 
-const mockUnvalidPositionId = {
+const mockInvalidPositionId = {
   id: 0,
   chain: 1,
 };
-const mockUnvalidPositionChain = {
+const mockInvalidPositionChain = {
   id: 482139,
   chain: 5,
 };
@@ -222,6 +224,6 @@ module.exports = {
   mockArbitPositionThree,
   mockArbitPositionFour,
 
-  mockUnvalidPositionId,
-  mockUnvalidPositionChain,
+  mockInvalidPositionId,
+  mockInvalidPositionChain,
 };

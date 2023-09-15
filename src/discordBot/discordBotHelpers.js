@@ -46,7 +46,7 @@ const getActiveAlerts = async (args) => {
   let position;
   try {
     position = await loadPosition({
-      id: positionId,
+      id: parseInt(positionId),
       chain: chainsNames[positionChainName],
     });
   } catch (e) {
@@ -80,7 +80,7 @@ const addPosition = async (args) => {
     return "TX hash is not valid";
   try {
     await userSaveNewPosition(
-      { id: positionId, chain: positionChainName === "ethereum" ? 1 : 42161 },
+      { id: parseInt(positionId), chain: positionChainName === "ethereum" ? 1 : 42161 },
       txHash
     );
   } catch (e) {
@@ -97,7 +97,7 @@ const removePosition = async (args) => {
   const positionChainName = formatChainName(chain);
   try {
     await deletePosition({
-      id: positionId,
+      id: parseInt(positionId),
       chain: positionChainName === "ethereum" ? 1 : 42161,
     });
     return `Position ${positionId} on ${positionChainName} removed successfully`;
@@ -143,7 +143,7 @@ const muteOrUnmuteAlert = async (args, mute) => {
 
   try {
     await muteOrUnmutePositionAlert(
-      { id: positionId, chain: chainsNames[positionChainName] },
+      { id: parseInt(positionId), chain: chainsNames[positionChainName] },
       mute
     );
 

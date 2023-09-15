@@ -108,7 +108,7 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
     if (activeAlerts[alertType]) {
       await notify(position, alertsTypeNames[alertType]);
       await updatePositionActiveAlertTriggeredTime(
-        position.id,
+        position,
         parseInt(alertType)
       );
     }

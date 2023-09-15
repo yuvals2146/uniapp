@@ -4,6 +4,7 @@ const {
   mockEtherPositionWithDataOne,
   mockEtherPositionOne,
   mockEtherPositionInfoDataTwo,
+  mockEtherPositionTwo,
 } = require("../mocks");
 const factory = require("../factories");
 
@@ -21,13 +22,15 @@ describe("savePositionData", () => {
       mockEtherPositionInfoDataOne.positionData,
       mockEtherPositionInfoDataOne.etherUsdExchangeRate,
       mockEtherPositionInfoDataOne.ArbitUsdExchangeRate,
-      mockEtherPositionInfoDataOne.positionId,
+      mockEtherPositionOne,
       mockEtherPositionInfoDataOne.blockNumber
     );
 
     const [res] = await factory.loadAllPositionInfoFromDB();
 
-    expect(res.inter_pos_id).toEqual(mockEtherPositionInfoDataOne.positionId);
+    expect({ id: res.posId, chain: res.posChain }).toEqual(
+      mockEtherPositionOne
+    );
     expect(res).toHaveProperty("pair");
     expect(res).toHaveProperty("createdAt");
     expect(res).toHaveProperty("liquidityToken0");
@@ -47,7 +50,7 @@ describe("savePositionData", () => {
           mockEtherPositionInfoDataTwo.positionData,
           mockEtherPositionInfoDataTwo.etherUsdExchangeRate,
           mockEtherPositionInfoDataTwo.ArbitUsdExchangeRate,
-          mockEtherPositionInfoDataTwo.positionId,
+          mockEtherPositionTwo,
           mockEtherPositionInfoDataTwo.blockNumber
         )
     ).rejects.toThrow("position not found");

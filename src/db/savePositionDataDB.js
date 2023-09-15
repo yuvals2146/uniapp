@@ -10,8 +10,8 @@ const prisma = new PrismaClient();
 const saveInitialPositionInfo = async (position, initData) => {
   await prisma.Position.create({
     data: {
-      id: parseInt(position.id),
-      chainId: parseInt(position.chain),
+      id: position.id,
+      chainId: position.chain,
       createdAt: new Date(initData.blockTimestemp),
       initValueToken0: parseFloat(initData.initValueToken0),
       token0Symbol: initData.token0symbol,
@@ -30,12 +30,16 @@ async function savePositionData(
   positionData,
   etherUsdExchangeRate,
   ArbitUsdExchangeRate,
-  positionId,
+  posKey,
   blockNumber
 ) {
+  console.log("savePositionData", posKey.id, posKey.chain);
   let position = await prisma.Position.findUnique({
     where: {
-      id: positionId,
+      positionKey: {
+        id: posKey.id,
+        chainId: posKey.chain,
+      },
     },
   });
 
@@ -43,9 +47,8 @@ async function savePositionData(
 
   await prisma.PositionInfo.create({
     data: {
-      positionId: {
-        connect: { id: position.id },
-      },
+      posId: posKey.id,
+      posChain: posKey.chain,
       pair: positionData.pair,
       liquidityToken0: parseFloat(positionData.liquidityToken0),
       liquidityToken1: parseFloat(positionData.liquidityToken1),
@@ -60,9 +63,13 @@ async function savePositionData(
 }
 
 const userSaveNewPosition = async (position, txHash) => {
+  console.log("userSaveNewPosition", position.id, position.chain);
   let pos = await prisma.Position.findUnique({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
   });
 
@@ -87,7 +94,10 @@ const deletePosition = async (position) => {
   try {
     await prisma.Position.delete({
       where: {
-        id: parseInt(position.id),
+        positionKey: {
+          id: position.id,
+          chainId: position.chain,
+        },
       },
     });
   } catch (err) {
@@ -98,7 +108,10 @@ const deletePosition = async (position) => {
 const muteOrUnmutePositionAlert = async (position, mute) => {
   const pos = await prisma.Position.findUnique({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
   });
   if (!pos) {
@@ -108,7 +121,10 @@ const muteOrUnmutePositionAlert = async (position, mute) => {
   try {
     await prisma.Position.update({
       where: {
-        id: parseInt(position.id),
+        positionKey: {
+          id: position.id,
+          chainId: position.chain,
+        },
       },
       data: {
         IsAlertMuted: mute,
@@ -125,7 +141,10 @@ const updatePositionActiveAlert = async (position, alertType, isActive) => {
 
   currentAlerts = await prisma.Position.findUnique({
     where: {
-      id: position.id,
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
   });
 
@@ -135,7 +154,10 @@ const updatePositionActiveAlert = async (position, alertType, isActive) => {
 
   await prisma.Position.update({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
     data: {
       OutOfBounds:
@@ -169,13 +191,13 @@ const updatePositionActiveAlert = async (position, alertType, isActive) => {
   });
 };
 
-const updatePositionActiveAlertTriggeredTime = async (
-  positionId,
-  alertType
-) => {
+const updatePositionActiveAlertTriggeredTime = async (position, alertType) => {
   let pos = await prisma.Position.findUnique({
     where: {
-      id: positionId,
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
   });
   if (!pos) {
@@ -184,7 +206,10 @@ const updatePositionActiveAlertTriggeredTime = async (
 
   await prisma.Position.update({
     where: {
-      id: parseInt(positionId),
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
     data: {
       OutOfBoundsLastTriggered:

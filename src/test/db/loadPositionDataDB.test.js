@@ -4,7 +4,7 @@ const {
   mockEtherPositionWithDataOne,
   mockArbitPositionOne,
   mockArbitPositionWithDataOne,
-  mockUnvalidPositionId,
+  mockInvalidPositionId,
 } = require("../mocks");
 
 const {
@@ -116,7 +116,7 @@ describe("loadPositionInit", () => {
 
   test("should not load invalid position id form db", async () => {
     expect(
-      async () => await loadPosition(mockUnvalidPositionId)
+      async () => await loadPosition(mockInvalidPositionId)
     ).rejects.toThrow("position not found");
   });
 

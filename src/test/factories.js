@@ -25,7 +25,10 @@ const addPositionIntoDB = async (position) => {
 const removePositionFromDB = async (position) => {
   let pos = await prisma.Position.findUnique({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: parseInt(position.id),
+        chainId: parseInt(position.chain),
+      },
     },
   });
 
@@ -34,7 +37,10 @@ const removePositionFromDB = async (position) => {
   try {
     await prisma.Position.delete({
       where: {
-        id: parseInt(position.id),
+        positionKey: {
+          id: position.id,
+          chainId: position.chain,
+        },
       },
     });
   } catch (e) {
@@ -52,7 +58,10 @@ const setAlertActiveForTest = async (position, alertType, shouldNotify) => {
   const lastTriggered = shouldNotify ? yesterday : tommorow;
   await prisma.Position.update({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
     data: {
       OutOfBounds: alertType === alertsTypes.OUT_OF_BOUNDS ? true : false,

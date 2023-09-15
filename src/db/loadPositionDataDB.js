@@ -6,8 +6,9 @@ const prisma = new PrismaClient();
 async function loadPosition(positionKey) {
   try {
     let pos = await prisma.Position.findUnique({
-      where: {
-        id: parseInt(positionKey.id),
+      positionKey: {
+        id: positionKey.id,
+        chainId: positionKey.chain,
       },
     });
 
