@@ -10,8 +10,8 @@ const prisma = new PrismaClient();
 const saveInitialPositionInfo = async (position, initData) => {
   await prisma.Position.create({
     data: {
-      id: parseInt(position.id),
-      chainId: parseInt(position.chain),
+      id: position.id,
+      chainId: position.chain,
       createdAt: new Date(initData.blockTimestemp),
       initValueToken0: parseFloat(initData.initValueToken0),
       token0Symbol: initData.token0symbol,
@@ -30,12 +30,15 @@ async function savePositionData(
   positionData,
   etherUsdExchangeRate,
   ArbitUsdExchangeRate,
-  positionId,
+  posKey,
   blockNumber
 ) {
   let position = await prisma.Position.findUnique({
     where: {
-      id: positionId,
+      positionKey: {
+        id: posKey.id,
+        chainId: posKey.chain,
+      },
     },
   });
 
@@ -43,9 +46,8 @@ async function savePositionData(
 
   await prisma.PositionInfo.create({
     data: {
-      positionId: {
-        connect: { id: position.id },
-      },
+      posId: posKey.id,
+      posChain: posKey.chain,
       pair: positionData.pair,
       liquidityToken0: parseFloat(positionData.liquidityToken0),
       liquidityToken1: parseFloat(positionData.liquidityToken1),
@@ -62,7 +64,10 @@ async function savePositionData(
 const userSaveNewPosition = async (position, txHash) => {
   let pos = await prisma.Position.findUnique({
     where: {
-      id: parseInt(position.id),
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
     },
   });
 

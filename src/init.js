@@ -37,9 +37,9 @@ const addNewPositionTemp = async () => {
     [{ id: 482139, chain: 1 }],
   ];
 
-  array.forEach(async (pos) => {
-    await userSaveNewPosition(pos[0], pos[1]);
-  });
+  for (let i = 0; i < array.length; i++) {
+    await userSaveNewPosition(array[i][0], array[i][1]);
+  }
 };
 
 module.exports = { init, addNewPositionTemp };

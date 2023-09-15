@@ -53,6 +53,7 @@ const mockEtherPositionInfoDataOne = {
   etherUsdExchangeRate: 1,
   ArbitUsdExchangeRate: 1,
   positionId: 482139,
+  positionChain: 1,
   blockNumber: 16975737,
 };
 // ether position 2:
@@ -85,6 +86,7 @@ const mockEtherPositionInfoDataTwo = {
   etherUsdExchangeRate: 1,
   ArbitUsdExchangeRate: 1,
   positionId: 2,
+  positionChain: 42161,
   blockNumber: 16975737,
 };
 

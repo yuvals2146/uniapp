@@ -11,13 +11,14 @@ CREATE TABLE "Position" (
     "initToken1USDRate" DOUBLE PRECISION,
     "initPriceT0T1" DOUBLE PRECISION,
 
-    CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Position_pkey" PRIMARY KEY ("id","chainId")
 );
 
 -- CreateTable
 CREATE TABLE "PositionInfo" (
     "id" SERIAL NOT NULL,
-    "inter_pos_id" INTEGER NOT NULL,
+    "posId" INTEGER NOT NULL,
+    "posChain" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "pair" TEXT NOT NULL,
     "liquidityToken0" DOUBLE PRECISION NOT NULL,
@@ -33,4 +34,4 @@ CREATE TABLE "PositionInfo" (
 );
 
 -- AddForeignKey
-ALTER TABLE "PositionInfo" ADD CONSTRAINT "PositionInfo_inter_pos_id_fkey" FOREIGN KEY ("inter_pos_id") REFERENCES "Position"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PositionInfo" ADD CONSTRAINT "PositionInfo_posId_posChain_fkey" FOREIGN KEY ("posId", "posChain") REFERENCES "Position"("id", "chainId") ON DELETE CASCADE ON UPDATE CASCADE;

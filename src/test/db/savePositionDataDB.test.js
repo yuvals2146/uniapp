@@ -17,17 +17,21 @@ describe("savePositionData", () => {
   });
 
   test("should save position info data to db", async () => {
+    const posKey = {
+      id: mockEtherPositionInfoDataOne.positionId,
+      chain: mockEtherPositionInfoDataOne.positionChain,
+    };
     await savePositionData(
       mockEtherPositionInfoDataOne.positionData,
       mockEtherPositionInfoDataOne.etherUsdExchangeRate,
       mockEtherPositionInfoDataOne.ArbitUsdExchangeRate,
-      mockEtherPositionInfoDataOne.positionId,
+      posKey,
       mockEtherPositionInfoDataOne.blockNumber
     );
 
     const [res] = await factory.loadAllPositionInfoFromDB();
 
-    expect(res.inter_pos_id).toEqual(mockEtherPositionInfoDataOne.positionId);
+    expect({ id: res.posId, chain: res.posChain }).toEqual(posKey);
     expect(res).toHaveProperty("pair");
     expect(res).toHaveProperty("createdAt");
     expect(res).toHaveProperty("liquidityToken0");
@@ -41,12 +45,16 @@ describe("savePositionData", () => {
   });
 
   test("should not save position info data to db if position", async () => {
+    const posKey = {
+      id: mockEtherPositionInfoDataTwo.positionId,
+      chain: mockEtherPositionInfoDataTwo.positionChain,
+    };
     expect(() =>
       savePositionData(
         mockEtherPositionInfoDataTwo.positionData,
         mockEtherPositionInfoDataTwo.etherUsdExchangeRate,
         mockEtherPositionInfoDataTwo.ArbitUsdExchangeRate,
-        mockEtherPositionInfoDataTwo.positionId,
+        posKey,
         mockEtherPositionInfoDataTwo.blockNumber
       )
     ).rejects.toThrow("position not found");

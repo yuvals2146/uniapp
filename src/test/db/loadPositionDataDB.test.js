@@ -4,7 +4,7 @@ const {
   mockEtherPositionWithDataOne,
   mockArbitPositionOne,
   mockArbitPositionWithDataOne,
-  mockUnvalidPositionId,
+  mockInvalidPositionId,
 } = require("../mocks");
 
 const {
@@ -115,13 +115,13 @@ describe("loadPositionInit", () => {
   });
 
   test("should not load invalid position id form db", async () => {
-    expect(() => loadPosition(mockUnvalidPositionId)).rejects.toThrow(
+    expect(() => loadPosition(mockInvalidPositionId)).rejects.toThrow(
       "position not found"
     );
   });
 
   //   test("should not load invalid position chain form db", async () => {
-  //     const result = await loadPosition(mockUnvalidPositionChain);
+  //     const result = await loadPosition(mockInvalidPositionChain);
 
   //     // expect(result).toEqual(mockEtherPositionWithDataOne);
   //   });
@@ -225,5 +225,4 @@ describe("loadAllPositions", () => {
       mockArbitPositionWithDataOne.token1Symbol
     );
   });
-  
 });
