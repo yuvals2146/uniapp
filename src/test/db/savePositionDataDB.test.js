@@ -18,6 +18,10 @@ describe("savePositionData", () => {
   });
 
   test("should save position info data to db", async () => {
+    const posKey = {
+      id: mockEtherPositionInfoDataOne.positionId,
+      chain: mockEtherPositionInfoDataOne.positionChain,
+    };
     await savePositionData(
       mockEtherPositionInfoDataOne.positionData,
       mockEtherPositionInfoDataOne.etherUsdExchangeRate,

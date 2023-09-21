@@ -121,7 +121,7 @@ describe("loadPositionInit", () => {
   });
 
   //   test("should not load invalid position chain form db", async () => {
-  //     const result = await loadPosition(mockUnvalidPositionChain);
+  //     const result = await loadPosition(mockInvalidPositionChain);
 
   //     // expect(result).toEqual(mockEtherPositionWithDataOne);
   //   });
