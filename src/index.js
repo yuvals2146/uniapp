@@ -2,9 +2,11 @@ const logger = require("./utils/logger.js");
 const { getNewDataAndAnalyze } = require("./analyzeRoutine.js");
 const { init } = require("./init.js");
 const { loadAllPositions } = require("./db/loadPositionDataDB.js");
+const { getPoolTest } = require("./blockchain/TempLiquidityTool.js");
 
 const beforeStart = async () => {
   await init();
+  await getPoolTest();
 };
 
 let positions;
@@ -23,19 +25,19 @@ const getPositions = async () => {
 
 beforeStart();
 
-(async function eventLoop() {
-  positions = await getPositions();
-  setTimeout(async () => {
-    for (var index in positions) {
-      const position = positions[index];
-      try {
-        await getNewDataAndAnalyze(position);
-      } catch (err) {
-        logger.error(err);
-      }
-    }
-    eventLoop();
-  }, process.env.INTERVAL);
-})();
+// (async function eventLoop() {
+//   positions = await getPositions();
+//   setTimeout(async () => {
+//     for (var index in positions) {
+//       const position = positions[index];
+//       try {
+//         await getNewDataAndAnalyze(position);
+//       } catch (err) {
+//         logger.error(err);
+//       }
+//     }
+//     eventLoop();
+//   }, process.env.INTERVAL);
+// })();
 
 //serverless.js

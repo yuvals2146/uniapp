@@ -60,4 +60,4 @@ const addNewPositionTemp = async () => {
   });
 };
 
-module.exports = { init, addNewPositionTemp };
+module.exports = { init };

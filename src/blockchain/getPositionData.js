@@ -8,15 +8,13 @@ const { fetchHistoricalPriceData } = require("../lib/binance.js");
 const {
   queryTheGraphForMintTransactHash,
 } = require("../utils/queryTheGraph.js");
-const { chains } = require("../utils/chains.js");
-
+const { chains, chainsNames } = require("../utils/chains.js");
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
 const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
 const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 const MIN_TICK = -887272;
 const MAX_TICK = 887272;
-const ETHEREUM_CHAIN_ID = 1;
 function getTickAtSqrtRatio(sqrtPriceX96) {
   let tick = Math.floor(Math.log((sqrtPriceX96 / Q96) ** 2) / Math.log(1.0001));
   return tick;
@@ -83,7 +81,7 @@ async function getPositionJson(positionId, provider) {
 
 async function getData(position) {
   const provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+    position.chainId === chainsNames.ethereum ? etherProvider : arbitProvider;
 
   var FactoryContract = new ethers.Contract(
     factory,
@@ -141,7 +139,7 @@ async function getData(position) {
   ]);
 
   // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
-  getQuote(token0, token1, fee, "100000", 0, position.chainId);
+  // getQuote(token0, token1, fee, "100000", 0, position.chainId);
 
   return PositionInfo;
 }
@@ -348,36 +346,12 @@ async function calcPairRate(PositionInfo) {
   return pairRates;
 }
 
-const getQuote = async (
-  token0,
-  token1,
-  fee,
-  amountIn,
-  sqrtPriceLimitX96,
-  chain
-) => {
-  const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
-  const quoterContract = new ethers.Contract(
-    quoter,
-    IUniswapQuoterABI,
-    provider
-  );
-
-  const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
-    token0,
-    token1,
-    fee,
-    amountIn,
-    sqrtPriceLimitX96
-  );
-};
-
 const getPoolExchangeRate = async (position, index) => {
   const provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+    position.chainId === chainsNames.ethereum ? etherProvider : arbitProvider;
   if (index !== 0 && index !== 1) throw new Error("index must be 0 or 1");
   const contractAddrUSDC =
-    position.chainId === ETHEREUM_CHAIN_ID
+    position.chainId === chainsNames.ethereum
       ? process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH
       : process.env.USDC_TOKEN_TRACKER_ADDRESS_ARB;
 
@@ -435,7 +409,8 @@ const getPoolExchangeRate = async (position, index) => {
 
 const getCurrentBlockNumber = async (chain) => {
   if (!chains[chain]) throw new Error(`not valid chain id ${chain}`);
-  const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+  const provider =
+    chain === chainsNames.ethereum ? etherProvider : arbitProvider;
 
   try {
     return await provider.getBlockNumber();
@@ -485,7 +460,7 @@ const decoder = new InputDataDecoder("abis/UniV3NFT.json");
 
 const loadPositionInitDataByTxHash = async (txhash, position) => {
   const provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+    position.chainId === chainsNames.ethereum ? etherProvider : arbitProvider;
 
   try {
     const block = await provider.getTransaction(txhash);
