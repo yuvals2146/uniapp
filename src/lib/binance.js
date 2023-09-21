@@ -1,10 +1,17 @@
 const axios = require("axios");
-
+const logger = require("../utils/logger.js");
 // Binance API base URL
 const baseURL = "https://api.binance.com/api/v3";
 
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
+  // THERE IS AN ERROR WITH BINANCE AND US ISP's SO WE NEED TO BYPASS BINANCE FOR GITHUB WORKFLOW
+  // WHEN REGION SELECTION WILL BE AVILABLE LETS REMOVE IT [https://github.com/orgs/community/discussions/11727]
+  if (process.env.ENV === "ci-test") {
+    const mockInitToken0USDRate = 1;
+    const mockInitToken1USDRate = 2;
+    return [mockInitToken0USDRate, mockInitToken1USDRate];
+  }
   const endpoint = "/klines";
 
   if (
@@ -29,7 +36,10 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     );
   } catch (err) {
     logger.error(`Error fetching historical data for Token0: ${token0}`);
-    throw new Error(`Error fetching historical data for Token0: ${token0}`);
+    console.log(err.message);
+    throw new Error(
+      `Error fetching historical data for Token0: ${token0} with query ${queryUSDTPriceToken0}`
+    );
   }
 
   try {
@@ -39,7 +49,9 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
         : null;
   } catch (err) {
     logger.error(`Error fetching historical data for Token1: ${token1}`);
-    throw new Error(`Error fetching historical data for Token1: ${token1}`);
+    throw new Error(
+      `Error fetching historical data for Token1: ${token1} with query ${queryUSDTPriceToken1}`
+    );
   }
 
   const initToken1USDRate = symbolToken1 ? token1PriceResponse.data[0][1] : 1;

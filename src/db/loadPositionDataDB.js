@@ -13,6 +13,7 @@ async function loadPosition(positionKey) {
         },
       },
     });
+
     if (!pos) {
       throw new Error();
     }
@@ -25,6 +26,7 @@ async function loadPosition(positionKey) {
 const loadAllPositions = async () => {
   return await prisma.Position.findMany();
 };
+
 module.exports = {
   loadPosition,
   loadAllPositions,

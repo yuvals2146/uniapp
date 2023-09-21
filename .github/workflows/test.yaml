@@ -1,0 +1,69 @@
+name: Running Tests
+
+on: [push]
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    environment: ci-test
+
+    services:
+      postgres:
+        image: postgres
+
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+        ports:
+          - 5432:5432
+
+    steps:
+      # run steps required in the workflow
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: migrate database
+        run: yarn db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run tests
+        run: yarn test
+        env:
+          ENV: ${{ secrets.ENV }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ARB_RPC_URL: ${{ secrets.ARB_RPC_URL }}
+          ETHER_RPC_URL: ${{ secrets.ETHER_RPC_URL }}
+          FACTORY_ADDRESS: ${{ secrets.FACTORY_ADDRESS }}
+          NFTMANAGER_ADDRESS: ${{ secrets.NFTMANAGER_ADDRESS }}
+          QUOTER_CONTRACT_ADDRESS: ${{ secrets.QUOTER_CONTRACT_ADDRESS }}
+          USDC_TOKEN_TRACKER_ADDRESS_ETH: ${{ secrets.USDC_TOKEN_TRACKER_ADDRESS_ETH }}
+          USDC_TOKEN_TRACKER_ADDRESS_ARB: ${{ secrets.USDC_TOKEN_TRACKER_ADDRESS_ARB }}
+          DISCORD_CLIENT_TOKEN: ${{ secrets.DISCORD_CLIENT_TOKEN}}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID}}
+          DISCORD_TEST_CLIENT_TOKEN: ${{ secrets.DISCORD_TEST_CLIENT_TOKEN}}
+          DISCORD_TEST_CLIENT_ID: ${{ secrets.DISCORD_TEST_CLIENT_ID}}
+          DISCORD_TEST_CHANNEL_ID: ${{ secrets.DISCORD_TEST_CHANNEL_ID}}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID}}  
+          INTERVAL: 30000
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN}}
+          PUSHOVER_YUVAL: ${{ secrets.PUSHOVER_YUVAL}}
+          PUSHOVER_DANY: ${{ secrets.PUSHOVER_DANY}}
+          ALERTS_CHECK_INTERVAL: 6000
+          ALERTS_NOTIFY_INTERVAL_IN_MINUTES: 1

@@ -15,7 +15,6 @@ const init = async () => {
 
   if (positions.length === 0) {
     logger.error("No positions found in DB");
-    process.exit(0);
   }
 
   logger.info(`Found ${positions.length} positions`, positions);
@@ -37,9 +36,13 @@ const addNewPositionTemp = async () => {
     [{ id: 482139, chain: 1 }],
   ];
 
-  for (let i = 0; i < array.length; i++) {
-    await userSaveNewPosition(array[i][0], array[i][1]);
-  }
+  array.forEach(async (pos) => {
+    try {
+      await userSaveNewPosition(pos[0], pos[1]);
+    } catch (e) {
+      console.log(e.message);
+    }
+  });
 };
 
 module.exports = { init, addNewPositionTemp };

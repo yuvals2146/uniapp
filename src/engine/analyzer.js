@@ -1,7 +1,7 @@
 const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
-
+const { updatePositionActiveAlert } = require("../db/savePositionDataDB.js");
 // constants
 const MILLISECONDS_PER_DAY = 8.64e7;
 
@@ -143,8 +143,9 @@ async function analyzeDataPoint(
   // check liquidity in surroudings
 }
 
-// temporarily index alerts only by position id, until we move all alerts to DB
-const updateAlertStatus = (position, alertType) => {
+const updateAlertStatus = async (postion, alertType) => {
+  await updatePositionActiveAlert(postion, alertType, true);
+
   const now = new Date();
   const last_alert_time =
     alertsTypeAndTime[position.id]?.[alertType] || new Date(0);

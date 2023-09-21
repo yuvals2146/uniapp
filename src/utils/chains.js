@@ -1,6 +1,6 @@
 const chains = {
   1: {
-    name: "etherum",
+    name: "ethereum",
     RPC: process.env.ETHER_RPC_URL,
     subGraph: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
   },
@@ -11,7 +11,7 @@ const chains = {
 };
 
 chainsNames = {
-  etherum: 1,
+  ethereum: 1,
   arbitrum: 42161,
 };
 

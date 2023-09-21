@@ -23,7 +23,7 @@ describe("loadPositionInit", () => {
     await factory.removePositionFromDB(mockArbitPositionOne);
   });
 
-  test("should load valid etherum position for db", async () => {
+  test("should load valid ethereum position for db", async () => {
     const result = await loadPosition(mockEtherPositionOne);
 
     expect(result.chain).toEqual(mockEtherPositionWithDataOne.chainId);
@@ -115,9 +115,9 @@ describe("loadPositionInit", () => {
   });
 
   test("should not load invalid position id form db", async () => {
-    expect(() => loadPosition(mockInvalidPositionId)).rejects.toThrow(
-      "position not found"
-    );
+    expect(
+      async () => await loadPosition(mockInvalidPositionId)
+    ).rejects.toThrow("position not found");
   });
 
   //   test("should not load invalid position chain form db", async () => {

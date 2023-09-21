@@ -4,6 +4,7 @@ const {
   mockEtherPositionWithDataOne,
   mockEtherPositionOne,
   mockEtherPositionInfoDataTwo,
+  mockEtherPositionTwo,
 } = require("../mocks");
 const factory = require("../factories");
 
@@ -25,13 +26,15 @@ describe("savePositionData", () => {
       mockEtherPositionInfoDataOne.positionData,
       mockEtherPositionInfoDataOne.etherUsdExchangeRate,
       mockEtherPositionInfoDataOne.ArbitUsdExchangeRate,
-      posKey,
+      mockEtherPositionOne,
       mockEtherPositionInfoDataOne.blockNumber
     );
 
     const [res] = await factory.loadAllPositionInfoFromDB();
 
-    expect({ id: res.posId, chain: res.posChain }).toEqual(posKey);
+    expect({ id: res.posId, chain: res.posChain }).toEqual(
+      mockEtherPositionOne
+    );
     expect(res).toHaveProperty("pair");
     expect(res).toHaveProperty("createdAt");
     expect(res).toHaveProperty("liquidityToken0");
@@ -45,18 +48,15 @@ describe("savePositionData", () => {
   });
 
   test("should not save position info data to db if position", async () => {
-    const posKey = {
-      id: mockEtherPositionInfoDataTwo.positionId,
-      chain: mockEtherPositionInfoDataTwo.positionChain,
-    };
-    expect(() =>
-      savePositionData(
-        mockEtherPositionInfoDataTwo.positionData,
-        mockEtherPositionInfoDataTwo.etherUsdExchangeRate,
-        mockEtherPositionInfoDataTwo.ArbitUsdExchangeRate,
-        posKey,
-        mockEtherPositionInfoDataTwo.blockNumber
-      )
+    expect(
+      async () =>
+        await savePositionData(
+          mockEtherPositionInfoDataTwo.positionData,
+          mockEtherPositionInfoDataTwo.etherUsdExchangeRate,
+          mockEtherPositionInfoDataTwo.ArbitUsdExchangeRate,
+          mockEtherPositionTwo,
+          mockEtherPositionInfoDataTwo.blockNumber
+        )
     ).rejects.toThrow("position not found");
   });
 });

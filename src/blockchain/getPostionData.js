@@ -552,11 +552,10 @@ const fixTokensSymbol = (token0symbol, token1symbol) => {
 const retriveInitalPositionData = async (position, txHash = null) => {
   // load position from mint txHash
   let initData;
-
+  let tx;
   try {
-    const tx = txHash
-      ? txHash
-      : await queryTheGraphForMintTransactHash(position);
+    tx = txHash ? txHash : await queryTheGraphForMintTransactHash(position);
+
     initData = await loadPositionInitDataByTxHash(tx, position);
     if (!initData) throw new Error("no init data found");
     const [initToken0USDRate, initToken1USDRate] =
@@ -569,33 +568,27 @@ const retriveInitalPositionData = async (position, txHash = null) => {
     initData.initToken1USDRate = initToken1USDRate;
   } catch (e) {
     if (!initData) {
-      notify(
-        "🪙🕰️ Action Needed 🕰️🪙",
-        `No initial data found for position ${position.id} on chain ${
-          chains[position.chain].name
-        } please do it manually`
-      );
-      throw new Error(
-        `No inital data found for position ${position.id} on chain ${
-          chains[position.chain].name
-        }`
-      );
+      if (tx)
+        throw new Error(
+          `No tx hash found for position ${position.id} on chain ${
+            chains[position.chain].name
+          }`
+        );
+      else {
+        throw new Error(
+          `No inital data found for position ${position.id} on chain ${
+            chains[position.chain].name
+          }`
+        );
+      }
     } else {
-      notify(
-        "🪙🕰️ Action Needed 🕰️🪙",
-        `No historical data found for position ${position.id} on chain ${
-          chains[position.chain].name
-        } please try to do it manually`
-      );
-
       throw new Error(
-        `No historical data found for position ${position.id} on chain ${
-          chains[position.chain].name
-        } please try to do it manually`
+        `could not get historical initial data found for position ${
+          position.id
+        } on chain ${chains[position.chain].name} reason: ${e.message}`
       );
     }
   }
-
   return initData;
 };
 

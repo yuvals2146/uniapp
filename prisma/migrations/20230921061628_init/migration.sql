@@ -10,6 +10,15 @@ CREATE TABLE "Position" (
     "initToken0USDRate" DOUBLE PRECISION,
     "initToken1USDRate" DOUBLE PRECISION,
     "initPriceT0T1" DOUBLE PRECISION,
+    "OutOfBounds" BOOLEAN NOT NULL DEFAULT false,
+    "OutOfBoundsLastTriggered" TIMESTAMP(3),
+    "OldPosition" BOOLEAN NOT NULL DEFAULT false,
+    "OldPositionLastTriggered" TIMESTAMP(3),
+    "PNL" BOOLEAN NOT NULL DEFAULT false,
+    "PNLLastTriggered" TIMESTAMP(3),
+    "IMPLoss" BOOLEAN NOT NULL DEFAULT false,
+    "IMPLossLastTriggered" TIMESTAMP(3),
+    "IsAlertMuted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Position_pkey" PRIMARY KEY ("id","chainId")
 );
