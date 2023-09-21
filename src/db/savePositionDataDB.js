@@ -196,10 +196,11 @@ const updatePositionActiveAlertTriggeredTime = async (position, alertType) => {
     where: {
       positionKey: {
         id: position.id,
-        chainId: position.chain,
+        chainId: parseInt(position.chainId),
       },
     },
   });
+
   if (!pos) {
     throw new Error("could not find active alert");
   }
@@ -208,7 +209,7 @@ const updatePositionActiveAlertTriggeredTime = async (position, alertType) => {
     where: {
       positionKey: {
         id: position.id,
-        chainId: position.chain,
+        chainId: position.chainId,
       },
     },
     data: {

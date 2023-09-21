@@ -107,6 +107,7 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
   Object.keys(activeAlerts).forEach(async (alertType) => {
     if (activeAlerts[alertType]) {
       await notify(position, alertsTypeNames[alertType]);
+      console.log("AAAAAAAA position", position);
       await updatePositionActiveAlertTriggeredTime(
         position,
         parseInt(alertType)
