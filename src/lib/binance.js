@@ -1,7 +1,7 @@
 const axios = require("axios");
 const logger = require("../utils/logger.js");
 // Binance API base URL
-const baseURL = "https://api.binance.com/api/v3";
+const baseURL = "https://api.binance.us/api/v3";
 
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
