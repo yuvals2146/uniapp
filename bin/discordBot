@@ -7,4 +7,13 @@ source "./bin/logger"
 
 pp_info "starting discord bot" "with env: $ENV"
 
-yarn discordBot
+
+if [[ $ENV == "cloud" ]]
+then
+    pp_info "on cloud" "starting discord bot with pm2"
+    pm2 start discordBot --name uniapp-discord-bot
+else
+    pp_info "on local" "starting discord bot with yarn"
+    yarn discordBot
+fi
+

@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 
-source .envrc
 # import logger
 source "./bin/logger"
 
-yarn start
+source .envrc
+pp_info 'did you create .envrc.cloud?'
+
+
+if [[ $ENV == "cloud" ]]
+then
+    pp_info "on cloud" "starting discord bot with pm2"
+    pm2 start index.js --name uniapp-server
+else
+    pp_info "on local" "starting discord bot with yarn"
+    yarn start
+fi
 
