@@ -267,6 +267,7 @@ describe("retriveInitalPositionData", () => {
       },
       txHash
     );
+    
     expect(resultData.token0address).toEqual(
       mockArbitPositionOneInitialData.token0address
     );

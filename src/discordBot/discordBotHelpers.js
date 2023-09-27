@@ -17,6 +17,8 @@ const formatChainName = (chain) => {
 
 const getAllActivePositions = async (args) => {
   selectedChain = args[0];
+  let res = "Positions: \n";
+
   if (
     selectedChain &&
     selectedChain !== "ethereum" &&
@@ -26,7 +28,6 @@ const getAllActivePositions = async (args) => {
 
   const resPositions = await loadAllPositions();
   if (resPositions.length === 0) return "No positions found";
-  let res = "Positions: \n";
   await resPositions.forEach((pos) => {
     if (args[0] === "ethereum" && pos.chainId !== 1) return;
     if (args[0] === "arbitrum" && pos.chainId !== 42161) return;
@@ -80,7 +81,10 @@ const addPosition = async (args) => {
     return "TX hash is not valid";
   try {
     await userSaveNewPosition(
-      { id: parseInt(positionId), chain: positionChainName === "ethereum" ? 1 : 42161 },
+      {
+        id: parseInt(positionId),
+        chain: positionChainName === "ethereum" ? 1 : 42161,
+      },
       txHash
     );
   } catch (e) {

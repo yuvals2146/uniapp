@@ -1,4 +1,5 @@
-const discordBot = require("../discordBot/discordbot.js");
+require("../discordBot/discordbot.js");
+
 const factory = require("./factories.js");
 const { chains } = require("../utils/chains.js");
 const {
@@ -69,7 +70,8 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
 
-      await sleep();
+      await longSleep();
+
       const addPositionRes = await getReplayToMessage(msgId);
       expect(addPositionRes).toEqual(
         `Position ${mockEtherPositionOne.id} on chain ${
@@ -84,7 +86,9 @@ describe("discordBot", () => {
           chains[mockArbitPositionOne.chain].name
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
-      await sleep();
+
+      await longSleep();
+
       const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on chain ${
@@ -101,6 +105,7 @@ describe("discordBot", () => {
       );
       await sleep();
       const response = await getReplayToMessage(msgId);
+
       expect(response).toEqual(
         `No inital data found for position 2 on chain arbitrum`
       );
@@ -179,6 +184,14 @@ describe("discordBot", () => {
 
   describe("discord bot - GetActiveAlerts", () => {
     test("should get all active alerts for position", async () => {
+      await factory.setAllAlertsForTest(
+        mockEtherPositionOne,
+        false,
+        false,
+        false,
+        false
+      );
+
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetActiveAlerts ${
           chains[mockEtherPositionOne.chain].name

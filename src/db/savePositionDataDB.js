@@ -129,7 +129,7 @@ const muteOrUnmutePositionAlert = async (position, mute) => {
       },
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     throw new Error("could not mute position, reason: ", err.message);
   }
 };

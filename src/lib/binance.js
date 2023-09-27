@@ -5,13 +5,6 @@ const baseURL = "https://api.binance.us/api/v3";
 
 // Function to fetch historical price data
 async function fetchHistoricalPriceData(token0, token1, startTime) {
-  // THERE IS AN ERROR WITH BINANCE AND US ISP's SO WE NEED TO BYPASS BINANCE FOR GITHUB WORKFLOW
-  // WHEN REGION SELECTION WILL BE AVILABLE LETS REMOVE IT [https://github.com/orgs/community/discussions/11727]
-  if (process.env.ENV === "ci-test") {
-    const mockInitToken0USDRate = 1;
-    const mockInitToken1USDRate = 2;
-    return [mockInitToken0USDRate, mockInitToken1USDRate];
-  }
   const endpoint = "/klines";
 
   if (
@@ -29,14 +22,13 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
   const queryUSDTPriceToken0 = `symbol=${symbolToken0}&interval=1m&startTime=${startTime}&limit=1`;
   const queryUSDTPriceToken1 = `symbol=${symbolToken1}&interval=1m&startTime=${startTime}&limit=1`;
   let token0PriceResponse, token1PriceResponse;
-
   try {
     token0PriceResponse = await axios.get(
       `${baseURL}${endpoint}?${queryUSDTPriceToken0}`
     );
   } catch (err) {
     logger.error(`Error fetching historical data for Token0: ${token0}`);
-    console.log(err.message);
+    logger.error(err.message);
     throw new Error(
       `Error fetching historical data for Token0: ${token0} with query ${queryUSDTPriceToken0}`
     );
@@ -92,8 +84,6 @@ const tokenToUSDTSymblos = {
   ARB: "ARBUSDT",
   ETH: "ETHUSDT",
   BTC: "BTCUSDT",
-  GMX: "GMXUSDT",
-  PENDLE: "PENDLEUSDT",
 };
 
 module.exports = {

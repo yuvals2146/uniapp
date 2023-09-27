@@ -27,7 +27,6 @@ client.on("ready", () => {
 });
 
 client.on("messageCreate", async (msg) => {
-  // You can view the msg object here with console.log(msg)
   if (
     msg.content === "" ||
     (msg.author.bot && msg.author.id !== process.env.DISCORD_TEST_CLIENT_ID)
@@ -94,7 +93,7 @@ const notify = async (position, alert) => {
     channel.send(`@everyone
       🚨  POSITION \`${position.id}\` **${alert}** 🚨`);
   } catch (e) {
-    console.log(e);
+    logger.error(e);
   }
 };
 
