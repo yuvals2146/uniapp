@@ -267,6 +267,7 @@ describe("discordBot", () => {
   describe("discord bot - MuteAlerts", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+      await sleep();
     });
 
     afterAll(async () => {
@@ -308,6 +309,7 @@ describe("discordBot", () => {
   describe("discord bot - UnMuteAlerts", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+      await sleep();
     });
 
     afterAll(async () => {
