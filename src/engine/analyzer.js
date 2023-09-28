@@ -3,7 +3,7 @@ const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
 const { updatePositionActiveAlert } = require("../db/savePositionDataDB.js");
 const { checkIfActiveAlert } = require("../alerts/alerts.js");
-const { alertsType } = require("../utils/alertsTypes.js");
+const { alertsTypes } = require("../utils/alertsTypes.js");
 async function analyzeDataPoint(
   positionData,
   token0USDRate,
@@ -15,7 +15,7 @@ async function analyzeDataPoint(
   if (
     (positionData.tickCurr >= positionData.tickRight ||
       positionData.tickCurr <= positionData.tickLeft) &&
-    updateAlertStatus(position, alertsType.OUT_OF_BOUNDS_ALERT)
+    updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS_ALERT)
   ) {
     logger.info(
       "Position",
@@ -40,7 +40,7 @@ async function analyzeDataPoint(
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (
     posAgeDays > 10 &&
-    updateAlertStatus(position, alertsType.OLD_POSITION_ALERT)
+    updateAlertStatus(position, alertsTypes.OLD_POSITION_ALERT)
   ) {
     logger.info(
       "Position:",
@@ -77,7 +77,7 @@ async function analyzeDataPoint(
 
   if (
     profitLossRatio.toFixed(2) >= 20 &&
-    updateAlertStatus(position, alertsType.PNL_ALERT)
+    updateAlertStatus(position, alertsTypes.PNL_ALERT)
   ) {
     logger.info(
       "Position",
@@ -112,7 +112,7 @@ async function analyzeDataPoint(
     ((totalPositionValueUSD - totalHoldValueUSD) / totalPositionValueUSD) * 100;
   if (
     totalPositionValueUSD < totalHoldValueUSD &&
-    updateAlertStatus(position, alertsType.IMP_LOSS_ALERT)
+    updateAlertStatus(position, alertsTypes.IMP_LOSS_ALERT)
   ) {
     logger.info(
       "Position:",
