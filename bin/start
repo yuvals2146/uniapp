@@ -8,7 +8,8 @@ source .envrc
 if [[ $ENV == "cloud" ]]
 then
     pp_info "on cloud" "starting uniapp server with pm2"
-    pm2 start index.js --name uniapp-server
+
+    pm2 start src/index.js --name uniapp-server
 else
     pp_info "on local" "starting uniapp server with yarn"
     yarn start
