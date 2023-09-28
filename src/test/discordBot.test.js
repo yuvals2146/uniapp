@@ -77,7 +77,7 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
 
-      await longSleep();
+      await sleep();
 
       const addPositionRes = await getReplayToMessage(msgId);
       expect(addPositionRes).toEqual(
@@ -94,7 +94,7 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
 
-      await longSleep();
+      await sleep();
 
       const response = await getReplayToMessage(msgId);
       expect(response).toEqual(
@@ -306,7 +306,6 @@ describe("discordBot", () => {
   describe("discord bot - MuteAlerts", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
-      await longSleep();
     });
 
     afterAll(async () => {
@@ -348,7 +347,6 @@ describe("discordBot", () => {
   describe("discord bot - UnMuteAlerts", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
-      await longSleep();
     });
 
     afterAll(async () => {
@@ -433,7 +431,9 @@ describe("discordBot", () => {
         alertsTypes.PNL,
         true
       );
+
       await longSleep();
+
       const res = await getAlertMessage();
       expect(res).toEqual(
         `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **permanent loss** 🚨`
@@ -446,7 +446,9 @@ describe("discordBot", () => {
         alertsTypes.IMP_LOSS,
         true
       );
+
       await longSleep();
+
       const res = await getAlertMessage();
       expect(res).toEqual(
         `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **impermanent loss** 🚨`
