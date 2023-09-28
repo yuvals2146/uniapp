@@ -202,15 +202,6 @@ describe("discordBot", () => {
   describe("discord bot - GetActiveAlerts", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
-      await factory.addPositionIntoDB(mockArbitPositionWithDataOne);
-    });
-
-    afterAll(async () => {
-      await factory.removePositionFromDB(mockEtherPositionOne);
-      await factory.removePositionFromDB(mockArbitPositionOne);
-    });
-
-    test("should get all active alerts for position", async () => {
       await factory.setAllAlertsForTest(
         mockEtherPositionOne,
         false,
@@ -218,15 +209,24 @@ describe("discordBot", () => {
         false,
         false
       );
+      console.log(await loadAllPositions());
+    });
 
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+    });
+
+    test("should get all active alerts for position", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetActiveAlerts ${
           chains[mockEtherPositionOne.chain].name
         } ${mockEtherPositionOne.id}`
       );
+
       await sleep();
 
       const response = await getReplayToMessage(msgId);
+
       expect(response).toEqual(
         `Active alerts for position ${mockEtherPositionOne.id} on ${
           chains[mockEtherPositionOne.chain].name
