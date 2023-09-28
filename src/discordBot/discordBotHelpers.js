@@ -54,6 +54,7 @@ const getActiveAlerts = async (args) => {
     return `Failed to load position ${positionId} on ${positionChainName}, ${e.message}`;
   }
 
+  console.log("position: ", position);
   const activeAlerts = `Active alerts for position ${positionId} on ${positionChainName}:\n- OutOfBounds: ${
     position.OutOfBounds ? "🚨" : "✅"
   }\n- OldPosition: ${position.OldPosition ? "🚨" : "✅"}\n- PNL: ${
