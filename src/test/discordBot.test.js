@@ -223,6 +223,8 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
 
+      console.log("after send", await loadAllPositions());
+
       await sleep();
 
       const response = await getReplayToMessage(msgId);
