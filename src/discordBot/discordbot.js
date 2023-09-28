@@ -10,9 +10,10 @@ const {
   getActiveAlerts,
   addPosition,
   removePosition,
-  checkIfActiveAlert,
   muteOrUnmuteAlert,
 } = require("./discordBotHelpers");
+
+const { checkIfActiveAlert } = require("../alerts/alerts.js");
 
 const client = new Client({
   intents: [

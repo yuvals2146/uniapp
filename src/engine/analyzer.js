@@ -2,16 +2,8 @@ const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
 const { updatePositionActiveAlert } = require("../db/savePositionDataDB.js");
-// constants
-const MILLISECONDS_PER_DAY = 8.64e7;
-
-const OUT_OF_BOUNDS_ALERT = 0;
-const OLD_POSITION_ALERT = 1;
-const PNL_ALERT = 2;
-const IMP_LOSS_ALERT = 3;
-
-let alertsTypeAndTime = {};
-
+const { checkIfActiveAlert } = require("../alerts/alerts.js");
+const { alertsType } = require("../utils/alertsTypes.js");
 async function analyzeDataPoint(
   positionData,
   token0USDRate,
@@ -23,7 +15,7 @@ async function analyzeDataPoint(
   if (
     (positionData.tickCurr >= positionData.tickRight ||
       positionData.tickCurr <= positionData.tickLeft) &&
-    updateAlertStatus(position, OUT_OF_BOUNDS_ALERT)
+    updateAlertStatus(position, alertsType.OUT_OF_BOUNDS_ALERT)
   ) {
     logger.info(
       "Position",
@@ -46,7 +38,10 @@ async function analyzeDataPoint(
   const positionInitData = await loadPosition(position);
   const positionAge = Date.now() - positionInitData.createdAt;
   const posAgeDays = parseInt(positionAge / 8.64e7);
-  if (posAgeDays > 10 && updateAlertStatus(position, OLD_POSITION_ALERT)) {
+  if (
+    posAgeDays > 10 &&
+    updateAlertStatus(position, alertsType.OLD_POSITION_ALERT)
+  ) {
     logger.info(
       "Position:",
       position.id,
@@ -82,7 +77,7 @@ async function analyzeDataPoint(
 
   if (
     profitLossRatio.toFixed(2) >= 20 &&
-    updateAlertStatus(position, PNL_ALERT)
+    updateAlertStatus(position, alertsType.PNL_ALERT)
   ) {
     logger.info(
       "Position",
@@ -117,7 +112,7 @@ async function analyzeDataPoint(
     ((totalPositionValueUSD - totalHoldValueUSD) / totalPositionValueUSD) * 100;
   if (
     totalPositionValueUSD < totalHoldValueUSD &&
-    updateAlertStatus(position, IMP_LOSS_ALERT)
+    updateAlertStatus(position, alertsType.IMP_LOSS_ALERT)
   ) {
     logger.info(
       "Position:",
@@ -146,19 +141,9 @@ async function analyzeDataPoint(
 const updateAlertStatus = async (postion, alertType) => {
   await updatePositionActiveAlert(postion, alertType, true);
 
-  const now = new Date();
-  const last_alert_time =
-    alertsTypeAndTime[position.id]?.[alertType] || new Date(0);
+  const activeAlerts = await checkIfActiveAlert(postion);
 
-  if (now - last_alert_time < process.env.REPEAT_ALERT_INTERVAL) {
-    return false;
-  } else {
-    alertsTypeAndTime[position.id] = {
-      ...alertsTypeAndTime[position.id],
-      [alertType]: now,
-    };
-  }
-  return true;
+  return activeAlerts[alertType];
 };
 
 module.exports = {

@@ -22,18 +22,18 @@ const sendMsg = async (msg) => {
   return returnedMsg?.id;
 };
 
-const getReplayToMessage = async (msgId) => {
+const getReplyToMessage = async (msgId) => {
   const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
   const messages = await channel.messages.fetch({ limit: 10 });
-  let replayedMsg;
+  let replyedMsg;
   messages.forEach(async (msg) => {
     if (msg?.reference?.messageId === msgId) {
-      replayedMsg = msg.content;
+      replyedMsg = msg.content;
       return;
     }
   });
 
-  return replayedMsg;
+  return replyedMsg;
 };
 
 const getAlertMessage = async () => {
@@ -48,6 +48,6 @@ client.login(process.env.DISCORD_TEST_CLIENT_TOKEN); //login bot using token
 module.exports = {
   getClientReady,
   sendMsg,
-  getReplayToMessage,
+  getReplyToMessage,
   getAlertMessage,
 };

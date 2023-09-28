@@ -1,4 +1,3 @@
-const { alertsTypes } = require("../utils/alertsTypes");
 const { chains } = require("../utils/chains");
 const { loadAllPositions, loadPosition } = require("../db/loadPositionDataDB");
 const {
@@ -6,7 +5,7 @@ const {
   deletePosition,
   muteOrUnmutePositionAlert,
 } = require("../db/savePositionDataDB");
-
+const { checkIfActiveAlert } = require("../alerts/alerts");
 const formatChainName = (chain) => {
   if (chain === "1") return "ethereum";
   if (chain === "42161") return "arbitrum";
@@ -54,7 +53,6 @@ const getActiveAlerts = async (args) => {
     return `Failed to load position ${positionId} on ${positionChainName}, ${e.message}`;
   }
 
-  console.log("position: ", position);
   const activeAlerts = `Active alerts for position ${positionId} on ${positionChainName}:\n- OutOfBounds: ${
     position.OutOfBounds ? "🚨" : "✅"
   }\n- OldPosition: ${position.OldPosition ? "🚨" : "✅"}\n- PNL: ${
@@ -109,34 +107,6 @@ const removePosition = async (args) => {
   } catch (e) {
     return `Failed to remove position ${positionId} on ${positionChainName}, check logs for more details e=${e.message}`;
   }
-};
-
-const inTimeWindow = async (time) => {
-  if (!time) return false;
-  const now = new Date();
-  const timeWindow = new Date(time);
-
-  timeWindow.setMinutes(
-    timeWindow.getMinutes() +
-      parseInt(process.env.ALERTS_NOTIFY_INTERVAL_IN_MINUTES)
-  );
-  return now > timeWindow;
-};
-
-const checkIfActiveAlert = async (position) => {
-  const activeAlerts = {
-    [alertsTypes.OUT_OF_BOUNDS]:
-      position.OutOfBounds &&
-      (await inTimeWindow(position.OutOfBoundsLastTriggered)),
-    [alertsTypes.OLD_POSITION]:
-      position.OldPosition &&
-      (await inTimeWindow(position.OldPositionLastTriggered)),
-    [alertsTypes.PNL]:
-      position.PNL && (await inTimeWindow(position.PNLLastTriggered)),
-    [alertsTypes.IMP_LOSS]:
-      position.IMPLoss && (await inTimeWindow(position.IMPLossLastTriggered)),
-  };
-  return activeAlerts;
 };
 
 const muteOrUnmuteAlert = async (args, mute) => {

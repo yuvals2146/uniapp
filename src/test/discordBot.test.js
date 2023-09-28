@@ -5,7 +5,7 @@ const { chains } = require("../utils/chains.js");
 const {
   getClientReady,
   sendMsg,
-  getReplayToMessage,
+  getReplyToMessage,
   getAlertMessage,
 } = require("./helpers/discordTestClinetHelper");
 const {
@@ -48,7 +48,7 @@ describe("discordBot", () => {
     test("should ask for help form bot", async () => {
       const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> help`);
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         "I can help you with the following commands: \n- `GetAllActivePositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
@@ -56,7 +56,7 @@ describe("discordBot", () => {
     test("should not recived help menu for diffrent keyword form bot", async () => {
       const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> hell`);
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
 
       expect(response).toEqual(
         "I don't understand this command, try to use `help` to find posible commands"
@@ -77,9 +77,9 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
 
-      await sleep();
+      await longSleep();
 
-      const addPositionRes = await getReplayToMessage(msgId);
+      const addPositionRes = await getReplyToMessage(msgId);
       expect(addPositionRes).toEqual(
         `Position ${mockEtherPositionOne.id} on chain ${
           chains[mockEtherPositionOne.chain].name
@@ -94,9 +94,9 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
 
-      await sleep();
+      await longSleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on chain ${
           chains[mockArbitPositionOne.chain].name
@@ -111,7 +111,7 @@ describe("discordBot", () => {
         } ${mockArbitPositionTwo.id}`
       );
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
 
       expect(response).toEqual(
         `No inital data found for position 2 on chain arbitrum`
@@ -123,7 +123,7 @@ describe("discordBot", () => {
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition sababirum ${mockArbitPositionOne.id} 0xa123`
       );
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         "Chain id not supported, must be ethereum or arbitrum"
       );
@@ -137,7 +137,7 @@ describe("discordBot", () => {
       );
 
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `could not save postition ${mockArbitPositionOne.id} on ${
           chains[mockArbitPositionOne.chain].name
@@ -152,7 +152,7 @@ describe("discordBot", () => {
         } 100000000`
       );
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         "No inital data found for position 100000000 on chain ethereum"
       );
@@ -165,7 +165,7 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id} 0x123`
       );
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual("TX hash is not valid");
     });
   });
@@ -188,7 +188,7 @@ describe("discordBot", () => {
 
       await sleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Positions: \n- id: \`${mockEtherPositionOne.id}\` , chain: \`${
           chains[mockEtherPositionOne.chain].name
@@ -202,14 +202,6 @@ describe("discordBot", () => {
   describe("discord bot - GetActiveAlerts", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
-      await factory.setAllAlertsForTest(
-        mockEtherPositionOne,
-        false,
-        false,
-        false,
-        false
-      );
-      console.log(await loadAllPositions());
     });
 
     afterAll(async () => {
@@ -223,11 +215,9 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
 
-      console.log("after send", await loadAllPositions());
-
       await sleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
 
       expect(response).toEqual(
         `Active alerts for position ${mockEtherPositionOne.id} on ${
@@ -251,7 +241,7 @@ describe("discordBot", () => {
 
       await sleep();
 
-      const response2 = await getReplayToMessage(msgId2);
+      const response2 = await getReplyToMessage(msgId2);
 
       expect(response2).toEqual(
         `Active alerts for position ${mockEtherPositionOne.id} on ${
@@ -279,7 +269,7 @@ describe("discordBot", () => {
         } ${mockEtherPositionOne.id}`
       );
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
           chains[mockEtherPositionOne.chain].name
@@ -294,7 +284,7 @@ describe("discordBot", () => {
         } ${mockArbitPositionOne.id}`
       );
       await sleep();
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on ${
           chains[mockArbitPositionOne.chain].name
@@ -319,7 +309,7 @@ describe("discordBot", () => {
       );
       await sleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
           chains[mockEtherPositionOne.chain].name
@@ -335,7 +325,7 @@ describe("discordBot", () => {
       );
       await sleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Failed to mute position 100000000 on ${
           chains[mockEtherPositionOne.chain].name
@@ -361,7 +351,7 @@ describe("discordBot", () => {
       );
       await sleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
           chains[mockEtherPositionOne.chain].name
@@ -377,7 +367,7 @@ describe("discordBot", () => {
       );
       await sleep();
 
-      const response = await getReplayToMessage(msgId);
+      const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Failed to unmute position 100000000 on ${
           chains[mockEtherPositionOne.chain].name

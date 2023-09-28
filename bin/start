@@ -4,15 +4,13 @@
 source "./bin/logger"
 
 source .envrc
-pp_info 'did you create .envrc.cloud?'
-
 
 if [[ $ENV == "cloud" ]]
 then
-    pp_info "on cloud" "starting discord bot with pm2"
+    pp_info "on cloud" "starting uniapp server with pm2"
     pm2 start index.js --name uniapp-server
 else
-    pp_info "on local" "starting discord bot with yarn"
+    pp_info "on local" "starting uniapp server with yarn"
     yarn start
 fi
 

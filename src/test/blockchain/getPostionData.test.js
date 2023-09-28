@@ -253,7 +253,6 @@ describe("retriveInitalPositionData", () => {
   //         chain: chainsNames.arbitrum,
   //       },
   //     );
-  //     console.log(resultData);
   //     //expect(resultData).toEqual(expectedArbitrumResultData);
   //   });
 
@@ -267,7 +266,7 @@ describe("retriveInitalPositionData", () => {
       },
       txHash
     );
-    
+
     expect(resultData.token0address).toEqual(
       mockArbitPositionOneInitialData.token0address
     );
