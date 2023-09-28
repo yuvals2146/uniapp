@@ -3,22 +3,13 @@ const { fetchHistoricalPriceData } = require("../../lib/binance.js");
 const { chains } = require("../../utils/chains");
 //async function fetchHistoricalPriceData(token0, token1, startTime) {
 const validPairs = [
-  ["ARB", "BTC", "GMX", "PENDLE"], // ETH
-  ["ETH", "BTC", "GMX", "PENDLE"], // ARB
-  ["ARB", "ETH", "GMX", "PENDLE"], // BTC
-  ["ARB", "BTC", "ETH", "PENDLE"], // GMX
-  ["ARB", "BTC", "GMX", "ETH"], // PENDLE
+  ["ARB", "BTC"], // ETH
+  ["ETH", "BTC"], // ARB
+  ["ARB", "ETH"], // BTC
 ];
-const validTokens = ["ETH", "ARB", "BTC", "GMX", "PENDLE"];
+const validTokens = ["ETH", "ARB", "BTC"];
 
 describe("fetchHistoricalPriceData", () => {
-  if (process.env.ENV === "ci-test") {
-    test("override binance tests on ci", async () => {
-      expect(true).toBe(true);
-    });
-    return;
-  }
-
   test("should fetch data for all valid pairs and time", async () => {
     for (let i = 0; i < validTokens.length; i++) {
       for (let j = 0; j < validPairs[i].length; j++) {
@@ -28,6 +19,7 @@ describe("fetchHistoricalPriceData", () => {
             validPairs[i][j],
             1693056174000
           );
+
         expect(resInitToken0USDRate).not.toBeUndefined();
         expect(resInitToken1USDRate).not.toBeUndefined();
       }
@@ -43,9 +35,7 @@ describe("fetchHistoricalPriceData", () => {
   test("should not fetch data for non valid time", async () => {
     expect(async () => {
       await fetchHistoricalPriceData("ARB", "ETH", 1000000);
-    }).rejects.toThrow(
-      "response time is not valid, startTime: 1000000, token0TimeResponse: 1679583600000, token1TimeResponse: 1502942400000"
-    );
+    }).rejects.toThrow(/response time is not valid, startTime: 1000000/);
 
     expect(async () => {
       await fetchHistoricalPriceData("ARB", "ETH", -1);

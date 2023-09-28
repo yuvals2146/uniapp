@@ -33,7 +33,6 @@ async function savePositionData(
   posKey,
   blockNumber
 ) {
-  console.log("savePositionData", posKey.id, posKey.chain);
   let position = await prisma.Position.findUnique({
     where: {
       positionKey: {
@@ -63,7 +62,6 @@ async function savePositionData(
 }
 
 const userSaveNewPosition = async (position, txHash) => {
-  console.log("userSaveNewPosition", position.id, position.chain);
   let pos = await prisma.Position.findUnique({
     where: {
       positionKey: {
@@ -131,7 +129,7 @@ const muteOrUnmutePositionAlert = async (position, mute) => {
       },
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     throw new Error("could not mute position, reason: ", err.message);
   }
 };

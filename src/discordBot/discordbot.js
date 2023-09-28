@@ -10,9 +10,10 @@ const {
   getActiveAlerts,
   addPosition,
   removePosition,
-  checkIfActiveAlert,
   muteOrUnmuteAlert,
 } = require("./discordBotHelpers");
+
+const { checkIfActiveAlert } = require("../alerts/alerts.js");
 
 const client = new Client({
   intents: [
@@ -27,7 +28,6 @@ client.on("ready", () => {
 });
 
 client.on("messageCreate", async (msg) => {
-  // You can view the msg object here with console.log(msg)
   if (
     msg.content === "" ||
     (msg.author.bot && msg.author.id !== process.env.DISCORD_TEST_CLIENT_ID)
@@ -94,7 +94,7 @@ const notify = async (position, alert) => {
     channel.send(`@everyone
       🚨  POSITION \`${position.id}\` **${alert}** 🚨`);
   } catch (e) {
-    console.log(e);
+    logger.error(e);
   }
 };
 
@@ -107,7 +107,6 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
   Object.keys(activeAlerts).forEach(async (alertType) => {
     if (activeAlerts[alertType]) {
       await notify(position, alertsTypeNames[alertType]);
-      console.log("AAAAAAAA position", position);
       await updatePositionActiveAlertTriggeredTime(
         position,
         parseInt(alertType)

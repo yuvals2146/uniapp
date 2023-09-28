@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
-source .envrc
 # import logger
 source "./bin/logger"
 
-yarn start
+source .envrc
+
+if [[ $ENV == "cloud" ]]
+then
+    pp_info "on cloud" "starting uniapp server with pm2"
+    pm2 start index.js --name uniapp-server
+else
+    pp_info "on local" "starting uniapp server with yarn"
+    yarn start
+fi
 

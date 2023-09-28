@@ -40,7 +40,7 @@ const addNewPositionTemp = async () => {
     try {
       await userSaveNewPosition(pos[0], pos[1]);
     } catch (e) {
-      console.log(e.message);
+      logger.error(e.message);
     }
   });
 };

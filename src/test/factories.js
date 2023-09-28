@@ -2,6 +2,7 @@ require("dotenv").config({ path: `${__dirname}/../../.env.test` }); //initialize
 const { PrismaClient } = require("@prisma/client");
 const { alertsTypes } = require("../../src/utils/alertsTypes.js");
 const prisma = new PrismaClient();
+const logger = require("../../src/utils/logger.js");
 
 const addPositionIntoDB = async (position) => {
   await prisma.Position.create({
@@ -44,7 +45,7 @@ const removePositionFromDB = async (position) => {
       },
     });
   } catch (e) {
-    console.log(e);
+    logger.error(e);
   }
 };
 
@@ -52,6 +53,32 @@ const loadAllPositionInfoFromDB = async () => {
   return await prisma.positionInfo.findMany();
 };
 
+const setAllAlertsForTest = async (
+  position,
+  outOfBoundsStatus,
+  OldPositionStatus,
+  pNLStatus,
+  iMPLossStatus
+) => {
+  await prisma.Position.update({
+    where: {
+      positionKey: {
+        id: position.id,
+        chainId: position.chain,
+      },
+    },
+    data: {
+      OutOfBounds: outOfBoundsStatus,
+      OutOfBoundsLastTriggered: null,
+      OldPosition: OldPositionStatus,
+      OldPositionLastTriggered: null,
+      PNL: pNLStatus,
+      PNLLastTriggered: null,
+      IMPLoss: iMPLossStatus,
+      IMPLossLastTriggered: null,
+    },
+  });
+};
 const setAlertActiveForTest = async (position, alertType, shouldNotify) => {
   let yesterday = new Date().setDate(new Date().getDate() - 1);
   let tommorow = new Date().setDate(new Date().getDate() + 1);
@@ -81,4 +108,5 @@ module.exports = {
   removePositionFromDB,
   loadAllPositionInfoFromDB,
   setAlertActiveForTest,
+  setAllAlertsForTest,
 };
