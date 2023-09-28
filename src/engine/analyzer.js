@@ -15,7 +15,7 @@ async function analyzeDataPoint(
   if (
     (positionData.tickCurr >= positionData.tickRight ||
       positionData.tickCurr <= positionData.tickLeft) &&
-    updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS_ALERT)
+    updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS)
   ) {
     logger.info(
       "Position",
@@ -40,7 +40,7 @@ async function analyzeDataPoint(
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (
     posAgeDays > 10 &&
-    updateAlertStatus(position, alertsTypes.OLD_POSITION_ALERT)
+    updateAlertStatus(position, alertsTypes.OLD_POSITION)
   ) {
     logger.info(
       "Position:",
@@ -77,7 +77,7 @@ async function analyzeDataPoint(
 
   if (
     profitLossRatio.toFixed(2) >= 20 &&
-    updateAlertStatus(position, alertsTypes.PNL_ALERT)
+    updateAlertStatus(position, alertsTypes.PNL)
   ) {
     logger.info(
       "Position",
@@ -112,7 +112,7 @@ async function analyzeDataPoint(
     ((totalPositionValueUSD - totalHoldValueUSD) / totalPositionValueUSD) * 100;
   if (
     totalPositionValueUSD < totalHoldValueUSD &&
-    updateAlertStatus(position, alertsTypes.IMP_LOSS_ALERT)
+    updateAlertStatus(position, alertsTypes.IMP_LOSS)
   ) {
     logger.info(
       "Position:",

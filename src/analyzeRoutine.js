@@ -6,7 +6,6 @@ const {
 const { savePositionData } = require("./db/savePositionDataDB.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
 const { chains } = require("./utils/chains.js");
-const ETHEREUM_CHAIN_ID = 1;
 
 const getNewDataAndAnalyzed = async (position) => {
   try {
