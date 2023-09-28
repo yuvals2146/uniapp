@@ -12,6 +12,7 @@ const {
   mockEtherPositionOne,
   mockEtherPositionWithDataOne,
   mockArbitPositionOne,
+  mockArbitPositionWithDataOne,
   mockArbitPositionTwo,
 } = require("./mocks.js");
 
@@ -42,6 +43,7 @@ describe("discordBot", () => {
       } \n----------------------------------------------------`
     );
   });
+
   describe("discord bot - help", () => {
     test("should ask for help form bot", async () => {
       const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> help`);
@@ -63,6 +65,11 @@ describe("discordBot", () => {
   });
 
   describe("discord bot - AddPosition", () => {
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+      await factory.removePositionFromDB(mockArbitPositionOne);
+    });
+
     test("should add ethereum position to db", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
@@ -164,6 +171,16 @@ describe("discordBot", () => {
   });
 
   describe("discord bot - GetAllActivePositions", () => {
+    beforeAll(async () => {
+      await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+      await factory.addPositionIntoDB(mockArbitPositionWithDataOne);
+    });
+
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+      await factory.removePositionFromDB(mockArbitPositionOne);
+    });
+
     test("should get all active positions", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetAllActivePositions`
@@ -183,6 +200,16 @@ describe("discordBot", () => {
   });
 
   describe("discord bot - GetActiveAlerts", () => {
+    beforeAll(async () => {
+      await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+      await factory.addPositionIntoDB(mockArbitPositionWithDataOne);
+    });
+
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+      await factory.removePositionFromDB(mockArbitPositionOne);
+    });
+
     test("should get all active alerts for position", async () => {
       await factory.setAllAlertsForTest(
         mockEtherPositionOne,
@@ -233,6 +260,16 @@ describe("discordBot", () => {
   });
 
   describe("discord bot - RemovePosition", () => {
+    beforeAll(async () => {
+      await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
+      await factory.addPositionIntoDB(mockArbitPositionWithDataOne);
+    });
+
+    afterAll(async () => {
+      await factory.removePositionFromDB(mockEtherPositionOne);
+      await factory.removePositionFromDB(mockArbitPositionOne);
+    });
+
     test("should remove ethereum position from db", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> RemovePosition ${
