@@ -1,5 +1,4 @@
 const { loadPosition } = require("../db/loadPositionDataDB.js");
-const { notify } = require("../utils/notifer.js");
 const logger = require("../utils/logger.js");
 const { updatePositionActiveAlert } = require("../db/savePositionDataDB.js");
 const { checkIfActiveAlert } = require("../alerts/alerts.js");
@@ -28,10 +27,6 @@ async function analyzeDataPoint(
       "Current:",
       positionData.tickCurr
     );
-    await notify(
-      `Position ${position.id}, ${position.chain} is out of limits: Left: ${positionData.tickLeft}, Right: ${positionData.tickRight}, Curr: ${positionData.tickCurr}`,
-      "🚨 Reposition 🚨"
-    );
   }
 
   // check position lifetime
@@ -49,10 +44,6 @@ async function analyzeDataPoint(
       position.chain,
       " > 10 days old",
       posAgeDays
-    );
-    await notify(
-      `Position ${position.id} on chain ${position.chain} > 10 days old: ${posAgeDays}`,
-      "⏰ Reposition? ⏰"
     );
   }
 
@@ -96,12 +87,6 @@ async function analyzeDataPoint(
       amountToken0USD,
       amountToken1USD
     );
-    await notify(
-      `Position ${position.id} on chain ${
-        position.chain
-      } in high USD profit: ${profitLossRatio.toFixed(2)}%`,
-      "💵 Cash out 💵"
-    );
   }
 
   // check position IL
@@ -124,12 +109,6 @@ async function analyzeDataPoint(
       totalHoldValueUSD,
       ilRate.toFixed(2),
       "%"
-    );
-    await notify(
-      `Position ${position.id} on chain ${
-        position.chain
-      } is currently at impermanent loss: ${ilRate.toFixed(2)}%`,
-      "🚨 Exit position! 🚨"
     );
   }
 
