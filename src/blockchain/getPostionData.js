@@ -9,7 +9,6 @@ const {
   queryTheGraphForMintTransactHash,
 } = require("../utils/queryTheGraph.js");
 const { chains } = require("../utils/chains.js");
-const { notify } = require("../utils/notifer.js");
 
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));

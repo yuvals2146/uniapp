@@ -1,5 +1,4 @@
 const { loadAllPositions } = require("./db/loadPositionDataDB.js");
-const { notify } = require("./utils/notifer.js");
 const logger = require("./utils/logger.js");
 const { userSaveNewPosition } = require("./db/savePositionDataDB.js");
 
@@ -20,10 +19,6 @@ const init = async () => {
   logger.info(`Found ${positions.length} positions`, positions);
   logger.info("init", "done");
 
-  await notify(
-    `UniApp Bot is up and running on ${positions.length} positions`,
-    "🤖🦄 Startup 🤖🦄"
-  );
   return positions;
 };
 
