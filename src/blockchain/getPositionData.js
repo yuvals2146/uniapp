@@ -83,7 +83,7 @@ async function getPositionJson(positionId, provider) {
 
 async function getData(position) {
   const provider =
-    position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
 
   var FactoryContract = new ethers.Contract(
     factory,
@@ -141,7 +141,7 @@ async function getData(position) {
   ]);
 
   // getQuote(token0, token1, fee, "100000", slot0.sqrtPriceX96.toString());
-  getQuote(token0, token1, fee, "100000", 0, position.chain);
+  getQuote(token0, token1, fee, "100000", 0, position.chainId);
 
   return PositionInfo;
 }
@@ -254,17 +254,17 @@ async function getFees(
   return fees;
 }
 
-const postitionKeyValidate = (position) => {
+const positionKeyValidate = (position) => {
   // input validation
-  if (!chains[position.chain])
-    throw new Error(`not valid chain id ${position.chain}`);
+  if (!chains[position.chainId])
+    throw new Error(`not valid chain id ${position.chainId}`);
   if (!position.id || position.id < 0 || typeof position.id !== "number")
     throw new Error("not valid position id or not exist");
 };
 
-async function getPostionData(position) {
+async function getPositionData(position) {
   try {
-    postitionKeyValidate(position);
+    positionKeyValidate(position);
   } catch (err) {
     throw new Error(err.message);
   }
@@ -273,7 +273,7 @@ async function getPostionData(position) {
   } catch (err) {
     throw new Error(
       `could not get data for position ${position.id} on chain ${
-        chains[position.chain].name
+        chains[position.chainId].name
       } \n reason: ${err.message}`
     );
   }
@@ -370,10 +370,10 @@ const getQuote = async (
 
 const getPoolExchangeRate = async (position, index) => {
   const provider =
-    position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   if (index !== 0 && index !== 1) throw new Error("index must be 0 or 1");
   const contractAddrUSDC =
-    position.chain === ETHEREUM_CHAIN_ID
+    position.chainId === ETHEREUM_CHAIN_ID
       ? process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH
       : process.env.USDC_TOKEN_TRACKER_ADDRESS_ARB;
 
@@ -592,7 +592,7 @@ const retriveInitalPositionData = async (position, txHash = null) => {
 };
 
 module.exports = {
-  getPostionData,
+  getPositionData,
   getPoolExchangeRate,
   getCurrentBlockNumber,
   loadPositionInitDataByTxHash,

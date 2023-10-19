@@ -1,24 +1,37 @@
 const { loadPosition } = require("../db/loadPositionDataDB.js");
 const logger = require("../utils/logger.js");
-const { updatePositionActiveAlert } = require("../db/savePositionDataDB.js");
+const {
+  updatePositionActiveAlert,
+  updatePositionActiveAlertTriggeredTime,
+} = require("../db/savePositionDataDB.js");
 const { checkIfActiveAlert } = require("../alerts/alerts.js");
 const { alertsTypes } = require("../utils/alertsTypes.js");
 async function analyzeDataPoint(
   positionData,
   token0USDRate,
   token1USDRate,
-  position
+  pos
   //  blockNumber
 ) {
+  let position = await loadPosition({
+    id: pos.id,
+    chain: pos.chainId,
+  });
+
   // check position boundaries
+  const outOfBoundsValue =
+    positionData.tickCurr >= positionData.tickRight ||
+    positionData.tickCurr <= positionData.tickLeft;
+
   if (
-    (positionData.tickCurr >= positionData.tickRight ||
-      positionData.tickCurr <= positionData.tickLeft) &&
-    updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS)
+    outOfBoundsValue &&
+    (await updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS))
   ) {
     logger.info(
-      "Position",
-      position,
+      "Position:",
+      position.id,
+      "on chain:",
+      position.chainId,
       " is out of limits",
       "Left:",
       positionData.tickLeft,
@@ -27,21 +40,22 @@ async function analyzeDataPoint(
       "Current:",
       positionData.tickCurr
     );
+  } else if (!outOfBoundsValue) {
+    updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS, false);
   }
 
   // check position lifetime
-  const positionInitData = await loadPosition(position);
-  const positionAge = Date.now() - positionInitData.createdAt;
+  const positionAge = Date.now() - position.createdAt;
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (
     posAgeDays > 10 &&
-    updateAlertStatus(position, alertsTypes.OLD_POSITION)
+    (await updateAlertStatus(position, alertsTypes.OLD_POSITION))
   ) {
     logger.info(
       "Position:",
       position.id,
       "on chain:",
-      position.chain,
+      position.chainId,
       " > 10 days old",
       posAgeDays
     );
@@ -57,9 +71,9 @@ async function analyzeDataPoint(
   const amountToken0USD = totalLiquidityToken0 * token0USDRate;
   const amountToken1USD = totalLiquidityToken1 * token1USDRate;
   const initAmountToken0USD =
-    positionInitData.initValueToken0 * positionInitData.initToken0USDRate;
+    position.initValueToken0 * position.initToken0USDRate;
   const initAmountToken1USD =
-    positionInitData.initValueToken1 * positionInitData.initToken1USDRate;
+    position.initValueToken1 * position.initToken1USDRate;
   const totalPositionValueUSD = amountToken0USD + amountToken1USD;
   const initPositionValueUSD = initAmountToken0USD + initAmountToken1USD;
   const profitLossRatio =
@@ -68,13 +82,13 @@ async function analyzeDataPoint(
 
   if (
     profitLossRatio.toFixed(2) >= 20 &&
-    updateAlertStatus(position, alertsTypes.PNL)
+    (await updateAlertStatus(position, alertsTypes.PNL))
   ) {
     logger.info(
       "Position",
       position.id,
       "on chaoin",
-      position.chain,
+      position.chainId,
       "is in high USD profit:",
       totalPositionValueUSD,
       initPositionValueUSD,
@@ -87,29 +101,33 @@ async function analyzeDataPoint(
       amountToken0USD,
       amountToken1USD
     );
+  } else if (profitLossRatio.toFixed(2) < 20) {
+    updateAlertStatus(position, alertsTypes.PNL, false);
   }
 
   // check position IL
   const totalHoldValueUSD =
-    positionInitData.initValueToken0 * token0USDRate +
-    positionInitData.initValueToken1 * token1USDRate;
+    position.initValueToken0 * token0USDRate +
+    position.initValueToken1 * token1USDRate;
   const ilRate =
     ((totalPositionValueUSD - totalHoldValueUSD) / totalPositionValueUSD) * 100;
   if (
     totalPositionValueUSD < totalHoldValueUSD &&
-    updateAlertStatus(position, alertsTypes.IMP_LOSS)
+    (await updateAlertStatus(position, alertsTypes.IMP_LOSS))
   ) {
     logger.info(
       "Position:",
       position.id,
       "on chain:",
-      position.chain,
+      position.chainId,
       " is at impermanent loss:",
       totalPositionValueUSD,
       totalHoldValueUSD,
       ilRate.toFixed(2),
       "%"
     );
+  } else if (totalPositionValueUSD >= totalHoldValueUSD) {
+    updateAlertStatus(position, alertsTypes.IMP_LOSS, false);
   }
 
   // check pair characteristics
@@ -117,12 +135,20 @@ async function analyzeDataPoint(
   // check liquidity in surroudings
 }
 
-const updateAlertStatus = async (postion, alertType) => {
-  await updatePositionActiveAlert(postion, alertType, true);
+const updateAlertStatus = async (position, alertType, value = true) => {
+  await updatePositionActiveAlert(position, alertType, value);
 
-  const activeAlerts = await checkIfActiveAlert(postion);
+  if (value === false) return;
 
-  return activeAlerts[alertType];
+  // alert only if time interval since last alert is long enough
+  const activeAlerts = await checkIfActiveAlert(position);
+  const alert = await activeAlerts[alertType];
+
+  if (alert) {
+    await updatePositionActiveAlertTriggeredTime(position, alertType);
+  }
+
+  return alert;
 };
 
 module.exports = {
