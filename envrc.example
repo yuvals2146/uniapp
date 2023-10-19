@@ -13,14 +13,13 @@ export USDC_TOKEN_TRACKER_ADDRESS_ARB=""
 export DATABASE_URL=""
 export DEBUG=0
 
-
 #discord bot:
 export DISCORD_CLIENT_TOKEN=''
 
 #runnig settings:
 #interval for sampling positions
 export INTERVAL=30000
-#don't repeat last alert unless an hour passed
+#INTERVAL between identical alerts
 export REPEAT_ALERT_INTERVAL=3600000
 export SKIP_EVENT_LOOP=1
 
@@ -28,10 +27,6 @@ export SKIP_EVENT_LOOP=1
 export UNISWAP_POOL_URL_PREFIX=""
 export UNISWAP_POSITION_URL_PREFIX=""
 
-#logger settings:
-PUSHOVER_TOKEN=
-PUSHOVER_YUVAL=
-PUSHOVER_DANY=
 # only for envrc.test!
 
 export SUITE_TO_RUN=""

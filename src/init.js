@@ -5,21 +5,41 @@ const { userSaveNewPosition } = require("./db/savePositionDataDB.js");
 const init = async () => {
   // await addNewPositionTemp();
 
-  const positions = (await loadAllPositions()).map((position) => {
-    return {
-      id: position.id,
-      chain: position.chainId,
-    };
-  });
+  const positions = await loadAllPositions();
+  activePositions = positions
+    .filter((position) => position.ActivePosition === true)
+    .map((position) => {
+      return {
+        id: position.id,
+        chain: position.chainId,
+      };
+    });
+  inActivePositions = positions
+    .filter((position) => position.ActivePosition === false)
+    .map((position) => {
+      return {
+        id: position.id,
+        chain: position.chainId,
+      };
+    });
 
-  if (positions.length === 0) {
+  if (positions.length === 0 || activePositions.length === 0) {
     logger.error("No positions found in DB");
   }
 
-  logger.info(`Found ${positions.length} positions`, positions);
+  logger.info(
+    `Found ${activePositions.length} active positions`,
+    activePositions
+  );
+  if (inActivePositions.length != 0) {
+    logger.info(
+      `Found ${inActivePositions.length} inactive positions`,
+      inActivePositions
+    );
+  }
   logger.info("init", "done");
 
-  return positions;
+  // return positions;
 };
 
 const addNewPositionTemp = async () => {

@@ -119,7 +119,8 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
   setTimeout(async () => {
     await loadAllPositions().then((positions) => {
       positions.forEach(async (position) => {
-        await checkIfActiveAlertAndNotfyIfNeeded(position);
+        if (position.ActivePosition)
+          await checkIfActiveAlertAndNotfyIfNeeded(position);
       });
     }),
       checkForAlerts();

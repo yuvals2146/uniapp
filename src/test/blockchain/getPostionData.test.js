@@ -1,9 +1,9 @@
 const {
-  getPostionData,
+  getPositionData,
   getCurrentBlockNumber,
   retriveInitalPositionData,
   getPoolExchangeRate,
-} = require("../../blockchain/getPostionData");
+} = require("../../blockchain/getPositionData");
 const {
   mockEtherPositionOne,
   mockEthereumPositionOneInitialData,
@@ -13,9 +13,9 @@ const {
 } = require("../mocks.js");
 const { chainsNames } = require("../../utils/chains");
 
-describe("getPostionData", () => {
+describe("getPositionData", () => {
   test("should get position data for valid ethereum position", async () => {
-    const resultData = await getPostionData(mockEtherPositionOne);
+    const resultData = await getPositionData(mockEtherPositionOne);
     expect(resultData).toHaveProperty("feesToken0");
     expect(resultData).toHaveProperty("feesToken1");
     expect(resultData).toHaveProperty("priceToken0");
@@ -28,7 +28,7 @@ describe("getPostionData", () => {
   });
 
   test("should get position data for valid arbitrum position", async () => {
-    const resultData = await getPostionData({
+    const resultData = await getPositionData({
       id: 795484,
       chain: chainsNames.arbitrum,
     });
@@ -45,37 +45,37 @@ describe("getPostionData", () => {
 
   test("should not get position data for non valid position chain", async () => {
     expect(async () => {
-      await getPostionData({ id: 482139, dog: 1 });
+      await getPositionData({ id: 482139, dog: 1 });
     }).rejects.toThrow("not valid chain id undefined");
 
     expect(async () => {
-      await getPostionData({ id: 482139, chain: "ethereum" });
+      await getPositionData({ id: 482139, chain: "ethereum" });
     }).rejects.toThrow("not valid chain id ethereum");
   });
 
   test("should not get position data for non valid position id", async () => {
     expect(async () => {
-      await getPostionData({ cat: 482139, chain: 1 });
+      await getPositionData({ cat: 482139, chain: 1 });
     }).rejects.toThrow("not valid position id or not exist");
 
     expect(async () => {
-      await getPostionData({ id: "three", chain: 1 });
+      await getPositionData({ id: "three", chain: 1 });
     }).rejects.toThrow("not valid position id or not exist");
 
     expect(async () => {
-      await getPostionData({ id: -12, chain: 1 });
+      await getPositionData({ id: -12, chain: 1 });
     }).rejects.toThrow("not valid position id or not exist");
   });
 
   test("should not get position data for not exist chain", async () => {
     expect(async () => {
-      await getPostionData({ id: 1234, chain: 3 });
+      await getPositionData({ id: 1234, chain: 3 });
     }).rejects.toThrow("not valid chain id 3");
   });
 
   test("should not get position data for not exist token", async () => {
     expect(async () => {
-      await getPostionData({ id: 10000000000, chain: 1 });
+      await getPositionData({ id: 10000000000, chain: 1 });
     }).rejects.toThrow(
       /could not get data for position 10000000000 on chain ethereum/
     );

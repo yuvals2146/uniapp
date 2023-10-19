@@ -1,31 +1,28 @@
 const logger = require("./utils/logger.js");
-const { getNewDataAndAnalyzed } = require("./analyzeRoutine.js");
+const { getNewDataAndAnalyze } = require("./analyzeRoutine.js");
 const { init } = require("./init.js");
 const { loadAllPositions } = require("./db/loadPositionDataDB.js");
 
-let positions;
-
 const beforeStart = async () => {
-  positions = await init();
+  await init();
 };
 
-const getPostions = async () => {
-  return (await loadAllPositions()).map((position) => {
-    return {
-      id: position.id,
-      chain: position.chainId,
-    };
-  });
+let positions;
+
+const getPositions = async () => {
+  return (await loadAllPositions()).filter(
+    (position) => position.ActivePosition === true
+  );
 };
 
 beforeStart();
 
 (async function eventLoop() {
-  positions = await getPostions();
+  positions = await getPositions();
   setTimeout(() => {
     positions.forEach(async (position) => {
       try {
-        await getNewDataAndAnalyzed(position);
+        await getNewDataAndAnalyze(position);
       } catch (err) {
         logger.error(err);
       }

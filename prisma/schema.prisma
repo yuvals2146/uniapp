@@ -31,6 +31,7 @@ model Position {
   IMPLoss                    Boolean @default(false)
   IMPLossLastTriggered       DateTime?
   IsAlertMuted               Boolean @default(false)
+  ActivePosition             Boolean @default(true)
   dataPoints                 PositionInfo[]
   
   @@id([id, chainId], name: "positionKey")

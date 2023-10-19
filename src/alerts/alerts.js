@@ -1,3 +1,4 @@
+const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { alertsTypes } = require("../utils/alertsTypes.js");
 
 const inTimeWindow = async (time) => {
@@ -9,6 +10,7 @@ const inTimeWindow = async (time) => {
     timeWindow.getMinutes() +
       parseInt(process.env.ALERTS_NOTIFY_INTERVAL_IN_MINUTES)
   );
+
   return now > timeWindow;
 };
 

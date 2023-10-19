@@ -1,16 +1,28 @@
 const {
-  getPostionData,
+  getPositionData,
   getPoolExchangeRate,
   getCurrentBlockNumber,
-} = require("./blockchain/getPostionData.js");
-const { savePositionData } = require("./db/savePositionDataDB.js");
+} = require("./blockchain/getPositionData.js");
+const {
+  savePositionData,
+  updatePositionActive,
+} = require("./db/savePositionDataDB.js");
 const { analyzeDataPoint } = require("./engine/analyzer.js");
 const { chains } = require("./utils/chains.js");
 
-const getNewDataAndAnalyzed = async (position) => {
+const getNewDataAndAnalyze = async (position) => {
   try {
-    const positionDataFromContract = await getPostionData(position);
+    const positionDataFromContract = await getPositionData(position);
 
+    if (
+      positionDataFromContract.liquidityToken0 == parseFloat(0) &&
+      positionDataFromContract.liquidityToken1 == parseFloat(0) &&
+      positionDataFromContract.feesToken0 == parseFloat(0) &&
+      positionDataFromContract.feesToken1 == parseFloat(0)
+    ) {
+      await updatePositionActive(position, false);
+      return;
+    }
     const [token0Symbol, token1Symbol] =
       positionDataFromContract.pair.split("/");
 
@@ -24,7 +36,7 @@ const getNewDataAndAnalyzed = async (position) => {
         ? 1
         : await getPoolExchangeRate(position, 1);
 
-    const currentBlockNumber = await getCurrentBlockNumber(position.chain);
+    const currentBlockNumber = await getCurrentBlockNumber(position.chainId);
 
     savePositionData(
       positionDataFromContract,
@@ -43,12 +55,12 @@ const getNewDataAndAnalyzed = async (position) => {
   } catch (err) {
     throw new Error(
       `Could not get data and analyze position ${position.id} on chain ${
-        chains[position.chain].name
+        chains[position.chainId].name
       }. Reason: ${err.message}`
     );
   }
 };
 
 module.exports = {
-  getNewDataAndAnalyzed,
+  getNewDataAndAnalyze,
 };
