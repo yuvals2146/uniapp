@@ -129,7 +129,7 @@ describe("discordBot", () => {
       );
     });
 
-    test("should not add position to db for if alredy exist", async () => {
+    test("should not add position to db if already exists", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockArbitPositionOne.chain].name
@@ -158,7 +158,7 @@ describe("discordBot", () => {
       );
     });
 
-    test("should not add arbitrum position to db for none valid Txhash", async () => {
+    test("should not add to db arbitrum position with invalid Txhash", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
           chains[mockArbitPositionOne.chain].name

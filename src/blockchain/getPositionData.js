@@ -269,7 +269,7 @@ async function getPositionData(position) {
     throw new Error(err.message);
   }
   try {
-    var PositionInfo = await getData(position);
+    var positionInfo = await getData(position);
   } catch (err) {
     throw new Error(
       `could not get data for position ${position.id} on chain ${
@@ -279,43 +279,43 @@ async function getPositionData(position) {
   }
 
   const fees = await getFees(
-    PositionInfo.feeGrowthGlobal0X128,
-    PositionInfo.feeGrowthGlobal1X128,
-    PositionInfo.feeGrowth0Low,
-    PositionInfo.feeGrowth0Hi,
-    PositionInfo.feeGrowthInside0LastX128,
-    PositionInfo.feeGrowth1Low,
-    PositionInfo.feeGrowth1Hi,
-    PositionInfo.feeGrowthInside1LastX128,
-    PositionInfo.liquidity,
-    PositionInfo.Decimal0,
-    PositionInfo.Decimal1,
-    PositionInfo.tickLow,
-    PositionInfo.tickHigh,
-    PositionInfo.tickCurrent,
-    PositionInfo.sqrtPriceX96
+    positionInfo.feeGrowthGlobal0X128,
+    positionInfo.feeGrowthGlobal1X128,
+    positionInfo.feeGrowth0Low,
+    positionInfo.feeGrowth0Hi,
+    positionInfo.feeGrowthInside0LastX128,
+    positionInfo.feeGrowth1Low,
+    positionInfo.feeGrowth1Hi,
+    positionInfo.feeGrowthInside1LastX128,
+    positionInfo.liquidity,
+    positionInfo.Decimal0,
+    positionInfo.Decimal1,
+    positionInfo.tickLow,
+    positionInfo.tickHigh,
+    positionInfo.tickCurrent,
+    positionInfo.sqrtPriceX96
   );
 
-  const pairRates = await calcPairRate(PositionInfo);
+  const pairRates = await calcPairRate(positionInfo);
   [liquidityToken0, liquidityToken1] = await getTokenAmounts(
-    PositionInfo.liquidity,
-    PositionInfo.sqrtPriceX96,
-    PositionInfo.tickLow,
-    PositionInfo.tickHigh,
-    PositionInfo.Decimal0,
-    PositionInfo.Decimal1
+    positionInfo.liquidity,
+    positionInfo.sqrtPriceX96,
+    positionInfo.tickLow,
+    positionInfo.tickHigh,
+    positionInfo.Decimal0,
+    positionInfo.Decimal1
   );
   const data = {
     feesToken0: fees.feesToken0,
     feesToken1: fees.feesToken1,
     priceToken0: pairRates.buyOneOfToken0,
-    pair: PositionInfo.Pair,
+    pair: positionInfo.Pair,
     liquidityToken0: liquidityToken0,
     liquidityToken1: liquidityToken1,
-    tickLeft: PositionInfo.tickLow,
-    tickRight: PositionInfo.tickHigh,
-    tickCurr: PositionInfo.tickCurrent,
-    sqrtPriceX96: PositionInfo.sqrtPriceX96,
+    tickLeft: positionInfo.tickLow,
+    tickRight: positionInfo.tickHigh,
+    tickCurr: positionInfo.tickCurrent,
+    sqrtPriceX96: positionInfo.sqrtPriceX96,
   };
 
   return data;
@@ -548,7 +548,7 @@ const fixTokensSymbol = (token0symbol, token1symbol) => {
 };
 
 // new position - get data online
-const retriveInitalPositionData = async (position, txHash = null) => {
+const retrieveInitalPositionData = async (position, txHash = null) => {
   // load position from mint txHash
   let initData;
   let tx;
@@ -596,5 +596,5 @@ module.exports = {
   getPoolExchangeRate,
   getCurrentBlockNumber,
   loadPositionInitDataByTxHash,
-  retriveInitalPositionData,
+  retrieveInitalPositionData,
 };
