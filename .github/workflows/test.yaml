@@ -47,7 +47,6 @@ jobs:
         run: yarn test
         env:
           ENV: ${{ secrets.ENV }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ARB_RPC_URL: ${{ secrets.ARB_RPC_URL }}
           ETHER_RPC_URL: ${{ secrets.ETHER_RPC_URL }}
           FACTORY_ADDRESS: ${{ secrets.FACTORY_ADDRESS }}
@@ -55,15 +54,13 @@ jobs:
           QUOTER_CONTRACT_ADDRESS: ${{ secrets.QUOTER_CONTRACT_ADDRESS }}
           USDC_TOKEN_TRACKER_ADDRESS_ETH: ${{ secrets.USDC_TOKEN_TRACKER_ADDRESS_ETH }}
           USDC_TOKEN_TRACKER_ADDRESS_ARB: ${{ secrets.USDC_TOKEN_TRACKER_ADDRESS_ARB }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DISCORD_CLIENT_TOKEN: ${{ secrets.DISCORD_CLIENT_TOKEN}}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID}}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID}}
           DISCORD_TEST_CLIENT_TOKEN: ${{ secrets.DISCORD_TEST_CLIENT_TOKEN}}
           DISCORD_TEST_CLIENT_ID: ${{ secrets.DISCORD_TEST_CLIENT_ID}}
           DISCORD_TEST_CHANNEL_ID: ${{ secrets.DISCORD_TEST_CHANNEL_ID}}
-          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID}}  
           INTERVAL: 30000
-          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN}}
-          PUSHOVER_YUVAL: ${{ secrets.PUSHOVER_YUVAL}}
-          PUSHOVER_DANY: ${{ secrets.PUSHOVER_DANY}}
           ALERTS_CHECK_INTERVAL: 6000
           ALERTS_NOTIFY_INTERVAL_IN_MINUTES: 1

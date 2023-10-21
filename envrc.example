@@ -9,6 +9,7 @@ export NFTMANAGER_ADDRESS=""
 export QUOTER_CONTRACT_ADDRESS=""
 export USDC_TOKEN_TRACKER_ADDRESS_ETH=""
 export USDC_TOKEN_TRACKER_ADDRESS_ARB=""
+
 #db settings:
 export DATABASE_URL=""
 export DEBUG=0
@@ -17,8 +18,10 @@ export DEBUG=0
 export DISCORD_CLIENT_TOKEN=''
 
 #runnig settings:
+
 #interval for sampling positions
 export INTERVAL=30000
+
 #INTERVAL between identical alerts
 export REPEAT_ALERT_INTERVAL=3600000
 export SKIP_EVENT_LOOP=1
