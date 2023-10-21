@@ -28,8 +28,13 @@ describe("getPositionData", () => {
   });
 
   test("should get position data for valid arbitrum position", async () => {
+<<<<<<< Updated upstream
     const resultData = await getPositionData({
       id: 795484,
+=======
+    const resultData = await getPostionData({
+      id: 872038,
+>>>>>>> Stashed changes
       chain: chainsNames.arbitrum,
     });
     expect(resultData).toHaveProperty("feesToken0");
