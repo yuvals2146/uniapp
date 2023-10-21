@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const logger = require("../utils/logger.js");
 const {
-  retriveInitalPositionData,
+  retrieveInitalPositionData,
 } = require("../blockchain/getPositionData.js");
 const { chains } = require("../utils/chains.js");
 const { alertsTypes } = require("../utils/alertsTypes.js");
@@ -70,7 +70,7 @@ const userSaveNewPosition = async (position, txHash) => {
     );
   }
   try {
-    const initData = await retriveInitalPositionData(position, txHash);
+    const initData = await retrieveInitalPositionData(position, txHash);
     if (!initData) throw new Error("could not retrive initial data");
     saveInitialPositionInfo(position, initData);
   } catch (err) {
