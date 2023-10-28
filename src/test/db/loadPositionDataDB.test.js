@@ -26,7 +26,7 @@ describe("loadPositionInit", () => {
   test("should load valid ethereum position for db", async () => {
     const result = await loadPosition(mockEtherPositionOne);
 
-    expect(result.chain).toEqual(mockEtherPositionWithDataOne.chainId);
+    expect(result.chainId).toEqual(mockEtherPositionWithDataOne.chainId);
 
     expect(result.id).toEqual(mockEtherPositionWithDataOne.id);
 
@@ -69,7 +69,7 @@ describe("loadPositionInit", () => {
   test("should load valid arbitrum form db", async () => {
     const result = await loadPosition(mockArbitPositionOne);
 
-    expect(result.chain).toEqual(mockArbitPositionWithDataOne.chainId);
+    expect(result.chainId).toEqual(mockArbitPositionWithDataOne.chainId);
 
     expect(result.id).toEqual(mockArbitPositionWithDataOne.id);
 
@@ -141,7 +141,7 @@ describe("loadAllPositions", () => {
   test("should load all positions from db", async () => {
     const [firstPosition, secoundPosition] = await loadAllPositions();
 
-    expect(firstPosition.chain).toEqual(mockEtherPositionWithDataOne.chainId);
+    expect(firstPosition.chainId).toEqual(mockEtherPositionWithDataOne.chainId);
 
     expect(firstPosition.id).toEqual(mockEtherPositionWithDataOne.id);
 
@@ -179,7 +179,7 @@ describe("loadAllPositions", () => {
 
     // check arbit position
 
-    expect(secoundPosition.chain).toEqual(mockArbitPositionWithDataOne.chainId);
+    expect(secoundPosition.chainId).toEqual(mockArbitPositionWithDataOne.chainId);
 
     expect(secoundPosition.id).toEqual(mockArbitPositionWithDataOne.id);
 

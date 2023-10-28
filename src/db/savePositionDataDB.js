@@ -12,7 +12,7 @@ const saveInitialPositionInfo = async (position, initData) => {
   await prisma.Position.create({
     data: {
       id: position.id,
-      chainId: position.chain,
+      chainId: position.chainId,
       createdAt: new Date(initData.blockTimestemp),
       initValueToken0: parseFloat(initData.initValueToken0),
       token0Symbol: initData.token0symbol,
@@ -56,7 +56,7 @@ const userSaveNewPosition = async (position, txHash) => {
     where: {
       positionKey: {
         id: position.id,
-        chainId: position.chain,
+        chainId: position.chainId,
       },
     },
   });
@@ -65,13 +65,13 @@ const userSaveNewPosition = async (position, txHash) => {
     logger.error("could not save postition, position already exist");
     throw new Error(
       `could not save postition ${position.id} on ${
-        chains[position.chain].name
+        chains[position.chainId].name
       }, position already exist`
     );
   }
   try {
     const initData = await retrieveInitalPositionData(position, txHash);
-    if (!initData) throw new Error("could not retrive initial data");
+    if (!initData) throw new Error("could not retrieve initial data");
     saveInitialPositionInfo(position, initData);
   } catch (err) {
     throw new Error(err.message);
@@ -84,7 +84,7 @@ const deletePosition = async (position) => {
       where: {
         positionKey: {
           id: position.id,
-          chainId: position.chain,
+          chainId: position.chainId,
         },
       },
     });
@@ -131,7 +131,7 @@ const muteOrUnmutePositionAlert = async (position, mute) => {
         where: {
           positionKey: {
             id: position.id,
-            chainId: position.chain,
+            chainId: position.chainId,
           },
         },
         data: {

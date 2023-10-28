@@ -6,12 +6,12 @@ const { chainsNames } = require("../utils/chains");
 
 const mockEtherPositionOne = {
   id: 482139,
-  chain: 1,
+  chainId: 1,
 };
 
 const mockEtherPositionWithDataOne = {
   id: 482139,
-  chain: 1,
+  chainId: 1,
   createdAt: 1680613919000,
   initValueToken0: 0.000000000965856802,
   token0Symbol: "USDC",
@@ -59,7 +59,7 @@ const mockEtherPositionInfoDataOne = {
 // ether position 2:
 const mockEtherPositionTwo = {
   id: 2,
-  chain: 1,
+  chainId: 1,
 };
 
 const mockEtherPositionWithDataTwo = {
@@ -91,10 +91,9 @@ const mockEtherPositionInfoDataTwo = {
 };
 
 // ether position 3:
-
 const mockEtherPositionThree = {
   id: 12,
-  chain: 1,
+  chainId: 1,
 };
 
 const mockEtherPositionWithDataThree = {
@@ -113,7 +112,7 @@ const mockEtherPositionWithDataThree = {
 
 const mockEtherPositionFour = {
   id: 3,
-  chain: 1,
+  chainId: 1,
 };
 
 const mockEtherPositionWithDataFour = {
@@ -134,13 +133,13 @@ const mockEtherPositionWithDataFour = {
 // arbit position 1:
 const mockArbitPositionOne = {
   id: 795484,
-  chain: chainsNames.arbitrum,
+  chainId: chainsNames.arbitrum,
   txHash: "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e",
 };
 
 const mockArbitPositionWithDataOne = {
   id: 795484,
-  chain: 42161,
+  chainId: 42161,
   createdAt: 1693071326000,
   initValueToken0: 0.329534836654748873,
   token0Symbol: "ETH",
@@ -174,30 +173,30 @@ const mockArbitPositionOneInitialData = {
 
 const mockArbitPositionTwo = {
   id: 2,
-  chain: 42161,
+  chainId: 42161,
 };
 
 // arbit position 3:
 
 const mockArbitPositionThree = {
   id: 795484,
-  chain: 42161,
+  chainId: 42161,
 };
 
 // arbit position 4:
 
 const mockArbitPositionFour = {
   id: 3,
-  chain: 42161,
+  chainId: 42161,
 };
 
 const mockInvalidPositionId = {
   id: 0,
-  chain: 1,
+  chainId: 1,
 };
 const mockInvalidPositionChain = {
   id: 482139,
-  chain: 5,
+  chainId: 5,
 };
 
 module.exports = {

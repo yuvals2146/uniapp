@@ -17,7 +17,6 @@ const {
 } = require("./mocks.js");
 
 const { alertsTypes } = require("../utils/alertsTypes.js");
-const { loadAllPositions } = require("../db/loadPositionDataDB.js");
 
 const longSleep = () => new Promise((r) => setTimeout(r, 10000));
 const sleep = () => new Promise((r) => setTimeout(r, 5000));
@@ -45,7 +44,7 @@ describe("discordBot", () => {
   });
 
   describe("discord bot - help", () => {
-    test("should ask for help form bot", async () => {
+    test("Should get help menu from bot", async () => {
       const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> help`);
       await sleep();
       const response = await getReplyToMessage(msgId);
@@ -53,7 +52,7 @@ describe("discordBot", () => {
         "I can help you with the following commands: \n- `GetAllActivePositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
     });
-    test("should not recived help menu for diffrent keyword form bot", async () => {
+    test("Should not get help menu from bot for diffrent keyword", async () => {
       const msgId = await sendMsg(`<@${process.env.DISCORD_CLIENT_ID}> hell`);
       await sleep();
       const response = await getReplyToMessage(msgId);
@@ -73,7 +72,7 @@ describe("discordBot", () => {
     test("should add ethereum position to db", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } ${mockEtherPositionOne.id}`
       );
 
@@ -82,7 +81,7 @@ describe("discordBot", () => {
       const addPositionRes = await getReplyToMessage(msgId);
       expect(addPositionRes).toEqual(
         `Position ${mockEtherPositionOne.id} on chain ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } was added successfully`
       );
     });
@@ -90,7 +89,7 @@ describe("discordBot", () => {
     test("should add arbitrum position to db", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
 
@@ -99,7 +98,7 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on chain ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         } was added successfully`
       );
     });
@@ -107,7 +106,7 @@ describe("discordBot", () => {
     test("should not add arbitrum position to db without txhash", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
-          chains[mockArbitPositionTwo.chain].name
+          chains[mockArbitPositionTwo.chainId].name
         } ${mockArbitPositionTwo.id}`
       );
       await sleep();
@@ -132,7 +131,7 @@ describe("discordBot", () => {
     test("should not add position to db if already exists", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         } ${mockArbitPositionOne.id} ${mockArbitPositionOne.txHash}`
       );
 
@@ -140,7 +139,7 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `could not save postition ${mockArbitPositionOne.id} on ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         }, position already exist`
       );
     });
@@ -148,7 +147,7 @@ describe("discordBot", () => {
     test("should not add position to db for none valid id", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } 100000000`
       );
       await sleep();
@@ -161,7 +160,7 @@ describe("discordBot", () => {
     test("should not add to db arbitrum position with invalid Txhash", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> AddPosition ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         } ${mockArbitPositionOne.id} 0x123`
       );
       await sleep();
@@ -191,9 +190,9 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Positions: \n- id: \`${mockEtherPositionOne.id}\` , chain: \`${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         }\` \n- id: \`${mockArbitPositionOne.id}\` , chain: \`${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         }\``
       );
     });
@@ -211,7 +210,7 @@ describe("discordBot", () => {
     test("should get all active alerts for position", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetActiveAlerts ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } ${mockEtherPositionOne.id}`
       );
 
@@ -221,7 +220,7 @@ describe("discordBot", () => {
 
       expect(response).toEqual(
         `Active alerts for position ${mockEtherPositionOne.id} on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         }:\n- OutOfBounds: ✅\n- OldPosition: ✅\n- PNL: ✅\n- IMPLoss: ✅`
       );
 
@@ -235,7 +234,7 @@ describe("discordBot", () => {
 
       const msgId2 = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetActiveAlerts ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } ${mockEtherPositionOne.id}`
       );
 
@@ -245,7 +244,7 @@ describe("discordBot", () => {
 
       expect(response2).toEqual(
         `Active alerts for position ${mockEtherPositionOne.id} on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         }:\n- OutOfBounds: 🚨\n- OldPosition: ✅\n- PNL: ✅\n- IMPLoss: ✅`
       );
     });
@@ -265,14 +264,14 @@ describe("discordBot", () => {
     test("should remove ethereum position from db", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> RemovePosition ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } ${mockEtherPositionOne.id}`
       );
       await sleep();
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } removed successfully`
       );
     });
@@ -280,14 +279,14 @@ describe("discordBot", () => {
     test("should remove arbitrum position from db", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> RemovePosition ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         } ${mockArbitPositionOne.id}`
       );
       await sleep();
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockArbitPositionOne.id} on ${
-          chains[mockArbitPositionOne.chain].name
+          chains[mockArbitPositionOne.chainId].name
         } removed successfully`
       );
     });
@@ -304,7 +303,7 @@ describe("discordBot", () => {
     test("should Mute Active Alert", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> MuteAlerts ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } ${mockEtherPositionOne.id}`
       );
       await sleep();
@@ -312,7 +311,7 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } was muted successfully`
       );
     });
@@ -320,7 +319,7 @@ describe("discordBot", () => {
     test("should not Mute unavilable Active Alert id", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> MuteAlerts ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } 100000000`
       );
       await sleep();
@@ -328,7 +327,7 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Failed to mute position 100000000 on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         }, could not find Position 100000000`
       );
     });
@@ -346,7 +345,7 @@ describe("discordBot", () => {
     test("should Unmute Active Alert", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> UnmuteAlerts ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } ${mockEtherPositionOne.id}`
       );
       await sleep();
@@ -354,7 +353,7 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Position ${mockEtherPositionOne.id} on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } was unmuted successfully`
       );
     });
@@ -362,7 +361,7 @@ describe("discordBot", () => {
     test("should not Unmute unavilable Active Alert id", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> UnmuteAlerts ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         } 100000000`
       );
       await sleep();
@@ -370,7 +369,7 @@ describe("discordBot", () => {
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
         `Failed to unmute position 100000000 on ${
-          chains[mockEtherPositionOne.chain].name
+          chains[mockEtherPositionOne.chainId].name
         }, could not find Position 100000000`
       );
     });

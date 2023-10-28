@@ -16,14 +16,18 @@ client.on("ready", () => {
 });
 
 const sendMsg = async (msg) => {
-  const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
+  const channel = await client.channels.fetch(
+    process.env.DISCORD_CHANNEL_ID
+  );
 
   const returnedMsg = await channel.send(msg);
   return returnedMsg?.id;
 };
 
 const getReplyToMessage = async (msgId) => {
-  const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
+  const channel = await client.channels.fetch(
+    process.env.DISCORD_CHANNEL_ID
+  );
   const messages = await channel.messages.fetch({ limit: 10 });
   let replyedMsg;
   messages.forEach(async (msg) => {
@@ -37,7 +41,9 @@ const getReplyToMessage = async (msgId) => {
 };
 
 const getAlertMessage = async () => {
-  const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
+  const channel = await client.channels.fetch(
+    process.env.DISCORD_CHANNEL_ID
+  );
   const messages = await channel.messages.fetch({ limit: 1 });
 
   return messages.first().content;

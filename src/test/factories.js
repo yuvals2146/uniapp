@@ -8,7 +8,7 @@ const addPositionIntoDB = async (position) => {
   await prisma.Position.create({
     data: {
       id: parseInt(position.id),
-      chainId: parseInt(position.chain),
+      chainId: parseInt(position.chainId),
       createdAt: new Date(position.createdAt),
       initValueToken0: parseFloat(position.initValueToken0),
       token0Symbol: position.token0Symbol,
@@ -28,7 +28,7 @@ const removePositionFromDB = async (position) => {
     where: {
       positionKey: {
         id: parseInt(position.id),
-        chainId: parseInt(position.chain),
+        chainId: parseInt(position.chainId),
       },
     },
   });
@@ -40,7 +40,7 @@ const removePositionFromDB = async (position) => {
       where: {
         positionKey: {
           id: position.id,
-          chainId: position.chain,
+          chainId: position.chainId,
         },
       },
     });
@@ -64,7 +64,7 @@ const setAllAlertsForTest = async (
     where: {
       positionKey: {
         id: position.id,
-        chainId: position.chain,
+        chainId: position.chainId,
       },
     },
     data: {
@@ -87,7 +87,7 @@ const setAlertActiveForTest = async (position, alertType, shouldNotify) => {
     where: {
       positionKey: {
         id: position.id,
-        chainId: position.chain,
+        chainId: position.chainId,
       },
     },
     data: {

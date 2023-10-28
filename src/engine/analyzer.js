@@ -15,7 +15,7 @@ async function analyzeDataPoint(
 ) {
   let position = await loadPosition({
     id: pos.id,
-    chain: pos.chainId,
+    chainId: pos.chainId,
   });
 
   // check position boundaries

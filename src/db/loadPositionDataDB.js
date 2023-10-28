@@ -9,7 +9,7 @@ async function loadPosition(positionKey) {
       where: {
         positionKey: {
           id: positionKey.id,
-          chainId: positionKey.chain,
+          chainId: positionKey.chainId,
         },
       },
     });
@@ -19,7 +19,9 @@ async function loadPosition(positionKey) {
     }
     return pos;
   } catch (e) {
-    throw new Error("position not found");
+    throw new Error(
+      `position not found ${positionKey.id}, ${positionKey.chainId}`
+    );
   }
 }
 
