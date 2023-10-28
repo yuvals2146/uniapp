@@ -427,7 +427,7 @@ const getCurrentBlockNumber = async (chain) => {
     return await provider.getBlockNumber();
   } catch (err) {
     throw new Error(
-      `error with retrive current block number for chain ${chain}`
+      `error with retrieve current block number for chain ${chain}`
     );
   }
 };
@@ -471,7 +471,7 @@ const decoder = new InputDataDecoder("abis/UniV3NFT.json");
 
 const loadPositionInitDataByTxHash = async (txhash, position) => {
   const provider =
-    position.chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
 
   try {
     const block = await provider.getTransaction(txhash);
@@ -529,9 +529,9 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
     return initData;
   } catch (err) {
     logger.error(
-      `error with retrive data to TX 0x...${txhash.slice(-6, -1)} for token ${
+      `error with retrieve data to TX 0x...${txhash.slice(-6, -1)} for token ${
         position.id
-      } on ${chains[position.chain].name}`
+      } on ${chains[position.chainId].name}`
     );
   }
 };
@@ -570,13 +570,13 @@ const retrieveInitalPositionData = async (position, txHash = null) => {
       if (tx)
         throw new Error(
           `No tx hash found for position ${position.id} on chain ${
-            chains[position.chain].name
+            chains[position.chainId].name
           }`
         );
       else {
         throw new Error(
           `No inital data found for position ${position.id} on chain ${
-            chains[position.chain].name
+            chains[position.chainId].name
           }`
         );
       }
@@ -584,7 +584,7 @@ const retrieveInitalPositionData = async (position, txHash = null) => {
       throw new Error(
         `could not get historical initial data found for position ${
           position.id
-        } on chain ${chains[position.chain].name} reason: ${e.message}`
+        } on chain ${chains[position.chainId].name} reason: ${e.message}`
       );
     }
   }

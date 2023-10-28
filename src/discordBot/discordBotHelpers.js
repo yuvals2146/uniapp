@@ -82,7 +82,7 @@ const addPosition = async (args) => {
     await userSaveNewPosition(
       {
         id: parseInt(positionId),
-        chain: positionChainName === "ethereum" ? 1 : 42161,
+        chainId: positionChainName === "ethereum" ? 1 : 42161,
       },
       txHash
     );
