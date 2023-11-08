@@ -12,6 +12,8 @@ running locally:
 
 TEST:
 
+. bin/discordBot
 . .bin/test 
 to run spesific test add it to envrc SUITE_TO_RUN
 if empty will run all
+ 
