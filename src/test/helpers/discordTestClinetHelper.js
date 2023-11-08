@@ -16,6 +16,7 @@ client.on("ready", () => {
 });
 
 const sendMsg = async (msg) => {
+  console.log("sendMsg:", msg);
   const channel = await client.channels.fetch(
     process.env.DISCORD_CHANNEL_ID
   );
@@ -25,9 +26,7 @@ const sendMsg = async (msg) => {
 };
 
 const getReplyToMessage = async (msgId) => {
-  const channel = await client.channels.fetch(
-    process.env.DISCORD_CHANNEL_ID
-  );
+  const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
   const messages = await channel.messages.fetch({ limit: 10 });
   let replyedMsg;
   messages.forEach(async (msg) => {
@@ -41,15 +40,13 @@ const getReplyToMessage = async (msgId) => {
 };
 
 const getAlertMessage = async () => {
-  const channel = await client.channels.fetch(
-    process.env.DISCORD_CHANNEL_ID
-  );
+  const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
   const messages = await channel.messages.fetch({ limit: 1 });
 
   return messages.first().content;
 };
 
-client.login(process.env.DISCORD_TEST_CLIENT_TOKEN); //login bot using token
+client.login(process.env.DISCORD_CLIENT_TOKEN); //login bot using token
 
 module.exports = {
   getClientReady,

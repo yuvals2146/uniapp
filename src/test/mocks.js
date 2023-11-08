@@ -7,6 +7,7 @@ const { chainsNames } = require("../utils/chains");
 const mockEtherPositionOne = {
   id: 482139,
   chainId: 1,
+  ActivePosition: true,
 };
 
 const mockEtherPositionWithDataOne = {
@@ -135,6 +136,7 @@ const mockArbitPositionOne = {
   id: 795484,
   chainId: chainsNames.arbitrum,
   txHash: "0x3f040e3300be131dbe7ce228f21f26ddc28271c53b4a2ae590142669fce45b0e",
+  ActivePosition: true,
 };
 
 const mockArbitPositionWithDataOne = {

@@ -49,7 +49,7 @@ describe("discordBot", () => {
       await sleep();
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
-        "I can help you with the following commands: \n- `GetAllActivePositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
+        "I can help you with the following commands: \n- `GetAllPositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
     });
     test("Should not get help menu from bot for diffrent keyword", async () => {
@@ -169,7 +169,7 @@ describe("discordBot", () => {
     });
   });
 
-  describe("discord bot - GetAllActivePositions", () => {
+  describe("discord bot - GetAllPositions", () => {
     beforeAll(async () => {
       await factory.addPositionIntoDB(mockEtherPositionWithDataOne);
       await factory.addPositionIntoDB(mockArbitPositionWithDataOne);
@@ -182,17 +182,19 @@ describe("discordBot", () => {
 
     test("should get all active positions", async () => {
       const msgId = await sendMsg(
-        `<@${process.env.DISCORD_CLIENT_ID}> GetAllActivePositions`
+        `<@${process.env.DISCORD_CLIENT_ID}> GetAllPositions`
       );
 
       await sleep();
 
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
-        `Positions: \n- id: \`${mockEtherPositionOne.id}\` , chain: \`${
+        `Positions: \n- id: \`${mockEtherPositionOne.id}\`, chain: \`${
           chains[mockEtherPositionOne.chainId].name
-        }\` \n- id: \`${mockArbitPositionOne.id}\` , chain: \`${
-          chains[mockArbitPositionOne.chainId].name
+        }\`, active: \`${mockEtherPositionOne.ActivePosition}\` \n- id: \`${
+          mockArbitPositionOne.id
+        }\`, chain: \`${chains[mockArbitPositionOne.chainId].name}\`, \`${
+          mockArbitPositionOne.ActivePosition
         }\``
       );
     });

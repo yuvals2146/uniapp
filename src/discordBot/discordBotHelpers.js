@@ -1,4 +1,4 @@
-const { chains } = require("../utils/chains");
+const { chains, chainsNames } = require("../utils/chains");
 const { loadAllPositions, loadPosition } = require("../db/loadPositionDataDB");
 const {
   userSaveNewPosition,
@@ -14,7 +14,7 @@ const formatChainName = (chain) => {
   return chain.toLowerCase();
 };
 
-const getAllActivePositions = async (args) => {
+const getAllPositions = async (args) => {
   selectedChain = args[0];
   let res = "Positions: \n";
 
@@ -31,7 +31,9 @@ const getAllActivePositions = async (args) => {
     if (args[0] === "ethereum" && pos.chainId !== 1) return;
     if (args[0] === "arbitrum" && pos.chainId !== 42161) return;
 
-    res += `- id: \`${pos.id}\` , chain: \`${chains[pos.chainId].name}\` \n`;
+    res += `- id: \`${pos.id}\`, chain: \`${
+      chains[pos.chainId].name
+    }\`, Active: \`${pos.ActivePosition}\` \n`;
   });
 
   return res;
@@ -47,11 +49,14 @@ const getActiveAlerts = async (args) => {
   try {
     position = await loadPosition({
       id: parseInt(positionId),
-      chain: chainsNames[positionChainName],
+      chainId: chainsNames[positionChainName],
     });
   } catch (e) {
     return `Failed to load position ${positionId} on ${positionChainName}, ${e.message}`;
   }
+
+  if (!position.ActivePosition)
+    return `Position ${positionId} on ${positionChainName} is inactive (liquidity removed)`;
 
   const activeAlerts = `Active alerts for position ${positionId} on ${positionChainName}:\n- OutOfBounds: ${
     position.OutOfBounds ? "🚨" : "✅"
@@ -133,7 +138,7 @@ const muteOrUnmuteAlert = async (args, mute) => {
 };
 
 module.exports = {
-  getAllActivePositions,
+  getAllPositions,
   getActiveAlerts,
   addPosition,
   removePosition,
