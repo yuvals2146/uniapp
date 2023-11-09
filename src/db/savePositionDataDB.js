@@ -105,6 +105,7 @@ const updatePositionActive = async (position, active) => {
         },
         data: {
           ActivePosition: active,
+          TimeLastActive: active ? null : new Date(),
         },
       });
     } catch (err) {
