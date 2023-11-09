@@ -11,6 +11,7 @@ const {
   addPosition,
   removePosition,
   muteOrUnmuteAlert,
+  setPositionActive,
 } = require("./discordBotHelpers");
 
 const { checkIfActiveAlert } = require("../alerts/alerts.js");
@@ -47,7 +48,7 @@ client.on("messageCreate", async (msg) => {
   switch (command) {
     case "help":
       await msg.reply(
-        "I can help you with the following commands: \n- `GetAllPositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
+        "I can help you with the following commands: \n- `GetAllPositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `ReactivatePosition` \n- `RemovePosition` \n- `DeactivatePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
       break;
     case "GetAllPositions":
@@ -65,8 +66,18 @@ client.on("messageCreate", async (msg) => {
       await msg.reply(response);
       break;
 
+    case "ReactivatePosition":
+      response = await setPositionActive(args, true);
+      await msg.reply(response);
+      break;
+
     case "RemovePosition":
       response = await removePosition(args);
+      await msg.reply(response);
+      break;
+
+    case "DeactivatePosition":
+      response = await setPositionActive(args, false);
       await msg.reply(response);
       break;
 

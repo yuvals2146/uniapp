@@ -4,6 +4,7 @@ const {
   userSaveNewPosition,
   deletePosition,
   muteOrUnmutePositionAlert,
+  updatePositionActive,
 } = require("../db/savePositionDataDB");
 const { checkIfActiveAlert } = require("../alerts/alerts");
 const formatChainName = (chain) => {
@@ -40,8 +41,7 @@ const getAllPositions = async (args) => {
 };
 
 const getActiveAlerts = async (args) => {
-  if (args.length < 2)
-    return "Need to supply at least position id and chain id";
+  if (args.length < 2) return "Please supply position id and chain id";
 
   const [chain, positionId] = args;
   const positionChainName = formatChainName(chain);
@@ -68,7 +68,7 @@ const getActiveAlerts = async (args) => {
 
 const addPosition = async (args) => {
   if (args.length < 2)
-    return "Need to supply at least position id and chain id";
+    return "Please supply position id and chain id, for arbitrum positions please supply initial transaction id as well.";
 
   const [chain, positionId, txHash] = args;
   const positionChainName = formatChainName(chain);
@@ -97,9 +97,28 @@ const addPosition = async (args) => {
   return `Position ${positionId} on chain ${positionChainName} was added successfully`;
 };
 
+const setPositionActive = async (args, active) => {
+  if (args.length != 2) return "Please supply position id and chain id";
+
+  const [chain, positionId] = args;
+  const positionChainName = formatChainName(chain);
+  try {
+    await updatePositionActive(
+      {
+        id: parseInt(positionId),
+        chainId: positionChainName === "ethereum" ? 1 : 42161,
+      },
+      active
+    );
+    return `Position ${positionId} on ${positionChainName} set to active=${active}.`;
+  } catch (e) {
+    return `Failed to set active attribute for position ${positionId} on ${positionChainName}, error=${e.message}`;
+  }
+};
+
 const removePosition = async (args) => {
   if (args.length < 2)
-    return "Need to supply at least position id and chain id";
+    return "Please supply position id and chain id (or name).";
 
   const [chain, positionId] = args;
   const positionChainName = formatChainName(chain);
@@ -116,7 +135,7 @@ const removePosition = async (args) => {
 
 const muteOrUnmuteAlert = async (args, mute) => {
   if (args.length < 2)
-    return "Need to supply at least position id and chain id";
+    return "Please supply position id and chain id (or name).";
 
   const [chain, positionId] = args;
   const positionChainName = formatChainName(chain);
@@ -144,4 +163,5 @@ module.exports = {
   removePosition,
   checkIfActiveAlert,
   muteOrUnmuteAlert,
+  setPositionActive,
 };

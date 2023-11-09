@@ -49,7 +49,7 @@ describe("discordBot", () => {
       await sleep();
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
-        "I can help you with the following commands: \n- `GetAllPositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `RemovePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
+        "I can help you with the following commands: \n- `GetAllPositions` \n- `GetActiveAlerts` \n- `AddPosition` \n- `ReactivatePosition` \n- `RemovePosition` \n- `DeactivatePosition` \n- `MuteAlerts` \n- `UnmuteAlerts`"
       );
     });
     test("Should not get help menu from bot for diffrent keyword", async () => {
@@ -180,7 +180,24 @@ describe("discordBot", () => {
       await factory.removePositionFromDB(mockArbitPositionOne);
     });
 
-    test("should get all active positions", async () => {
+    test("should deactivate ethereum position", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> DeactivatePosition ${
+          chains[mockEtherPositionOne.chainId].name
+        } ${mockEtherPositionOne.id}`
+      );
+
+      await sleep();
+
+      const response = await getReplyToMessage(msgId);
+      expect(response).toEqual(
+        `Position ${mockEtherPositionOne.id} on ${
+          chains[mockEtherPositionOne.chainId].name
+        } set to active=false.`
+      );
+    });
+
+    test("should get all positions", async () => {
       const msgId = await sendMsg(
         `<@${process.env.DISCORD_CLIENT_ID}> GetAllPositions`
       );
@@ -189,13 +206,49 @@ describe("discordBot", () => {
 
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
-        `Positions: \n- id: \`${mockEtherPositionOne.id}\`, chain: \`${
-          chains[mockEtherPositionOne.chainId].name
-        }\`, Active: \`${mockEtherPositionOne.ActivePosition}\` \n- id: \`${
-          mockArbitPositionOne.id
-        }\`, chain: \`${
+        `Positions: \n- id: \`${mockArbitPositionOne.id}\`, chain: \`${
           chains[mockArbitPositionOne.chainId].name
-        }\`, Active: \`${mockArbitPositionOne.ActivePosition}\``
+        }\`, Active: \`${mockArbitPositionOne.ActivePosition}\` \n- id: \`${
+          mockEtherPositionOne.id
+        }\`, chain: \`${
+          chains[mockEtherPositionOne.chainId].name
+        }\`, Active: \`false\``
+      );
+    });
+
+    test("should reactivate ethereum position", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> ReactivatePosition ${
+          chains[mockEtherPositionOne.chainId].name
+        } ${mockEtherPositionOne.id}`
+      );
+
+      await sleep();
+
+      const response = await getReplyToMessage(msgId);
+      expect(response).toEqual(
+        `Position ${mockEtherPositionOne.id} on ${
+          chains[mockEtherPositionOne.chainId].name
+        } set to active=true.`
+      );
+    });
+
+    test("should get all positions", async () => {
+      const msgId = await sendMsg(
+        `<@${process.env.DISCORD_CLIENT_ID}> GetAllPositions`
+      );
+
+      await sleep();
+
+      const response = await getReplyToMessage(msgId);
+      expect(response).toEqual(
+        `Positions: \n- id: \`${mockArbitPositionOne.id}\`, chain: \`${
+          chains[mockArbitPositionOne.chainId].name
+        }\`, Active: \`${mockArbitPositionOne.ActivePosition}\` \n- id: \`${
+          mockEtherPositionOne.id
+        }\`, chain: \`${
+          chains[mockEtherPositionOne.chainId].name
+        }\`, Active: \`${mockEtherPositionOne.ActivePosition}\``
       );
     });
   });
@@ -401,49 +454,49 @@ describe("discordBot", () => {
   //     );
   //   });
 
-  //   // test("should notify for active old position alert", async () => {
-  //   //   await factory.setAlertActiveForTest(
-  //   //     mockEtherPositionOne,
-  //   //     alertsTypes.OLD_POSITION,
-  //   //     true
-  //   //   );
+  // test("should notify for active old position alert", async () => {
+  //   await factory.setAlertActiveForTest(
+  //     mockEtherPositionOne,
+  //     alertsTypes.OLD_POSITION,
+  //     true
+  //   );
 
-  //   //   await longSleep();
+  //   await longSleep();
 
-  //   //   const res = await getAlertMessage();
-  //   //   expect(res).toEqual(
-  //   //     `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **old position** 🚨`
-  //   //   );
-  //   // });
+  //   const res = await getAlertMessage();
+  //   expect(res).toEqual(
+  //     `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **old position** 🚨`
+  //   );
+  // });
 
-  //   // test("should notify for active PNL alert", async () => {
-  //   //   await factory.setAlertActiveForTest(
-  //   //     mockEtherPositionOne,
-  //   //     alertsTypes.PNL,
-  //   //     true
-  //   //   );
+  // test("should notify for active PNL alert", async () => {
+  //   await factory.setAlertActiveForTest(
+  //     mockEtherPositionOne,
+  //     alertsTypes.PNL,
+  //     true
+  //   );
 
-  //   //   await longSleep();
+  //   await longSleep();
 
-  //   //   const res = await getAlertMessage();
-  //   //   expect(res).toEqual(
-  //   //     `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **permanent loss** 🚨`
-  //   //   );
-  //   // });
+  //   const res = await getAlertMessage();
+  //   expect(res).toEqual(
+  //     `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **permanent loss** 🚨`
+  //   );
+  // });
 
-  //   // test("should notify for active impermanent loss alert", async () => {
-  //   //   await factory.setAlertActiveForTest(
-  //   //     mockEtherPositionOne,
-  //   //     alertsTypes.IMP_LOSS,
-  //   //     true
-  //   //   );
+  // test("should notify for active impermanent loss alert", async () => {
+  //   await factory.setAlertActiveForTest(
+  //     mockEtherPositionOne,
+  //     alertsTypes.IMP_LOSS,
+  //     true
+  //   );
 
-  //   //   await longSleep();
+  //   await longSleep();
 
-  //   //   const res = await getAlertMessage();
-  //   //   expect(res).toEqual(
-  //   //     `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **impermanent loss** 🚨`
-  //   //   );
-  //   // });
+  //   const res = await getAlertMessage();
+  //   expect(res).toEqual(
+  //     `@everyone\n      🚨  POSITION \`${mockEtherPositionOne.id}\` **impermanent loss** 🚨`
+  //   );
+  // });
   // });
 });
