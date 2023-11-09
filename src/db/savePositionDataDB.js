@@ -110,8 +110,9 @@ const updatePositionActive = async (position, active) => {
     } catch (err) {
       logger.error(err);
       throw new Error(
-        "could not change ActivePosition, to: . Reason: ",
+        "Could not change ActivePosition, to: ",
         active,
+        ". Reason: ",
         err.message
       );
     }
@@ -119,7 +120,7 @@ const updatePositionActive = async (position, active) => {
 };
 
 const muteOrUnmutePositionAlert = async (position, mute) => {
-  const currentAlerts = loadPosition(position);
+  const currentAlerts = await loadPosition(position);
 
   if (!currentAlerts) {
     throw new Error(`could not find Position ${position.id}`);

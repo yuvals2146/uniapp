@@ -5,12 +5,12 @@ const {
 
 const validPosition = {
   id: 482139,
-  chain: 1,
+  chainId: 1,
 };
 
 const unvalidPosition = {
   id: 1000000000,
-  chain: 1,
+  chainId: 1,
 };
 
 const validMintTxHash =

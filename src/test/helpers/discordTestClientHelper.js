@@ -12,14 +12,12 @@ let clientReady = false;
 const getClientReady = () => clientReady;
 
 client.on("ready", () => {
+  // console.log("DiscordClient logged in as", client?.user.tag);
   clientReady = true;
 });
 
 const sendMsg = async (msg) => {
-  console.log("sendMsg:", msg);
-  const channel = await client.channels.fetch(
-    process.env.DISCORD_CHANNEL_ID
-  );
+  const channel = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
 
   const returnedMsg = await channel.send(msg);
   return returnedMsg?.id;
@@ -46,7 +44,7 @@ const getAlertMessage = async () => {
   return messages.first().content;
 };
 
-client.login(process.env.DISCORD_CLIENT_TOKEN); //login bot using token
+client.login(process.env.DISCORD_TEST_CLIENT_TOKEN); //login bot using token
 
 module.exports = {
   getClientReady,

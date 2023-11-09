@@ -1,4 +1,3 @@
-const { loadPosition } = require("../db/loadPositionDataDB.js");
 const { alertsTypes } = require("../utils/alertsTypes.js");
 
 const inTimeWindow = async (time) => {
