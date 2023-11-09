@@ -2,8 +2,9 @@ node_modules
 
 # Keep environment variables out of version control
 .envrc
-.envrc.test
+.envrc-test
 .envrc.github-ci
 .envrc.ec2-cloud
+.envrc.yuval
 
 .vscode

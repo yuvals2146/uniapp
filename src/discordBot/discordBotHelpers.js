@@ -106,11 +106,11 @@ const removePosition = async (args) => {
   try {
     await deletePosition({
       id: parseInt(positionId),
-      chain: positionChainName === "ethereum" ? 1 : 42161,
+      chainId: positionChainName === "ethereum" ? 1 : 42161,
     });
     return `Position ${positionId} on ${positionChainName} removed successfully`;
   } catch (e) {
-    return `Failed to remove position ${positionId} on ${positionChainName}, check logs for more details e=${e.message}`;
+    return `Failed to remove position ${positionId} on ${positionChainName}, check logs for more details. error=${e.message}`;
   }
 };
 
@@ -123,7 +123,7 @@ const muteOrUnmuteAlert = async (args, mute) => {
 
   try {
     await muteOrUnmutePositionAlert(
-      { id: parseInt(positionId), chain: chainsNames[positionChainName] },
+      { id: parseInt(positionId), chainId: chainsNames[positionChainName] },
       mute
     );
 

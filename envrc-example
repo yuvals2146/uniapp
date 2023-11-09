@@ -1,0 +1,37 @@
+#enviroment
+export ENV=""
+
+#crypto settings:
+export ARB_RPC_URL=""
+export ETHER_RPC_URL=""
+export FACTORY_ADDRESS=""
+export NFTMANAGER_ADDRESS=""
+export QUOTER_CONTRACT_ADDRESS=""
+export USDC_TOKEN_TRACKER_ADDRESS_ETH=""
+export USDC_TOKEN_TRACKER_ADDRESS_ARB=""
+
+#db settings:
+export DATABASE_URL=""
+export DEBUG=0
+
+# DISCORD settings:
+export DISCORD_CLIENT_TOKEN=''
+export DISCORD_CLIENT_ID=''
+export DISCORD_CHANNEL_ID=''
+
+export DISCORD_TEST_CLIENT_TOKEN=''
+export DISCORD_TEST_CLIENT_ID=''
+export DISCORD_TEST_CHANNEL_ID=''
+
+#runnig settings:
+export SAMPLE_INTERVAL=
+export ALERTS_CHECK_INTERVAL=
+export SKIP_EVENT_LOOP=
+export ALERTS_NOTIFY_INTERVAL_IN_MINUTES=
+
+#logger settings:
+export LOGZIO_TOKEN=''
+export LOGZIO_HOST=''
+
+# only for envrc.test!
+export SUITE_TO_RUN=""

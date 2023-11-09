@@ -17,11 +17,7 @@ describe("savePositionData", () => {
     await factory.removePositionFromDB(mockEtherPositionOne);
   });
 
-  test("should save position info data to db", async () => {
-    const posKey = {
-      id: mockEtherPositionInfoDataOne.positionId,
-      chain: mockEtherPositionInfoDataOne.positionChain,
-    };
+  test("Should save position info data to db", async () => {
     await savePositionData(
       mockEtherPositionInfoDataOne.positionData,
       mockEtherPositionInfoDataOne.etherUsdExchangeRate,
@@ -32,9 +28,11 @@ describe("savePositionData", () => {
 
     const [res] = await factory.loadAllPositionInfoFromDB();
 
-    expect({ id: res.posId, chain: res.posChain }).toEqual(
-      mockEtherPositionOne
-    );
+    expect({
+      id: res.posId,
+      chainId: res.posChain,
+      ActivePosition: mockEtherPositionOne.ActivePosition,
+    }).toEqual(mockEtherPositionOne);
     expect(res).toHaveProperty("pair");
     expect(res).toHaveProperty("createdAt");
     expect(res).toHaveProperty("liquidityToken0");
@@ -47,7 +45,7 @@ describe("savePositionData", () => {
     expect(res).toHaveProperty("blockNumber");
   });
 
-  test("should not save position info data to db if position", async () => {
+  test("Should not save position info to db if position isn't found", async () => {
     expect(
       async () =>
         await savePositionData(
@@ -57,7 +55,9 @@ describe("savePositionData", () => {
           mockEtherPositionTwo,
           mockEtherPositionInfoDataTwo.blockNumber
         )
-    ).rejects.toThrow("position not found");
+    ).rejects.toThrow(
+      "Foreign key constraint failed on the field: `PositionInfo_posId_posChain_fkey (index)`"
+    );
   });
 });
 describe("userSaveNewPosition", () => {
