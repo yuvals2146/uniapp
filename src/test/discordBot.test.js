@@ -1,4 +1,4 @@
-require("../discordBot/discordbot.js");
+require("../discordBot/discordBot.js");
 
 const factory = require("./factories.js");
 const { chains } = require("../utils/chains.js");
