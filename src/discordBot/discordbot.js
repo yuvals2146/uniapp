@@ -115,7 +115,8 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
   if (position.IsAlertMuted) {
     return;
   }
-  Object.keys(activeAlerts).forEach(async (alertType) => {
+  for (var index in activeAlerts) {
+    alertType = activeAlerts[index];
     if (activeAlerts[alertType]) {
       await notify(position, alertsTypeNames[alertType]);
       await updatePositionActiveAlertTriggeredTime(
@@ -123,7 +124,7 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
         parseInt(alertType)
       );
     }
-  });
+  }
 };
 
 (async function checkForAlerts() {

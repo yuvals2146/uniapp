@@ -234,7 +234,6 @@ const updatePositionActiveAlertTriggeredTime = async (position, alertType) => {
           : position.IMPLossLastTriggered,
     },
   });
-  position.OutOfBoundsLastTriggered = lastTriggered;
 };
 
 module.exports = {
