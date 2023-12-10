@@ -308,7 +308,8 @@ async function getPositionData(position) {
   const data = {
     feesToken0: fees.feesToken0,
     feesToken1: fees.feesToken1,
-    priceToken0: pairRates.buyOneOfToken0,
+    priceToken0Wei: pairRates.buyOneOfToken0,
+    priceToken0: pairRates.buyOneOfToken0 / 10 ** positionInfo.Decimal1,
     pair: positionInfo.Pair,
     liquidityToken0: liquidityToken0,
     liquidityToken1: liquidityToken1,
@@ -326,9 +327,15 @@ async function calcPairRate(PositionInfo) {
   let Decimal0 = PositionInfo.Decimal0;
   let Decimal1 = PositionInfo.Decimal1;
 
-  const buyOneOfToken0 =
-    (sqrtPriceX96 / 2 ** 96) ** 2 /
-    (10 ** Decimal1 / 10 ** Decimal0).toFixed(Decimal1);
+  twoXX96 = 2 ** 96;
+  sqrtPrice = sqrtPriceX96 / twoXX96;
+  price = sqrtPrice ** 2;
+  priceInToken0Terms = price * 10 ** (Decimal0 - Decimal1);
+  priceInToken0Terms.toFixed(Decimal1);
+  const buyOneOfToken0 = (
+    (sqrtPriceX96 / 2 ** 96) ** 2 *
+    10 ** (Decimal0 - Decimal1)
+  ).toFixed(Decimal1);
 
   const buyOneOfToken1 = (1 / buyOneOfToken0).toFixed(Decimal0);
   const buyOneOfToken0Wei = Math.floor(
