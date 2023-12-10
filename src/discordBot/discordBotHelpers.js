@@ -8,11 +8,12 @@ const {
 } = require("../db/savePositionDataDB");
 const { checkIfActiveAlert } = require("../alerts/alerts");
 const formatChainName = (chain) => {
-  if (chain === "1") return "ethereum";
-  if (chain === "42161") return "arbitrum";
-  if (chain === "eth" || chain === "ETH") return "ethereum";
-  if (chain === "arb" || chain === "ARB") return "arbitrum";
-  return chain.toLowerCase();
+  chainLowCase = chain.toLowerCase();
+  if (chainLowCase === "1") return "ethereum";
+  if (chainLowCase === "42161") return "arbitrum";
+  if (chainLowCase === "eth" || chainLowCase === "ETH") return "ethereum";
+  if (chainLowCase === "arb" || chainLowCase === "ARB") return "arbitrum";
+  return chainLowCase;
 };
 
 const getAllPositions = async (args) => {

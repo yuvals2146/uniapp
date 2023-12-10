@@ -117,12 +117,9 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
   }
   for (var index in activeAlerts) {
     alertType = activeAlerts[index];
-    if (activeAlerts[alertType]) {
-      await notify(position, alertsTypeNames[alertType]);
-      await updatePositionActiveAlertTriggeredTime(
-        position,
-        parseInt(alertType)
-      );
+    if (alertType) {
+      await notify(position, alertsTypeNames[index]);
+      await updatePositionActiveAlertTriggeredTime(position, index);
     }
   }
 };
@@ -140,5 +137,4 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
 })();
 
 //make sure this line is the last line
-
 client.login(process.env.DISCORD_CLIENT_TOKEN); //login bot using token
