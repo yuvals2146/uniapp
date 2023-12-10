@@ -11,7 +11,7 @@ pp_info "starting discord bot" "with env: $ENV"
 if [[ $ENV == "cloud" ]]
 then
     pp_info "on cloud" "starting discord bot with pm2"
-    pm2 start src/discordBot/discordBot.js --name uniapp-discord-bot
+    pm2 start src/discordBot/discordBot.js --env cloud --name uniapp-discord-bot
 else
     pp_info "on local" "starting discord bot with yarn"
     yarn discordBot
