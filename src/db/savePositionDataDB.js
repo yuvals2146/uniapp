@@ -43,7 +43,7 @@ async function savePositionData(
       liquidityToken1: parseFloat(positionData.liquidityToken1),
       feesToken0: parseFloat(positionData.feesToken0),
       feesToken1: parseFloat(positionData.feesToken1),
-      token0Token1Rate: positionData.priceToken0 / 1e18,
+      token0Token1Rate: parseFloat(positionData.priceToken0),
       token0USDCExchangeRate: etherUsdExchangeRate,
       token1USDCExchangeRate: ArbitUsdExchangeRate,
       blockNumber: blockNumber,
