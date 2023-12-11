@@ -4,7 +4,7 @@ const {
 } = require("../db/savePositionDataDB");
 const { loadAllPositions } = require("../db/loadPositionDataDB");
 const logger = require("../utils/logger");
-const { alertsTypeNames } = require("../utils/alertsTypes");
+const { alertsTypes, alertsTypeNames } = require("../utils/alertsTypes");
 const {
   getAllPositions,
   getActiveAlerts,
@@ -109,6 +109,8 @@ const notify = async (position, alert) => {
   }
 };
 
+const enumValuesAlertsTypes = Object.values(alertsTypes);
+
 const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
   const activeAlerts = await checkIfActiveAlert(position);
 
@@ -116,23 +118,26 @@ const checkIfActiveAlertAndNotfyIfNeeded = async (position) => {
     return;
   }
   for (var index in activeAlerts) {
-    alertType = activeAlerts[index];
-    if (alertType) {
+    var activeAlert = activeAlerts[index];
+    if (activeAlert) {
       await notify(position, alertsTypeNames[index]);
-      await updatePositionActiveAlertTriggeredTime(position, index);
+      await updatePositionActiveAlertTriggeredTime(
+        position,
+        enumValuesAlertsTypes[index]
+      );
     }
   }
 };
 
 (async function checkForAlerts() {
   setTimeout(async () => {
-    await loadAllPositions().then((positions) => {
-      positions.forEach(async (position) => {
-        if (position.ActivePosition)
-          await checkIfActiveAlertAndNotfyIfNeeded(position);
-      });
-    }),
-      checkForAlerts();
+    const positions = await loadAllPositions();
+    for (const position of positions) {
+      if (position.ActivePosition) {
+        await checkIfActiveAlertAndNotfyIfNeeded(position);
+      }
+    }
+    await checkForAlerts();
   }, process.env.ALERTS_CHECK_INTERVAL);
 })();
 

@@ -7,6 +7,9 @@ const { chains } = require("../utils/chains.js");
 const { alertsTypes } = require("../utils/alertsTypes.js");
 const { loadPosition } = require("./loadPositionDataDB.js");
 const prisma = new PrismaClient();
+// const prisma = new PrismaClient({
+//   log: ["query", "info", "warn"],
+// });
 
 const saveInitialPositionInfo = async (position, initData) => {
   await prisma.Position.create({
@@ -203,38 +206,47 @@ const updatePositionActiveAlert = async (position, alertType, isActive) => {
   return changed;
 };
 
-const updatePositionActiveAlertTriggeredTime = async (position, alertType) => {
+async function updatePositionActiveAlertTriggeredTime(position, alertType) {
   lastTriggered = new Date();
-  await prisma.Position.update({
-    where: {
-      positionKey: {
-        id: position.id,
-        chainId: position.chainId,
+
+  try {
+    await prisma.Position.update({
+      where: {
+        positionKey: {
+          id: position.id,
+          chainId: position.chainId,
+        },
       },
-    },
-    data: {
-      OutOfBoundsLastTriggered:
-        alertType === alertsTypes.OUT_OF_BOUNDS
-          ? lastTriggered
-          : position.OutOfBoundsLastTriggered,
+      data: {
+        OutOfBoundsLastTriggered:
+          alertType === alertsTypes.OUT_OF_BOUNDS
+            ? lastTriggered
+            : position.OutOfBoundsLastTriggered,
 
-      OldPositionLastTriggered:
-        alertType === alertsTypes.OLD_POSITION
-          ? lastTriggered
-          : position.oldPositionLastTriggered,
+        OldPositionLastTriggered:
+          alertType === alertsTypes.OLD_POSITION
+            ? lastTriggered
+            : position.OldPositionLastTriggered,
 
-      PNLLastTriggered:
-        alertType === alertsTypes.PNL
-          ? lastTriggered
-          : position.PNLLastTriggered,
+        PNLLastTriggered:
+          alertType === alertsTypes.PNL
+            ? lastTriggered
+            : position.PNLLastTriggered,
 
-      IMPLossLastTriggered:
-        alertType === alertsTypes.IMP_LOSS
-          ? lastTriggered
-          : position.IMPLossLastTriggered,
-    },
-  });
-};
+        IMPLossLastTriggered:
+          alertType === alertsTypes.IMP_LOSS
+            ? lastTriggered
+            : position.IMPLossLastTriggered,
+      },
+    });
+  } catch (err) {
+    logger.error(err);
+    throw new Error(
+      "could not update last triggered alert time, reason: ",
+      err.message
+    );
+  }
+}
 
 module.exports = {
   savePositionData,
