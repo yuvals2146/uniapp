@@ -506,10 +506,21 @@ const loadPositionInitDataByTxHash = async (txhash, position) => {
     );
 
     const multiplier0 =
-      token0symbol === "USDC" || token0symbol === "USDT" ? 10 ** 12 : 1;
+      token0symbol === "USDC" || token0symbol === "USDT"
+        ? 10 ** 12
+        : token0symbol === "BTC"
+        ? 10 ** 10
+        : 1;
     const multiplier1 =
-      token1symbol === "USDC" || token1symbol === "USDT" ? 10 ** 12 : 1;
+      token1symbol === "USDC" || token1symbol === "USDT"
+        ? 10 ** 12
+        : token1symbol === "BTC"
+        ? 10 ** 10
+        : 1;
 
+    // amount1Desired: ethers.utils.formatUnits(resultArgs.inputs[0][6]),
+    // initValueToken1:
+    //   ethers.utils.formatUnits(resultArgs.inputs[0][6]) * multiplier1,
     //inputs keys names: token0address,token1address,fee,tickLower,tickUpper,amount0Desired,amount1Desired,amount0Min,amount1Min,recipient
     const initData = {
       token0address: resultArgs.inputs[0][0],
