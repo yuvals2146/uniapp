@@ -13,7 +13,7 @@ const inTimeWindow = async (time) => {
   return now > timeWindow;
 };
 
-const checkIfActiveAlert = async (position) => {
+async function checkIfActiveAlert(position) {
   return {
     [alertsTypes.OUT_OF_BOUNDS]:
       position.OutOfBounds &&
@@ -26,7 +26,7 @@ const checkIfActiveAlert = async (position) => {
     [alertsTypes.IMP_LOSS]:
       position.IMPLoss && (await inTimeWindow(position.IMPLossLastTriggered)),
   };
-};
+}
 
 module.exports = {
   checkIfActiveAlert,
