@@ -18,6 +18,7 @@ describe("getPositionData", () => {
     const resultData = await getPositionData(mockEtherPositionOne);
     expect(resultData).toHaveProperty("feesToken0");
     expect(resultData).toHaveProperty("feesToken1");
+    expect(resultData).toHaveProperty("priceToken0Wei");
     expect(resultData).toHaveProperty("priceToken0");
     expect(resultData.pair).toEqual("USDC/WETH");
     expect(resultData).toHaveProperty("liquidityToken0");
@@ -25,6 +26,7 @@ describe("getPositionData", () => {
     expect(resultData).toHaveProperty("tickLeft");
     expect(resultData).toHaveProperty("tickRight");
     expect(resultData).toHaveProperty("tickCurr");
+    expect(resultData).toHaveProperty("sqrtPriceX96");
   });
 
   test("should get position data for valid arbitrum position", async () => {
@@ -34,6 +36,7 @@ describe("getPositionData", () => {
     });
     expect(resultData).toHaveProperty("feesToken0");
     expect(resultData).toHaveProperty("feesToken1");
+    expect(resultData).toHaveProperty("priceToken0Wei");
     expect(resultData).toHaveProperty("priceToken0");
     expect(resultData.pair).toEqual("WETH/ARB");
     expect(resultData).toHaveProperty("liquidityToken0");
@@ -41,6 +44,7 @@ describe("getPositionData", () => {
     expect(resultData).toHaveProperty("tickLeft");
     expect(resultData).toHaveProperty("tickRight");
     expect(resultData).toHaveProperty("tickCurr");
+    expect(resultData).toHaveProperty("sqrtPriceX96");
   });
 
   test("should not get position data for non valid position chain", async () => {
@@ -53,27 +57,27 @@ describe("getPositionData", () => {
     }).rejects.toThrow("not valid chain id ethereum");
   });
 
-  test("should not get position data for non valid position id", async () => {
+  test("should not get position data for invalid position id", async () => {
     expect(async () => {
       await getPositionData({ cat: 482139, chainId: 1 });
-    }).rejects.toThrow("not valid position id or not exist");
+    }).rejects.toThrow("position id invalid or doesn't exist");
 
     expect(async () => {
       await getPositionData({ id: "three", chainId: 1 });
-    }).rejects.toThrow("not valid position id or not exist");
+    }).rejects.toThrow("position id invalid or doesn't exist");
 
     expect(async () => {
       await getPositionData({ id: -12, chainId: 1 });
-    }).rejects.toThrow("not valid position id or not exist");
+    }).rejects.toThrow("position id invalid or doesn't exist");
   });
 
-  test("should not get position data for not exist chain", async () => {
+  test("should not get position data for non existing chain", async () => {
     expect(async () => {
       await getPositionData({ id: 1234, chainId: 3 });
     }).rejects.toThrow("not valid chain id 3");
   });
 
-  test("should not get position data for not exist token", async () => {
+  test("should not get position data for non existing token", async () => {
     expect(async () => {
       await getPositionData({ id: 10000000000, chainId: 1 });
     }).rejects.toThrow(
@@ -92,10 +96,9 @@ describe("getPoolExchangeRate", () => {
     expect(result).toBeGreaterThan(0);
   });
 
-  test("should not get Exchange rate from ethereum for a invalid token", async () => {
-    expect(async () => {
-      await getPoolExchangeRate(mockEtherPositionOne, 0);
-    }).rejects.toThrow("cannot get pool exchange rate for token USDC or USD");
+  test("should not get Exchange rate from ethereum for an invalid token", async () => {
+    const USDCRate = await getPoolExchangeRate(mockEtherPositionOne, 0);
+    expect(USDCRate).toEqual(1);
   });
 
   // test("should not get Exchange rate from arbitrum for a invalid token", async () => {
@@ -124,7 +127,7 @@ describe("getCurrentBlockNumber", () => {
     expect(resultBlock).toBeGreaterThan(126313406);
   });
 
-  test("Should not get current block for no valid chain", async () => {
+  test("Should not get current block for invalid chain", async () => {
     expect(async () => {
       await getCurrentBlockNumber(3);
     }).rejects.toThrow("not valid chain id 3");
@@ -319,7 +322,7 @@ describe("retrieveInitalPositionData", () => {
     );
   });
 
-  test("should not retrieve Inital Position Data for non valid ethereum position", async () => {
+  test("should not retrieve Inital Position Data for invalid ethereum position", async () => {
     expect(
       async () =>
         await retrieveInitalPositionData({
@@ -331,7 +334,7 @@ describe("retrieveInitalPositionData", () => {
     );
   });
 
-  test("should not retrieve Inital Position Data for non valid ethereum tx hash", async () => {
+  test("should not retrieve Inital Position Data for invalid ethereum tx hash", async () => {
     expect(
       async () =>
         await retrieveInitalPositionData(
@@ -357,7 +360,7 @@ test("should not retrieve Inital Position Data for valid arbitrum without tx has
   );
 });
 
-test("should not retrieve Inital Position Data for non valid arbitrum tx hash", async () => {
+test("should not retrieve Inital Position Data for invalid arbitrum tx hash", async () => {
   expect(
     async () =>
       await retrieveInitalPositionData(

@@ -259,7 +259,7 @@ const positionKeyValidate = (position) => {
   if (!chains[position.chainId])
     throw new Error(`not valid chain id ${position.chainId}`);
   if (!position.id || position.id < 0 || typeof position.id !== "number")
-    throw new Error("not valid position id or not exist");
+    throw new Error("position id invalid or doesn't exist");
 };
 
 async function getPositionData(position) {
@@ -297,6 +297,7 @@ async function getPositionData(position) {
   );
 
   const pairRates = await calcPairRate(positionInfo);
+
   [liquidityToken0, liquidityToken1] = await getTokenAmounts(
     positionInfo.liquidity,
     positionInfo.sqrtPriceX96,
@@ -305,6 +306,7 @@ async function getPositionData(position) {
     positionInfo.Decimal0,
     positionInfo.Decimal1
   );
+
   const data = {
     feesToken0: fees.feesToken0,
     feesToken1: fees.feesToken1,
@@ -327,11 +329,6 @@ async function calcPairRate(PositionInfo) {
   let Decimal0 = PositionInfo.Decimal0;
   let Decimal1 = PositionInfo.Decimal1;
 
-  twoXX96 = 2 ** 96;
-  sqrtPrice = sqrtPriceX96 / twoXX96;
-  price = sqrtPrice ** 2;
-  priceInToken0Terms = price * 10 ** (Decimal0 - Decimal1);
-  priceInToken0Terms.toFixed(Decimal1);
   const buyOneOfToken0 = (
     (sqrtPriceX96 / 2 ** 96) ** 2 *
     10 ** (Decimal0 - Decimal1)
@@ -391,12 +388,23 @@ const getPoolExchangeRate = async (position, index) => {
   );
 
   const pos = await getPositionJson(position.id, provider);
-  const fromTokenContract = index === 0 ? pos.token0 : pos.token1;
-  if (fromTokenContract === contractAddrUSDC)
-    throw new Error("cannot get pool exchange rate for token USDC or USDT");
+  // Create a contract instance for the ERC-20 token0
+  const tokenContract = new ethers.Contract(
+    index === 0 ? pos.token0 : pos.token1,
+    ERC20,
+    provider
+  );
+  const USDCTokenContract = new ethers.Contract(
+    contractAddrUSDC,
+    ERC20,
+    provider
+  );
+
+  symbol = await tokenContract.symbol();
+  if (symbol === "USDC" || symbol === "USDT") return 1;
 
   let poolAddress = await FactoryContract.getPool(
-    fromTokenContract,
+    index === 0 ? pos.token0 : pos.token1,
     contractAddrUSDC,
     pos.fee
   );
@@ -407,14 +415,13 @@ const getPoolExchangeRate = async (position, index) => {
       provider
     );
     const PositionInfo = await poolContract.slot0();
-
     const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
 
     const price = (sqrtPriceX96 / 2 ** 96) ** 2;
-    const poolToken0ContractAddr = await poolContract.token0();
-    return poolToken0ContractAddr === contractAddrUSDC
-      ? (1 / price) * 10 ** 12
-      : price * 10 ** 12;
+    const tokenDecimals = await tokenContract.decimals();
+    const USDCTokenDecimals = await USDCTokenContract.decimals();
+
+    return price * 10 ** (tokenDecimals - USDCTokenDecimals);
   } catch (err) {
     const providerName =
       provider?._network.name === "homestead"
