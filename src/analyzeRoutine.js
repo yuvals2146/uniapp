@@ -36,19 +36,9 @@ const getNewDataAndAnalyze = async (position) => {
       await updatePositionActive(position, false);
       return;
     }
-    const [token0Symbol, token1Symbol] =
-      positionDataFromContract.pair.split("/");
 
-    const Token0USDCRate =
-      token0Symbol === "USDC" || token0Symbol === "USDT"
-        ? 1
-        : await getPoolExchangeRate(position, 0);
-
-    const Token1USDCRate =
-      token1Symbol === "USDC" || token1Symbol === "USDT"
-        ? 1
-        : await getPoolExchangeRate(position, 1);
-
+    const Token0USDCRate = await getPoolExchangeRate(position, 0);
+    const Token1USDCRate = await getPoolExchangeRate(position, 1);
     const currentBlockNumber = await getCurrentBlockNumber(position.chainId);
 
     savePositionData(

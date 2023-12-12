@@ -8,7 +8,7 @@ const alertsTypes = {
 const alertsTypeNames = {
   0: "out of bounds",
   1: "old position",
-  2: "permanent loss",
+  2: "high profit",
   3: "impermanent loss",
 };
 
