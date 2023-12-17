@@ -1,9 +1,13 @@
 const { FeeAmount, computePoolAddress } = require("@uniswap/v3-sdk");
-const { ethers, BigNumber } = require("ethers");
-const { SupportedChainId, Token } = require("@uniswap/sdk-core");
+const { ethers } = require("ethers");
+const { ChainId, Token } = require("@uniswap/sdk-core");
 const fs = require("fs");
 const JSBI = require("jsbi");
 const { TickMath } = require("@uniswap/v3-sdk");
+const { createCanvas } = require("canvas");
+const Chart = require("chart.js/auto");
+const { spawn } = require("child_process");
+const { privateEncrypt } = require("crypto");
 
 const IUniswapV3PoolABI = JSON.parse(fs.readFileSync("abis/UNIPOOLABI.json"));
 const etherProvider = new ethers.providers.JsonRpcProvider(
@@ -15,16 +19,10 @@ const USDCOnMainnet = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
 
 const getPoolTest = async (chain) => {
-  const TOKEN0 = new Token(
-    SupportedChainId.MAINNET,
-    USDCOnMainnet,
-    6,
-    "USDC",
-    "USD//C"
-  );
+  const TOKEN0 = new Token(ChainId.MAINNET, USDCOnMainnet, 6, "USDC", "USD//C");
 
   const TOKEN1 = new Token(
-    SupportedChainId.MAINNET,
+    ChainId.MAINNET,
     WETHOnMainnet,
     18,
     "WETH",
@@ -70,37 +68,52 @@ const getPoolTest = async (chain) => {
   );
 
   const currTickRounded = Math.floor(currTick / tickSpacing) * tickSpacing;
-  // currTickRounded = currTickRounded - tickSpacing;
-  // currTick = currTick - tickSpacing;
-  MIN_TICK = -10;
-  MAX_TICK = 10;
-  liquidityAtTick = [];
-  liquidityAtTick[0] = parseInt(currLiquidity);
-  var tempTickRounded = currTickRounded;
+  MIN_TICK = -50;
+  MAX_TICK = 50;
+
+  // change to tick liquidity for rounded tick
+  var prevTickLiquidity = JSBI.BigInt(currLiquidity);
+  // var liquidityNetAtTick = parseInt(currLiquidity);
+  var liquidityAtTickMap = new Map();
+  liquidityAtTickMap.set(currTickRounded, prevTickLiquidity);
+
+  var tempTickRoundedAddress = currTickRounded;
+  var liquidityAtTick, tempTickRoundedData;
   for (let i = 1; i < MAX_TICK; i++) {
-    tempTickRounded += tickSpacing;
-    tick = await poolContract.ticks(tempTickRounded);
-    liquidityNetAtTick = parseInt(tick.liquidityNet);
-    liquidityAtTick[i] = liquidityAtTick[i - 1] + liquidityNetAtTick;
+    tempTickRoundedAddress += tickSpacing;
+    tempTickRoundedData = await poolContract.ticks(tempTickRoundedAddress);
+    liquidityAtTick = JSBI.add(
+      prevTickLiquidity,
+      JSBI.BigInt(tempTickRoundedData.liquidityNet)
+    );
+    liquidityAtTickMap.set(tempTickRoundedAddress, liquidityAtTick);
+    prevTickLiquidity = liquidityAtTick;
   }
-  tempTickRounded = currTickRounded;
-  for (let i = -1; i >= -MIN_TICK; i--) {
-    tempTickRounded -= tickSpacing;
-    tick = await poolContract.ticks(tempTickRounded);
-    liquidityNetAtTick = parseInt(tick.liquidityNet);
-    liquidityAtTick[i] = liquidityAtTick[i + 1] + liquidityNetAtTick;
+  tempTickRoundedAddress = currTickRounded;
+  prevTickLiquidity = JSBI.BigInt(currLiquidity);
+  for (let i = -1; i >= MIN_TICK; i--) {
+    tempTickRoundedData = await poolContract.ticks(tempTickRoundedAddress);
+    liquidityAtTick = JSBI.subtract(
+      prevTickLiquidity,
+      JSBI.BigInt(tempTickRoundedData.liquidityNet)
+    );
+    tempTickRoundedAddress -= tickSpacing;
+    liquidityAtTickMap.set(tempTickRoundedAddress, liquidityAtTick);
+    prevTickLiquidity = liquidityAtTick;
   }
 
-  for (let i = MIN_TICK; i < MAX_TICK; i++) {
-    tempTickRounded = currTickRounded + i * tickSpacing;
-    sqrtRatioAtTickX96 = TickMath.getSqrtRatioAtTick(
-      tempTickRounded,
+  // for the bar graph, map price=>liquidity
+  var liquidityAtPrice = new Map();
+  // Extract and sort the keys
+  const sortedKeys = [...liquidityAtTickMap.keys()].sort();
+  for (const key of sortedKeys) {
+    var sqrtRatioAtTickX96 = TickMath.getSqrtRatioAtTick(
+      parseInt(key),
       tickSpacing
     );
-    const sqrtRatioX96BN = slot0[0];
-    const sqrtRatioX96BI = sqrtRatioAtTickX96;
+
     const buyOneOfToken0 =
-      (sqrtRatioX96BI / Q96) ** 2 /
+      (sqrtRatioAtTickX96 / Q96) ** 2 /
       (
         10 **
         (CurrentConfig.tokens.token1.decimals -
@@ -110,78 +123,110 @@ const getPoolTest = async (chain) => {
       CurrentConfig.tokens.token0.decimals
     );
 
+    liquidityAtTick = liquidityAtTickMap.get(key);
     tokenAmountsAtTickRange = await getTokenAmounts(
-      liquidityAtTick[i],
-      sqrtRatioX96BI,
-      tempTickRounded,
-      tempTickRounded + tickSpacing,
+      liquidityAtTick,
+      sqrtRatioAtTickX96,
+      currTickRounded,
+      currTickRounded + tickSpacing,
       CurrentConfig.tokens.token0.decimals,
       CurrentConfig.tokens.token1.decimals
     );
 
     console.log(
       "Tick",
-      currTickRounded + i * tickSpacing,
+      key,
       ":",
-      liquidityAtTick[i],
+      liquidityAtTick,
       "\nPrice of ",
       TOKEN0.symbol,
-      " in ",
+      "in ",
       TOKEN1.symbol,
-      " terms:",
+      "terms:",
       buyOneOfToken0,
       "Price of ",
       TOKEN1.symbol,
-      " in ",
+      "in ",
       TOKEN0.symbol,
-      " terms:",
+      "terms:",
       buyOneOfToken1,
-      "\nLiquidity:",
-      BigInt(tick.liquidityGross).toString(),
-      "Liquidity in Token0:",
+      "\nLiquidity in Token0:",
       tokenAmountsAtTickRange[0],
       "Liquidity in Token1:",
       tokenAmountsAtTickRange[1]
     );
+    const tolerance = 1e-6;
+    if (tokenAmountsAtTickRange[0] < tolerance)
+      liquidityUSDC = tokenAmountsAtTickRange[1] / buyOneOfToken0;
+    else liquidityUSDC = tokenAmountsAtTickRange[0];
+
+    liquidityAtPrice.set(buyOneOfToken1, liquidityUSDC);
   }
+  // Convert the Map to an array of key-value pairs
+  const sortedEntries = [...liquidityAtPrice.entries()];
+
+  // Sort the array by keys (assuming keys are numeric)
+  sortedEntries.sort((a, b) => a[0] - b[0]);
+
+  // Extract the sorted keys and values into separate arrays
+  const labels = sortedEntries.map((entry) => entry[0]);
+  const data = sortedEntries.map((entry) => entry[1]);
+
+  // Create a canvas
+  const canvas = createCanvas(400, 200);
+  const ctx = canvas.getContext("2d");
+
+  // Configuration for the bar graph
+  const config = {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Liquidity at Price",
+          data: data,
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Price",
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: "Liquidity",
+          },
+        },
+      },
+    },
+  };
+
+  // Create a chart instance
+  const chart = new Chart(ctx, config);
+
+  const stream = chart.canvas.createPNGStream();
+  const out = fs.createWriteStream("chart.png");
+  stream.pipe(out);
+  out.on("finish", () => {
+    // Open the PNG file with the default viewer
+    const viewer = spawn("open", ["chart.png"]);
+    viewer.on("close", (code) => {
+      if (code === 0) {
+        console.log("PNG file opened successfully.");
+      } else {
+        console.error("Error opening PNG file.");
+      }
+    });
+  });
 };
-// console.log(
-//   "Tick rounded: ",
-//   currTickRounded,
-//   ", ",
-//   USDC_TOKEN.symbol,
-//   " liquidity: ",
-//   liquidityToken0,
-//   ", ",
-//   WETH_TOKEN.symbol,
-//   " liquidity: ",
-//   liquidityToken1
-// );
-
-// const buyOneOfToken0Wei = Math.floor(
-//   buyOneOfToken0 * 10 ** CurrentConfig.tokens.token1.decimals
-// ).toLocaleString("fullwide", { useGrouping: false });
-// const buyOneOfToken1Wei = Math.floor(
-//   buyOneOfToken1 * 10 ** CurrentConfig.tokens.token0.decimals
-// ).toLocaleString("fullwide", { useGrouping: false });
-
-//     console.log(
-//       "\nIteration:",
-//       i,
-//       "Current tick:",
-//       currTick,
-//       "Current tick rounded:",
-//       currTickRounded,
-//       "sqrtRatioX96 at tick:",
-//       sqrtRatioAtTickX96.toString(),
-//       "sqrtRatioX96 at slot0:",
-//       sqrtRatioX96BI.toString(),
-
-//     );
-//     currTick += tickSpacing;
-//     currTickRounded += tickSpacing;
-//   }
-// };
 
 const getTokenAmounts = async (
   liquidity,
@@ -195,14 +240,17 @@ const getTokenAmounts = async (
   let sqrtRatioB = Math.sqrt(1.0001 ** tickHigh).toFixed(18);
   let currentTick = TickMath.getTickAtSqrtRatio(sqrtPriceX96);
   console.log(
-    "\n\ngetTokenAmounts:",
+    "\nTicks current,low,high:",
     currentTick,
+    ",",
     tickLow,
+    ",",
     tickHigh,
+    ",",
     "liq at tick",
-    liquidity
+    liquidity.toString()
   );
-  let sqrtPrice = sqrtPriceX96 / Q96;
+  // let sqrtPrice = sqrtPriceX96 / Q96;
   let amount0wei = 0;
   let amount1wei = 0;
   if (currentTick < tickLow) {
@@ -214,19 +262,15 @@ const getTokenAmounts = async (
     amount1wei = Math.floor(liquidity * (sqrtRatioB - sqrtRatioA));
   }
   if (currentTick >= tickLow && currentTick < tickHigh) {
-    amount0wei = Math.floor(
-      liquidity * ((sqrtRatioB - sqrtPrice) / (sqrtPrice * sqrtRatioB))
-    );
-    amount1wei = Math.floor(liquidity * (sqrtPrice - sqrtRatioA));
+    // amount0wei = Math.floor(
+    //   liquidity * ((sqrtRatioB - sqrtPrice) / (sqrtPrice * sqrtRatioB))
+    // );
+    amount1wei = Math.floor(liquidity * (sqrtRatioB - sqrtRatioA));
   }
 
   let amount0Human = (amount0wei / 10 ** token0Decimal).toFixed(token0Decimal);
   let amount1Human = (amount1wei / 10 ** token1Decimal).toFixed(token1Decimal);
 
-  // console.log("Amount Token0 wei: " + amount0wei);
-  // console.log("Amount Token1 wei: " + amount1wei);
-  // console.log("Amount Token0 : " + amount0Human);
-  // console.log("Amount Token1 : " + amount1Human);
   return [amount0Human, amount1Human];
 };
 
