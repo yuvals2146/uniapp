@@ -7,7 +7,6 @@ const { TickMath } = require("@uniswap/v3-sdk");
 const { createCanvas } = require("canvas");
 const Chart = require("chart.js/auto");
 const { spawn } = require("child_process");
-const { privateEncrypt } = require("crypto");
 
 const IUniswapV3PoolABI = JSON.parse(fs.readFileSync("abis/UNIPOOLABI.json"));
 const etherProvider = new ethers.providers.JsonRpcProvider(
@@ -162,70 +161,73 @@ const getPoolTest = async (chain) => {
 
     liquidityAtPrice.set(buyOneOfToken1, liquidityUSDC);
   }
-  // Convert the Map to an array of key-value pairs
-  const sortedEntries = [...liquidityAtPrice.entries()];
 
-  // Sort the array by keys (assuming keys are numeric)
-  sortedEntries.sort((a, b) => a[0] - b[0]);
+  if (process.env.NODE_ENV != "ci-test") {
+    // Convert the Map to an array of key-value pairs
+    const sortedEntries = [...liquidityAtPrice.entries()];
 
-  // Extract the sorted keys and values into separate arrays
-  const labels = sortedEntries.map((entry) => entry[0]);
-  const data = sortedEntries.map((entry) => entry[1]);
+    // Sort the array by keys (assuming keys are numeric)
+    sortedEntries.sort((a, b) => a[0] - b[0]);
 
-  // Create a canvas
-  const canvas = createCanvas(400, 200);
-  const ctx = canvas.getContext("2d");
+    // Extract the sorted keys and values into separate arrays
+    const labels = sortedEntries.map((entry) => entry[0]);
+    const data = sortedEntries.map((entry) => entry[1]);
 
-  // Configuration for the bar graph
-  const config = {
-    type: "bar",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Liquidity at Price",
-          data: data,
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Price",
+    // Create a canvas
+    const canvas = createCanvas(400, 200);
+    const ctx = canvas.getContext("2d");
+
+    // Configuration for the bar graph
+    const config = {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Liquidity at Price",
+            data: data,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
           },
-        },
-        y: {
-          title: {
-            display: true,
-            text: "Liquidity",
+        ],
+      },
+      options: {
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Price",
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Liquidity",
+            },
           },
         },
       },
-    },
-  };
+    };
 
-  // Create a chart instance
-  const chart = new Chart(ctx, config);
+    // Create a chart instance
+    const chart = new Chart(ctx, config);
 
-  const stream = chart.canvas.createPNGStream();
-  const out = fs.createWriteStream("chart.png");
-  stream.pipe(out);
-  out.on("finish", () => {
-    // Open the PNG file with the default viewer
-    const viewer = spawn("open", ["chart.png"]);
-    viewer.on("close", (code) => {
-      if (code === 0) {
-        console.log("PNG file opened successfully.");
-      } else {
-        console.error("Error opening PNG file.");
-      }
+    const stream = chart.canvas.createPNGStream();
+    const out = fs.createWriteStream("chart.png");
+    stream.pipe(out);
+    out.on("finish", () => {
+      // Open the PNG file with the default viewer
+      const viewer = spawn("open", ["chart.png"]);
+      viewer.on("close", (code) => {
+        if (code === 0) {
+          console.log("PNG file opened successfully.");
+        } else {
+          console.error("Error opening PNG file.");
+        }
+      });
     });
-  });
+  }
 };
 
 const getTokenAmounts = async (
