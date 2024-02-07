@@ -3,6 +3,8 @@ const { getNewDataAndAnalyze } = require("./analyzeRoutine.js");
 const { init } = require("./init.js");
 const { loadAllPositions } = require("./db/loadPositionDataDB.js");
 
+verbose = process.argv[2] === "verbose";
+
 const beforeStart = async () => {
   await init();
 };
@@ -29,7 +31,7 @@ beforeStart();
     for (var index in positions) {
       const position = positions[index];
       try {
-        await getNewDataAndAnalyze(position);
+        await getNewDataAndAnalyze(position, verbose);
       } catch (err) {
         logger.error(err);
       }

@@ -12,7 +12,7 @@ const { analyzeDataPoint } = require("./engine/analyzer.js");
 const { chains } = require("./utils/chains.js");
 const logger = require("./utils/logger.js");
 
-const getNewDataAndAnalyze = async (position) => {
+const getNewDataAndAnalyze = async (position, verbose) => {
   try {
     const positionDataFromContract = await getPositionData(position);
 
@@ -53,7 +53,8 @@ const getNewDataAndAnalyze = async (position) => {
       positionDataFromContract,
       Token0USDCRate,
       Token1USDCRate,
-      position
+      position,
+      verbose
     );
   } catch (err) {
     throw new Error(
