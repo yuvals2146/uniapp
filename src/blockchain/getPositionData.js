@@ -388,12 +388,14 @@ const getPoolExchangeRate = async (position, index) => {
   );
 
   const pos = await getPositionJson(position.id, provider);
+
   // Create a contract instance for the ERC-20 token0
   const tokenContract = new ethers.Contract(
     index === 0 ? pos.token0 : pos.token1,
     ERC20,
     provider
   );
+
   const USDCTokenContract = new ethers.Contract(
     contractAddrUSDC,
     ERC20,
@@ -414,10 +416,14 @@ const getPoolExchangeRate = async (position, index) => {
       IUniswapV3PoolABI,
       provider
     );
+
     const PositionInfo = await poolContract.slot0();
     const sqrtPriceX96 = PositionInfo.sqrtPriceX96;
 
-    const price = (sqrtPriceX96 / 2 ** 96) ** 2;
+    price = (sqrtPriceX96 / 2 ** 96) ** 2;
+    poolTokenSymbol0 = await poolContract.token0();
+    if (poolTokenSymbol0 === contractAddrUSDC) price = 1 / price;
+
     const tokenDecimals = await tokenContract.decimals();
     const USDCTokenDecimals = await USDCTokenContract.decimals();
 

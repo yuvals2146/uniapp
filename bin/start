@@ -5,12 +5,17 @@ source "./bin/logger"
 
 source .envrc
 
+param=""
+if [ $# -eq 1 ] && ([[ "$1" == "--v" ]] || [[ "$1" == "--verbose" ]]) && [[ $ENV != "cloud" ]]; then
+    param="verbose"
+fi
+
 if [[ $ENV == "cloud" ]]
 then
     pp_info "on cloud" "starting uniapp server with pm2"
     pm2 start src/index.js --env cloud --name uniapp-server
 else
     pp_info "on local" "starting uniapp server with yarn"
-    yarn start
+    yarn start "$param"
 fi
 

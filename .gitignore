@@ -8,3 +8,5 @@ node_modules
 .envrc.yuval
 
 .vscode
+.DS_Store
+/src/.DS_Store

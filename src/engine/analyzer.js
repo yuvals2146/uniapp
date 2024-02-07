@@ -10,8 +10,8 @@ async function analyzeDataPoint(
   positionData,
   token0USDRate,
   token1USDRate,
-  pos
-  //  blockNumber
+  pos,
+  verbose
 ) {
   let position = await loadPosition({
     id: pos.id,
@@ -25,7 +25,7 @@ async function analyzeDataPoint(
 
   if (
     outOfBoundsValue &&
-    (await updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS))
+    (verbose || (await updateAlertStatus(position, alertsTypes.OUT_OF_BOUNDS)))
   ) {
     logger.info(
       "Position:",
@@ -49,7 +49,7 @@ async function analyzeDataPoint(
   const posAgeDays = parseInt(positionAge / 8.64e7);
   if (
     posAgeDays > 10 &&
-    (await updateAlertStatus(position, alertsTypes.OLD_POSITION))
+    (verbose || (await updateAlertStatus(position, alertsTypes.OLD_POSITION)))
   ) {
     logger.info(
       "Position:",
@@ -82,22 +82,25 @@ async function analyzeDataPoint(
 
   if (
     profitLossRatio.toFixed(2) >= 20 &&
-    (await updateAlertStatus(position, alertsTypes.PNL))
+    (verbose || (await updateAlertStatus(position, alertsTypes.PNL)))
   ) {
     logger.info(
       "Position",
       position.id,
-      "on chaoin",
+      "on chain",
       position.chainId,
-      "is in high USD profit:",
+      "is in high USD profit: (total/init value):",
       totalPositionValueUSD,
       initPositionValueUSD,
       profitLossRatio.toFixed(2),
       positionData,
+      "totalLiquidityToken0/1:",
       totalLiquidityToken0,
       totalLiquidityToken1,
+      "tokenUSDCRate0/1:",
       token0USDRate,
       token1USDRate,
+      "amountToken1/2 USD:",
       amountToken0USD,
       amountToken1USD
     );
@@ -113,7 +116,7 @@ async function analyzeDataPoint(
     ((totalPositionValueUSD - totalHoldValueUSD) / totalPositionValueUSD) * 100;
   if (
     totalPositionValueUSD < totalHoldValueUSD &&
-    (await updateAlertStatus(position, alertsTypes.IMP_LOSS))
+    (verbose || (await updateAlertStatus(position, alertsTypes.IMP_LOSS)))
   ) {
     logger.info(
       "Position:",
