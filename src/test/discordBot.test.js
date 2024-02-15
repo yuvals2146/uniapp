@@ -124,7 +124,7 @@ describe("discordBot", () => {
       await sleep();
       const response = await getReplyToMessage(msgId);
       expect(response).toEqual(
-        "Chain id not supported, must be ethereum or arbitrum"
+        "Chain id not supported, must be ethereum, arbitrum or optimism"
       );
     });
 

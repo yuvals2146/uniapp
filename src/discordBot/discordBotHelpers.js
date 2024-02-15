@@ -9,10 +9,24 @@ const {
 const { checkIfActiveAlert } = require("../alerts/alerts");
 const formatChainName = (chain) => {
   chainLowCase = chain.toLowerCase();
-  if (chainLowCase === "1") return "ethereum";
-  if (chainLowCase === "42161") return "arbitrum";
-  if (chainLowCase === "eth" || chainLowCase === "ETH") return "ethereum";
-  if (chainLowCase === "arb" || chainLowCase === "ARB") return "arbitrum";
+  if (
+    chainLowCase === "1" ||
+    chainLowCase === "eth" ||
+    chainLowCase === "ethereum"
+  )
+    return "ethereum";
+  if (
+    chainLowCase === "42161" ||
+    chainLowCase === "arb" ||
+    chainLowCase === "arbitrum"
+  )
+    return "arbitrum";
+  if (
+    chainLowCase === "10" ||
+    chainLowCase === "op" ||
+    chainLowCase === "optimsim"
+  )
+    return "optimism";
   return chainLowCase;
 };
 
@@ -74,8 +88,12 @@ const addPosition = async (args) => {
   const [chain, positionId, txHash] = args;
   const positionChainName = formatChainName(chain);
 
-  if (positionChainName !== "ethereum" && positionChainName !== "arbitrum")
-    return "Chain id not supported, must be ethereum or arbitrum";
+  if (
+    positionChainName !== "ethereum" &&
+    positionChainName !== "arbitrum" &&
+    positionChainName !== "optimism"
+  )
+    return "Chain id not supported, must be ethereum, arbitrum or optimism";
   if (isNaN(positionId)) return "Position id must be a number";
   if (
     txHash !== undefined &&
@@ -88,7 +106,7 @@ const addPosition = async (args) => {
     await userSaveNewPosition(
       {
         id: parseInt(positionId),
-        chainId: positionChainName === "ethereum" ? 1 : 42161,
+        chainId: chainsNames[positionChainName],
       },
       txHash
     );
@@ -107,7 +125,7 @@ const setPositionActive = async (args, active) => {
     await updatePositionActive(
       {
         id: parseInt(positionId),
-        chainId: positionChainName === "ethereum" ? 1 : 42161,
+        chainId: chainsNames[positionChainName],
       },
       active
     );

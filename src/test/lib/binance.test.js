@@ -29,7 +29,7 @@ describe("fetchHistoricalPriceData", () => {
   test("should not fetch data for non valid pair", async () => {
     expect(async () => {
       await fetchHistoricalPriceData("BAD", "ETH", 1629784800000);
-    }).rejects.toThrow("pair of BAD and ETH not supported");
+    }).rejects.toThrow("pair BAD and ETH not supported.");
   });
 
   test("should not fetch data for non valid time", async () => {

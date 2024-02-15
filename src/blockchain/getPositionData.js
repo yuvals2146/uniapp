@@ -8,7 +8,7 @@ const { fetchHistoricalPriceData } = require("../lib/binance.js");
 const {
   queryTheGraphForMintTransactHash,
 } = require("../utils/queryTheGraph.js");
-const { chains } = require("../utils/chains.js");
+const { chains, chainsNames } = require("../utils/chains.js");
 
 const ZERO = JSBI.BigInt(0);
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
@@ -16,7 +16,7 @@ const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
 const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 const MIN_TICK = -887272;
 const MAX_TICK = 887272;
-const ETHEREUM_CHAIN_ID = 1;
+
 function getTickAtSqrtRatio(sqrtPriceX96) {
   let tick = Math.floor(Math.log((sqrtPriceX96 / Q96) ** 2) / Math.log(1.0001));
   return tick;
@@ -55,6 +55,34 @@ const etherProvider = new ethers.providers.JsonRpcProvider(
   process.env.ETHER_RPC_URL
 );
 
+const opProvider = new ethers.providers.JsonRpcProvider(process.env.OP_RPC_URL);
+
+function getProvider(chainId) {
+  switch (chainId) {
+    case chainsNames.ethereum:
+      return etherProvider;
+      break;
+    case chainsNames.arbitrum:
+      return arbitProvider;
+      break;
+    default:
+      return opProvider;
+  }
+}
+
+function getUSDCTrackerAddress(chainId) {
+  switch (chainId) {
+    case chainsNames.ethereum:
+      return process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH;
+      break;
+    case chainsNames.arbitrum:
+      return process.env.USDC_TOKEN_TRACKER_ADDRESS_ARB;
+      break;
+    default:
+      return process.env.USDC_TOKEN_TRACKER_ADDRESS_OP;
+  }
+}
+
 // V3 standard addresses
 if (
   process.env.FACTORY_ADDRESS === undefined ||
@@ -82,8 +110,7 @@ async function getPositionJson(positionId, provider) {
 }
 
 async function getData(position) {
-  const provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+  const provider = getProvider(position.chainId);
 
   var FactoryContract = new ethers.Contract(
     factory,
@@ -354,13 +381,12 @@ const getQuote = async (
   fee,
   amountIn,
   sqrtPriceLimitX96,
-  chain
+  chainId
 ) => {
-  const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   const quoterContract = new ethers.Contract(
     quoter,
     IUniswapQuoterABI,
-    provider
+    getProvider(chainId)
   );
 
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
@@ -373,13 +399,10 @@ const getQuote = async (
 };
 
 const getPoolExchangeRate = async (position, index) => {
-  const provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
   if (index !== 0 && index !== 1) throw new Error("index must be 0 or 1");
-  const contractAddrUSDC =
-    position.chainId === ETHEREUM_CHAIN_ID
-      ? process.env.USDC_TOKEN_TRACKER_ADDRESS_ETH
-      : process.env.USDC_TOKEN_TRACKER_ADDRESS_ARB;
+
+  const provider = getProvider(position.chainId);
+  const contractAddrUSDC = getUSDCTrackerAddress(position.chainId);
 
   var FactoryContract = new ethers.Contract(
     factory,
@@ -439,15 +462,15 @@ const getPoolExchangeRate = async (position, index) => {
   }
 };
 
-const getCurrentBlockNumber = async (chain) => {
-  if (!chains[chain]) throw new Error(`not valid chain id ${chain}`);
-  const provider = chain === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+const getCurrentBlockNumber = async (chainId) => {
+  if (!chains[chainId]) throw new Error(`not valid chain id ${chainId}`);
+  const provider = getProvider(chainId);
 
   try {
     return await provider.getBlockNumber();
   } catch (err) {
     throw new Error(
-      `error with retrieve current block number for chain ${chain}`
+      `error with retrieve current block number for chain ${chainId}`
     );
   }
 };
@@ -490,8 +513,7 @@ async function getTokenAmounts(
 const decoder = new InputDataDecoder("abis/UniV3NFT.json");
 
 const loadPositionInitDataByTxHash = async (txhash, position) => {
-  const provider =
-    position.chainId === ETHEREUM_CHAIN_ID ? etherProvider : arbitProvider;
+  const provider = getProvider(position.chainId);
 
   try {
     const block = await provider.getTransaction(txhash);
