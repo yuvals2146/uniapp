@@ -8,11 +8,17 @@ const chains = {
     name: "arbitrum",
     RPC: process.env.ARB_RPC_URL,
   },
+  10: {
+    name: "optimism",
+    RPC: process.env.OP_RPC_URL,
+    // subGraph: "https://thegraph.com/hosted-service/subgraph/messari/uniswap-v3-optimism",
+  },
 };
 
 chainsNames = {
   ethereum: 1,
   arbitrum: 42161,
+  optimism: 10,
 };
 
 module.exports = {

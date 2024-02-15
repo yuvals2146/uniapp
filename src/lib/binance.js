@@ -11,7 +11,7 @@ async function fetchHistoricalPriceData(token0, token1, startTime) {
     !tokenToUSDTSymblos[token0] ||
     (!tokenToUSDTSymblos[token1] && token1 !== "USDT")
   ) {
-    throw new Error(`pair of ${token0} and ${token1} not supported`);
+    throw new Error(`pair ${token0} and ${token1} not supported.`);
   }
 
   if (startTime < 0 || startTime > Date.now()) {
@@ -84,6 +84,7 @@ const tokenToUSDTSymblos = {
   ARB: "ARBUSDT",
   ETH: "ETHUSDT",
   BTC: "BTCUSDT",
+  OP: "OPUSDT",
 };
 
 module.exports = {
